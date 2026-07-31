@@ -63,18 +63,34 @@
   }
   .tag {
     font-size: 0.65rem;
-    padding: 4px 12px;
+    padding: 5px 14px;
     border: 1px solid;
     cursor: pointer;
     user-select: none;
-    transition: all 0.2s;
+    transition: all 0.15s ease;
+    opacity: 0.35;
+    background: transparent;
   }
-  .tag.active { background: rgba(0,240,255,0.15); }
+  .tag:hover {
+    opacity: 0.7;
+    transform: translateY(-1px);
+  }
+  .tag.active {
+    opacity: 1;
+    transform: translateY(0);
+    font-weight: bold;
+    box-shadow: 0 0 8px currentColor;
+  }
   .tag.vps { color: var(--yellow); border-color: var(--yellow); }
+  .tag.vps.active { background: var(--yellow); color: var(--bg); }
   .tag.ps { color: var(--cyan); border-color: var(--cyan); }
+  .tag.ps.active { background: var(--cyan); color: var(--bg); }
   .tag.defender { color: var(--red); border-color: var(--red); }
+  .tag.defender.active { background: var(--red); color: #fff; }
   .tag.linux { color: var(--green); border-color: var(--green); }
+  .tag.linux.active { background: var(--green); color: var(--bg); }
   .tag.git { color: var(--text); border-color: var(--text); }
+  .tag.git.active { background: var(--text); color: var(--bg); }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -173,11 +189,11 @@
 </div>
 
 <div class="filter-tags">
-  <div class="tag vps active" data-filter="vps">VPS</div>
-  <div class="tag ps active" data-filter="ps">PowerShell</div>
-  <div class="tag defender active" data-filter="defender">Defender</div>
-  <div class="tag linux active" data-filter="linux">Linux</div>
-  <div class="tag git active" data-filter="git">Git</div>
+  <div class="tag vps" data-filter="vps">VPS</div>
+  <div class="tag ps" data-filter="ps">PowerShell</div>
+  <div class="tag defender" data-filter="defender">Defender</div>
+  <div class="tag linux" data-filter="linux">Linux</div>
+  <div class="tag git" data-filter="git">Git</div>
 </div>
 
 <div class="cmd-count" id="count">Loading...</div>
@@ -350,7 +366,7 @@ const search = document.getElementById('search');
 const count = document.getElementById('count');
 const tagButtons = document.querySelectorAll('.tag');
 
-let activeFilters = new Set(['vps','ps','defender','linux','git']);
+let activeFilters = new Set();
 
 function render() {
   const term = search.value.toLowerCase().trim();
@@ -358,7 +374,7 @@ function render() {
 
   list.innerHTML = COMMANDS.map((cmd, idx) => {
     const matchesTerm = !term || cmd.title.toLowerCase().includes(term) || cmd.code.toLowerCase().includes(term);
-    const matchesTag = cmd.tags.some(t => activeFilters.has(t));
+    const matchesTag = activeFilters.size === 0 || cmd.tags.some(t => activeFilters.has(t));
     const show = matchesTerm && matchesTag;
     if (show) visible++;
 
