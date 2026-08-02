@@ -1938,15 +1938,15 @@ const COMMANDS = [
     accent: "#00f0ff"
   },
   {
-    title: "Session 0 Explained",
-    code: "# Session 0 = services/non-interactive (no desktop)\\n# Your beacon runs here - GUI apps invisible\\n# RDP sessions start at ID 2+",
-    tags: ["ps", "recon"],
+    title: "Session 0 (Services Session)",
+    code: "echo 'Session 0 = services/non-interactive. Beacons run here. No desktop = no GUI apps visible. RDP starts at ID 2+'",
+    tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
-    title: "Shadow From Correct Session",
-    code: "# 1. RDP in as attacker (psycho)\\n# 2. Open PS in that RDP window\\n# 3. Run: mstsc /shadow:TARGET_ID /noConsentPrompt /control\\n# Shadow window appears in YOUR RDP session",
-    tags: ["ps", "postexploit"],
+    title: "Shadow Requires RDP Session",
+    code: "echo 'Shadow needs desktop. RDP as attacker then run: mstsc /shadow:ID /noConsentPrompt /control'",
+    tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
